@@ -73,6 +73,34 @@ def cache_playlists():
         add_playlist_to_json(playlist)
 
 
+def like_song_toggle():
+    pass
+    # current_song = sp.current_user_playing_track()["item"]
+    # print(sp.current_user_saved_tracks())
+    # if not current_song_is_liked():
+    #     sp.current_user_saved_tracks_add([current_song["uri"]])
+    # else:
+    #     sp.current_user_saved_tracks_delete([current_song["uri"]])
+
+
+def like_song_toggle(refresh):  # used to immediately refresh a svg
+    pass
+    # current_song = sp.current_user_playing_track()["item"]
+    # if not current_song_is_liked():
+    #     sp.current_user_saved_tracks_add([current_song["uri"]])
+    # else:
+    #     sp.current_user_saved_tracks_delete([current_song["uri"]])
+    # refresh()
+
+
+def current_song_is_liked():
+    current_song = sp.currently_playing()["item"]
+    if sp.current_user_saved_tracks_contains([current_song["uri"]]):
+        return True
+    else:
+        return False
+
+
 def playlist_cache_search(prefix, term, matched):
     with open(playlist_cache_file_path, 'r') as f:
         data = json.load(f)
@@ -357,7 +385,7 @@ client_ID = config.CLIENT_ID
 client_secret = config.CLIENT_SECRET
 redirect_uri = "http://localhost:8080"
 username = config.USERNAME
-scope = "streaming user-library-read user-modify-playback-state user-read-playback-state"
+scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify"
 token = refresh_token()
 current_device = None
 sp = None
