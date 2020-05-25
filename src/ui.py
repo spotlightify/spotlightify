@@ -119,15 +119,14 @@ class Ui(QWidget):
                 self.textbox.setText(self.previous_commands[self.command_position])
 
     def add_row(self, row_num, command):
-        row = self.rows[row_num]
-        if row != 0:
-            row.setFocusPolicy(QtCore.Qt.NoFocus)
-            row.hide()
-        row = SuggestRow(self, command)
-        row.clicked.connect(lambda: self.suggest_row_handler(command))
-        row.installEventFilter(self)
-        row.move(0, 57 * (row_num + 1) + 47)
-        row.show()
+        if self.rows[row_num] != 0:
+            self.rows[row_num].setFocusPolicy(QtCore.Qt.NoFocus)
+            self.rows[row_num].hide()
+        self.rows[row_num] = SuggestRow(self, command)
+        self.rows[row_num].clicked.connect(lambda: self.suggest_row_handler(command))
+        self.rows[row_num].installEventFilter(self)
+        self.rows[row_num].move(0, 57 * (row_num + 1) + 47)
+        self.rows[row_num].show()
         self.current_num_of_rows = row_num + 1
 
     def suggest_row_handler(self, command):
