@@ -74,12 +74,18 @@ class Ui(QWidget):
         if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
                 self.suggest_row_handler(source.command_dict)
-        '''if (event.type() == QtCore.QEvent.FocusOut and
-                source is self.textbox):
-            self.showMinimized()
+        if (event.type() == QtCore.QEvent.FocusOut and
+                source is self.textbox and not self.suggestion_has_focus()):
+            self.hide()
             return True
-            # return true here to bypass default behaviour'''
+            # return true here to bypass default behaviour
         return super(Ui, self).eventFilter(source, event)
+
+    def suggestion_has_focus(self):
+        for row in self.rows:
+            if row !=0:
+                if row.hasFocus():
+                    return True
 
     def text_changed_handler(self):
         text = self.textbox.text()
