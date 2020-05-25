@@ -1,2 +1,9 @@
 venv
-src/__pycache__
+__pycache__
+
+
+.cache-*
+cache/*.json
+cache/art/*.jpg
+
+config.py
