@@ -1,8 +1,7 @@
 from pynput import keyboard
-from src.ui import show_ui
 
 
-def listener():
+def listener(open_ui):
     combinations = [
         {keyboard.Key.ctrl, keyboard.Key.space},
         {keyboard.Key.ctrl_l, keyboard.Key.space},
@@ -23,7 +22,7 @@ def listener():
 
         for combination in combinations:  # Loop though each combination
             if is_combination_pressed(combination):
-                show_ui()
+                open_ui.trigger()
 
 
     def on_release(key):
