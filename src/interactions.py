@@ -141,9 +141,13 @@ def goto(time):
 
 def play_liked():
     # TODO FIX THIS METHOD
-    results = sp.current_user_saved_tracks(limit=40)["items"]
+    results = sp.current_user_saved_tracks()
+    tracks = results["items"]
     uris = []
-    for track in results:
+    while results["next"]:
+        results = sp.next(results)
+        tracks.extend(results["items"])
+    for track in tracks:
         uris.append(track["track"]["uri"])
         add_song_to_json(track["track"])
     sp.start_playback(current_device["id"], None, uris=uris)
@@ -219,21 +223,26 @@ def perform_command(command, parent):
 
 def command_match(term):
     matched = []
+    og_parameter = term
     for command in command_list.values():
         for prefix in command["prefix"]:
-            if len(term) <= len(prefix):
+            if len(matched) >= 6:
+                break
+            elif len(term) <= len(prefix):
                 if term == prefix[:len(term)]:
                     matched.append(command)
                     break
             elif len(term) > len(prefix):
                 if prefix == term[:len(prefix)]:
-                    parameter = str(term).replace(prefix, "", 1)
+                    parameter = og_parameter.replace(prefix, "", 1)
                     if command["match_change"] == 1:
                         if command["title"] == "Play" or command["title"] == "Queue":
                             matched = get_song_suggestions(command, parameter)
                         elif command["title"] == "Playlist":
                             matched = get_playlist_suggestions(command, parameter)
                     break
+    if len(matched) == 0:
+        matched = get_song_suggestions(command_list["Play"], og_parameter)
     return matched
 
 

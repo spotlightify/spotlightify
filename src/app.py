@@ -22,7 +22,6 @@ def show_ui():
     time.sleep(0.1)
     ui.raise_()
     ui.activateWindow()
-    ui.textbox.setFocus()
 
 
 # Create icon
