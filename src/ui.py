@@ -142,6 +142,7 @@ class Ui(QWidget):
             self.store_previous_command()
             interactions.perform_command(command, self)
             self.textbox.clear()
+            self.hide()
 
     def create_suggestion_widgets(self):
         # this for loop resets tab the tab index for the suggestion rows

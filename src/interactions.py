@@ -63,12 +63,13 @@ def download_image(path, url, id_):
 
 
 def cache_playlists():
-    playlists = sp.current_user_playlists()["items"]
+    results = sp.current_user_playlists()
+    playlists = results["items"]
+    while results['next']:
+        results = sp.next(results)
+        playlists.extend(results["items"])
     for playlist in playlists:
         add_playlist_to_json(playlist)
-        songs = sp.playlist_tracks(playlist["id"])["items"]
-        for song in songs:
-            add_song_to_json(song["track"])
 
 
 def playlist_cache_search(prefix, term, matched):
@@ -112,9 +113,13 @@ def add_playlist_to_json(playlist):
 
 
 def play_playlist(playlist_id):
-    results = sp.playlist_tracks(playlist_id=playlist_id)["items"]
+    results = sp.playlist_tracks(playlist_id=playlist_id)
+    tracks = results["items"]
+    while results["next"]:
+        results = sp.next(results)
+        tracks.extend(results["items"])
     uris = []
-    for track in results:
+    for track in tracks:
         uris.append(track["track"]["uri"])
         add_song_to_json(track["track"])
     sp.start_playback(current_device["id"], None, uris=uris)
@@ -201,6 +206,7 @@ def is_int(value):
 
 
 def perform_command(command, parent):
+    refresh_token()
     if command["visual"] == 1 and command["parameter"] == 1:
         command["function"](parent, command["term"])
     elif command["visual"] == 0 and command["parameter"] == 1:
@@ -335,7 +341,7 @@ song_cache_file_path = '../cache/songs.json'
 playlist_cache_file_path = '../cache/playlists.json'
 album_cache_file_path = '../cache/albums.json'
 artist_cache_file_path = '../cache/artists.json'
-album_art_path = '../cache/art'
+album_art_path = '../cache/art/'
 
 client_ID = config.CLIENT_ID
 client_secret = config.CLIENT_SECRET
@@ -349,5 +355,6 @@ if token:
     sp = spotipy.Spotify(auth=token)
     current_device = sp.devices()["devices"][0]
     sp.shuffle(False, current_device["id"])
+    cache_playlists()
 else:
     print("Can't get token for", username)
