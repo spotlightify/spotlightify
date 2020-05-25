@@ -1,8 +1,7 @@
 from pynput import keyboard
-from src.ui import show_ui
 
 
-def listener():
+def listener(show_ui):
     combinations = [
         {keyboard.Key.ctrl, keyboard.Key.space},
         {keyboard.Key.ctrl_l, keyboard.Key.space},
