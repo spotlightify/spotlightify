@@ -1,4 +1,6 @@
 import os
+import time
+
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit, QPushButton
 from PyQt5 import QtCore, QtGui, QtSvg
 from src.widgets import FunctionButtonsRow, SuggestRow
@@ -33,8 +35,8 @@ class Ui(QWidget):
         self.current_num_of_rows = 0  # used to find the default command to execute
         # needed to exit the application
         self.exit = 0
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         self.create_widgets()
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool)
 
     def create_widgets(self):
         self.resize(540, self.small_row_height + self.standard_row_height)  # makes up the height of the widget
@@ -53,6 +55,7 @@ class Ui(QWidget):
         self.textbox.returnPressed.connect(self.textbox_return_pressed_handler)
         self.textbox.textChanged.connect(self.text_changed_handler)
         self.textbox.move(51, self.small_row_height + 9)
+        self.textbox.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.textbox.setPlaceholderText("Spotlightify Search")
         self.textbox.resize(481, 41)
         self.textbox.installEventFilter(self)
@@ -116,11 +119,17 @@ class Ui(QWidget):
             if length - 1 >= self.command_position != 0:
                 self.command_position -= 1
                 self.textbox.setText(self.previous_commands[self.command_position])
+        elif self.textbox.selectionLength() == len(self.textbox.text()) and (event.key() == QtCore.Qt.Key_Backspace or
+                                                                             event.key() == QtCore.Qt.Key_Delete):
+            self.textbox.clear()
         elif event.key() == QtCore.Qt.Key_Down:
             length = len(self.previous_commands)
             if length - 1 != self.command_position >= 0:
                 self.command_position += 1
                 self.textbox.setText(self.previous_commands[self.command_position])
+        elif event.key() == QtCore.Qt.Key_Escape:
+            self.textbox.clear()
+            self.hide()
 
     def add_row(self, row_num, command):
         if self.rows[row_num] != 0 and self.current_num_of_rows != 0:
@@ -142,6 +151,7 @@ class Ui(QWidget):
             self.store_previous_command()
             interactions.perform_command(command, self)
             self.textbox.clear()
+            self.hide()
 
     def create_suggestion_widgets(self):
         # this for loop resets tab the tab index for the suggestion rows
