@@ -83,7 +83,7 @@ class Ui(QWidget):
 
     def suggestion_has_focus(self):
         for row in self.rows:
-            if row !=0:
+            if row != 0:
                 if row.hasFocus():
                     return True
 
