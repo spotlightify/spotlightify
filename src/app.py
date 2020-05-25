@@ -19,9 +19,10 @@ def exit_app():
 def show_ui():
     if not ui.isActiveWindow():
         ui.show()
-    time.sleep(0.01)
+    time.sleep(0.1)
     ui.raise_()
     ui.activateWindow()
+
 
 # Create icon
 icon = QIcon('assets/img/logo_small.png')
@@ -36,6 +37,8 @@ ui = Ui()
 tray = QSystemTrayIcon()
 tray.setIcon(icon)
 tray.setVisible(True)
+tray.setToolTip("Spotlightify")
+tray.activated.connect(show_ui)
 
 # Create menu
 menu = QMenu()

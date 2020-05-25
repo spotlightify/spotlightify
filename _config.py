@@ -1,4 +1,4 @@
-# remove _from filename before use
+# remove _ from filename before use
 
 USERNAME = ""
 CLIENT_ID = ""

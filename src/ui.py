@@ -21,11 +21,10 @@ class Ui(QWidget):
                       "light": {"bg": "#B3B3B3", "text": "#191414"}}
         self.active_theme = self.theme["dark"]
         self.setStyleSheet(f"QWidget {{background: {self.active_theme['bg']};}}")
-        self.custom_font = QtGui.QFont("SF Pro Display", 200, QtGui.QFont.Light)
         self.setWindowTitle('Spotlightify')
         self.setWindowOpacity(0.9)
         # global styling
-        self.custom_font = QtGui.QFont("SF Pro Display", 200, QtGui.QFont.Light)
+        self.custom_font = QtGui.QFont("SF Pro Display Light")
         # For cycling through previous commands
         self.previous_commands = [""]
         self.command_position = 0
@@ -35,7 +34,7 @@ class Ui(QWidget):
         # needed to exit the application
         self.exit = 0
         self.create_widgets()
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool)
 
     def create_widgets(self):
         self.resize(540, self.small_row_height + self.standard_row_height)  # makes up the height of the widget
@@ -104,7 +103,6 @@ class Ui(QWidget):
         self.previous_commands[len(self.previous_commands) - 1] = self.textbox.text()
         self.previous_commands.append("")
         self.command_position = len(self.previous_commands) - 1
-
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Up:
