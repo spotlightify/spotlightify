@@ -79,7 +79,7 @@ class Ui(QWidget):
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
                 self.suggest_row_handler(source.command_dict)
         if (event.type() == QtCore.QEvent.FocusOut and
-                source is self.textbox and not self.suggestion_has_focus()):
+                source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
             self.hide()
             return True
             # return true here to bypass default behaviour

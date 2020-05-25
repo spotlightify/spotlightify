@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel, QWidget, QApplication, QPushButton
+from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap
 from definitions import ASSETS_DIR
@@ -18,28 +18,24 @@ class FunctionButtonsRow(QWidget):
         self.resize(540, 47)
         # widget creation, load and setup of icons
         # shuffle button
-        self.shuffle_button = QSvgWidget(self)
-        self.shuffle_button.load(f"{ASSETS_DIR}/svg/shuffle.svg")
+        self.shuffle_button = SvgButton(self, f"{ASSETS_DIR}/svg/shuffle.svg")
+        #self.shuffle_button.clicked.connect(print("hello"))
         # self.shuffle_button.mousePressEvent(self.shuffle_button_press())
         self.buttons.append(self.shuffle_button)
         # backward button
-        self.backward_button = QSvgWidget(self)
-        self.backward_button.load(f"{ASSETS_DIR}/svg/backward.svg")
+        self.backward_button = SvgButton(self, f"{ASSETS_DIR}/svg/backward.svg")
         # self.backward_button.mousePressEvent(print("backward test"))
         self.buttons.append(self.backward_button)
         # play button
-        self.pause_play_button = QSvgWidget(self)
-        self.pause_play_button.load(f"{ASSETS_DIR}/svg/pause.svg")
+        self.pause_play_button = SvgButton(self, f"{ASSETS_DIR}/svg/pause.svg")
         # self.pause_play_button.mousePressEvent(print("pause/play test"))
         self.buttons.append(self.pause_play_button)
         # forward button
-        self.forward_button = QSvgWidget(self)
-        self.forward_button.load(f"{ASSETS_DIR}/svg/forward.svg")
+        self.forward_button = SvgButton(self, f"{ASSETS_DIR}/svg/forward.svg")
         # self.forward_button.mousePressEvent(print("forward test"))
         self.buttons.append(self.forward_button)
         # repeat button
-        self.like_button = QSvgWidget(self)
-        self.like_button.load(f"{ASSETS_DIR}/svg/heart.svg")
+        self.like_button = SvgButton(self, f"{ASSETS_DIR}/svg/heart.svg")
         # self.like_button.mousePressEvent(print("repeat test"))
         self.buttons.append(self.like_button)
         self.set_style()
@@ -47,9 +43,20 @@ class FunctionButtonsRow(QWidget):
     def set_style(self):
         gap = 120
         for button in self.buttons:
-            button.resize(20, 20)
+            button.setSize(20, 20)
             button.move(gap, 13)
             gap += 70
+
+
+class SvgButton(QPushButton):
+    def __init__(self, parent, svg_path):
+        QWidget.__init__(self, parent)
+        self.svg = QSvgWidget(self)
+        self.svg.load(svg_path)
+
+    def setSize(self, w, h) -> None:
+        self.resize(w, h)
+        self.svg.resize(w, h)
 
 
 class SuggestRow(QPushButton):
