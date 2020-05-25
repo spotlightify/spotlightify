@@ -5,10 +5,14 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from src.ui import Ui
-import time
+from time import sleep
+from definitions import ASSETS_DIR
 
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
+
+# UI
+ui = Ui()
 
 
 def exit_app():
@@ -17,21 +21,15 @@ def exit_app():
 
 
 def show_ui():
+    sleep(0.1)
     if not ui.isActiveWindow():
         ui.show()
-    time.sleep(0.1)
     ui.raise_()
     ui.activateWindow()
 
 
 # Create icon
-icon = QIcon('assets/img/logo_small.png')
-
-# UI
-ui = Ui()
-
-# clipboard = QApplication.clipboard()
-
+icon = QIcon(f"{ASSETS_DIR}/img/logo_small.png")
 
 # Create tray
 tray = QSystemTrayIcon()

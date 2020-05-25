@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QWidget, QApplication, QPushButton
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap
+from definitions import ASSETS_DIR
 
 
 class FunctionButtonsRow(QWidget):
@@ -18,27 +19,27 @@ class FunctionButtonsRow(QWidget):
         # widget creation, load and setup of icons
         # shuffle button
         self.shuffle_button = QSvgWidget(self)
-        self.shuffle_button.load("assets/svg/shuffle.svg")
+        self.shuffle_button.load(f"{ASSETS_DIR}/svg/shuffle.svg")
         # self.shuffle_button.mousePressEvent(self.shuffle_button_press())
         self.buttons.append(self.shuffle_button)
         # backward button
         self.backward_button = QSvgWidget(self)
-        self.backward_button.load("assets/svg/backward.svg")
+        self.backward_button.load(f"{ASSETS_DIR}/svg/backward.svg")
         # self.backward_button.mousePressEvent(print("backward test"))
         self.buttons.append(self.backward_button)
         # play button
         self.pause_play_button = QSvgWidget(self)
-        self.pause_play_button.load("assets/svg/pause.svg")
+        self.pause_play_button.load(f"{ASSETS_DIR}/svg/pause.svg")
         # self.pause_play_button.mousePressEvent(print("pause/play test"))
         self.buttons.append(self.pause_play_button)
         # forward button
         self.forward_button = QSvgWidget(self)
-        self.forward_button.load("assets/svg/forward.svg")
+        self.forward_button.load(f"{ASSETS_DIR}/svg/forward.svg")
         # self.forward_button.mousePressEvent(print("forward test"))
         self.buttons.append(self.forward_button)
         # repeat button
         self.like_button = QSvgWidget(self)
-        self.like_button.load("assets/svg/heart.svg")
+        self.like_button.load(f"{ASSETS_DIR}/svg/heart.svg")
         # self.like_button.mousePressEvent(print("repeat test"))
         self.buttons.append(self.like_button)
         self.set_style()

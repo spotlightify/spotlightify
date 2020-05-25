@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit, QP
 from PyQt5 import QtCore, QtGui, QtSvg
 from src.widgets import FunctionButtonsRow, SuggestRow
 from src import interactions
+from definitions import ASSETS_DIR
 
 
 class Ui(QWidget):
@@ -46,7 +47,7 @@ class Ui(QWidget):
         self.function_row.move(0, 0)
         self.function_row.show()
 
-        self.svgWidget = QtSvg.QSvgWidget('assets/svg/spotify-logo.svg', self)
+        self.svgWidget = QtSvg.QSvgWidget(f"{ASSETS_DIR}/svg/spotify-logo.svg", self)
         # svg logo layout
         self.svgWidget.resize(39, 39)
         self.svgWidget.move(9, self.small_row_height + 9)
