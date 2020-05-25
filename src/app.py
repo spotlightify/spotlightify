@@ -19,9 +19,9 @@ def exit_app():
 def show_ui():
     if not ui.isActiveWindow():
         ui.show()
-    else:
-        ui.setWindowState(Qt.WindowActive)
-
+    time.sleep(0.01)
+    ui.raise_()
+    ui.activateWindow()
 
 # Create icon
 icon = QIcon('assets/img/logo_small.png')
@@ -31,8 +31,6 @@ ui = Ui()
 
 # clipboard = QApplication.clipboard()
 
-listener_thread = Thread(target=listener, daemon=True, args=(show_ui,))
-listener_thread.start()
 
 # Create tray
 tray = QSystemTrayIcon()
@@ -48,6 +46,9 @@ menu.addAction(open_ui)
 exit_ = QAction("Exit")
 exit_.triggered.connect(exit_app)
 menu.addAction(exit_)
+
+listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
+listener_thread.start()
 
 # Add the menu to the tray
 tray.setContextMenu(menu)
