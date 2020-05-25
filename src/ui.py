@@ -119,7 +119,7 @@ class Ui(QWidget):
                 self.textbox.setText(self.previous_commands[self.command_position])
 
     def add_row(self, row_num, command):
-        if self.rows[row_num] != 0:
+        if self.rows[row_num] != 0 and self.current_num_of_rows != 0:
             self.rows[row_num].setFocusPolicy(QtCore.Qt.NoFocus)
             self.rows[row_num].hide()
         self.rows[row_num] = SuggestRow(self, command)
