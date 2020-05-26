@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from src.ui import Ui
 from time import sleep
 from definitions import ASSETS_DIR
+from src.interactions import get_json_cache
 
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
