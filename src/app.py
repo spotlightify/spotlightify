@@ -11,9 +11,6 @@ from definitions import ASSETS_DIR
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 
-# UI
-ui = Ui()
-
 
 def exit_app():
     app.quit()
@@ -22,7 +19,7 @@ def exit_app():
 
 def show_ui():
     sleep(0.1)
-    if not ui.isActiveWindow():
+    if not ui.isActiveWindow() or ui.isHidden():
         ui.show()
     ui.raise_()
     ui.activateWindow()
@@ -53,5 +50,11 @@ listener_thread.start()
 
 # Add the menu to the tray
 tray.setContextMenu(menu)
+
+# UI
+ui = Ui()
+
+get_json_cache("songs")
+get_json_cache("playlists")
 
 app.exec_()

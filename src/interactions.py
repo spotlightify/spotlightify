@@ -6,7 +6,18 @@ import subprocess
 import json
 import copy
 import config
-from definitions import ASSETS_DIR, ROOT_DIR
+from definitions import ASSETS_DIR, CACHE_DIR
+from pathlib import Path
+
+
+def get_json_cache(file):
+    # takes string param file: "songs" will create songs.json with "{ songs: [], length: 0 }"
+    file_path = f"{CACHE_DIR}{os.path.sep}{file}.json"
+    if not Path(file_path).exists():
+        # creates file if it doesn't exist
+        with open(file_path, "w") as f:
+            json.dump({f"{file}": [], "length": 0}, f)
+    return file_path  # returns file path to json file
 
 
 def play_song(song_input):
@@ -29,7 +40,8 @@ def get_song_uri(song_input):
 
 
 def add_song_to_json(song):
-    filename = song_cache_file_path
+    filename = get_json_cache("songs")
+
     with open(filename, 'r') as f:
         data = json.load(f)
         artists = []
@@ -74,7 +86,7 @@ def cache_playlists():
 
 
 def playlist_cache_search(prefix, term, matched):
-    with open(playlist_cache_file_path, 'r') as f:
+    with open(get_json_cache("playlists"), 'r') as f:
         data = json.load(f)
         for playlist in data["playlists"]:
             if len(matched) >= 5:
@@ -89,7 +101,7 @@ def playlist_cache_search(prefix, term, matched):
 
 
 def add_playlist_to_json(playlist):
-    filename = playlist_cache_file_path
+    filename = get_json_cache("playlists")
     with open(filename, 'r') as f:
         data = json.load(f)
         for playlist_cache in data["playlists"]:
@@ -248,7 +260,7 @@ def command_match(term):
 
 
 def get_song_suggestions(command, term):
-    with open(song_cache_file_path, 'r') as f:
+    with open(get_json_cache("songs"), 'r') as f:
         data = json.load(f)
         first_command = copy.deepcopy(command)
         first_command["title"] = f'{command["title"]} "{term}"'
@@ -279,7 +291,7 @@ def get_song_suggestions(command, term):
 
 
 def get_playlist_suggestions(command, term):
-    with open(playlist_cache_file_path, 'r') as f:
+    with open(get_json_cache("playlists"), 'r') as f:
         data = json.load(f)
         matched = []
         for playlist in data["playlists"]:
@@ -304,54 +316,149 @@ def refresh_token():
                                               redirect_uri=redirect_uri)
 
 
-command_list = \
-    {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "], "function": play_song,
-              "icon": f"{ASSETS_DIR}/svg/play.svg", "visual": 0, "parameter": 1, "match_change": 1, "exe_on_return": 0,
-              "term": ""},
-     "Queue": {"title": "Queue", "description": "Adds a song to the queue", "prefix": ["queue "],
-               "function": queue_song, "icon": f"{ASSETS_DIR}/svg/list.svg", "visual": 0, "parameter": 1, "match_change": 1,
-               "exe_on_return": 0, "term": ""},
-     "Pause": {"title": "Pause", "description": "Pauses currently playing music", "prefix": ["pause"],
-               "function": pause_playback, "icon": f"{ASSETS_DIR}/svg/pause.svg", "visual": 0, "parameter": 0,
-               "match_change": 0, "exe_on_return": 1},
-     "Playlist": {"title": "Playlist", "description": "Plays a playlist", "prefix": ["playlist "],
-                  "function": play_playlist, "icon": f"{ASSETS_DIR}/svg/pause.svg", "visual": 0, "parameter": 1,
-                  "match_change": 1, "exe_on_return": 0, "term": ""},
-     "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked"], "function": play_liked,
-               "icon": f"{ASSETS_DIR}/svg/heart.svg", "visual": 0, "parameter": 0, "match_change": 0, "exe_on_return": 1},
-     "Resume": {"title": "Resume", "description": "Resumes music playback", "prefix": ["resume", "start"],
-                "function": resume_playback, "icon": f"{ASSETS_DIR}/svg/play.svg", "visual": 0, "parameter": 0,
-                "match_change": 0, "exe_on_return": 1},
-     "Skip": {"title": "Skip", "description": "Skips the current song", "prefix": ["skip", "next"],
-              "function": next_song, "icon": f"{ASSETS_DIR}/svg/forward.svg", "visual": 0, "parameter": 0, "match_change": 0,
-              "exe_on_return": 1},
-     "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto", "go to"],
-              "function": goto, "icon": f"{ASSETS_DIR}/svg/forward.svg", "visual": 0, "parameter": 1, "match_change": 0,
-              "exe_on_return": 0, "term": ""},
-     "Previous": {"title": "Previous", "description": "Plays previous song", "prefix": ["previous", "prev"],
-                  "function": previous_song, "icon": f"{ASSETS_DIR}/svg/backward.svg", "visual": 0, "parameter": 0,
-                  "match_change": 0, "exe_on_return": 1},
-     "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume ", "vol "],
-                "function": change_vol, "icon": f"{ASSETS_DIR}/svg/volume.svg", "visual": 0, "parameter": 1, "match_change": 0,
-                "exe_on_return": 0, "term": ""},
-     "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit"],
-              "function": print("exit"), "icon": f"{ASSETS_DIR}/svg/moon.svg", "visual": 1, "parameter": 0,
-              "match_change": 0, "exe_on_return": 1},
-     "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle"],
-                 "function": shuffle_toggle, "icon": f"{ASSETS_DIR}/svg/shuffle.svg", "visual": 0, "parameter": 0,
-                 "match_change": 0, "exe_on_return": 1}
-     }
+command_list = {
+    "Play": {
+        "title": "Play",
+        "description": "Plays a song",
+        "prefix": ["play "],
+        "function": play_song,
+        "icon": f"{ASSETS_DIR}/svg/play.svg",
+        "visual": 0,
+        "parameter": 1,
+        "match_change": 1,
+        "exe_on_return": 0,
+        "term": ""
+    },
+    "Queue": {
+        "title": "Queue",
+        "description": "Adds a song to the queue",
+        "prefix": ["queue "],
+        "function": queue_song,
+        "icon": f"{ASSETS_DIR}/svg/list.svg",
+        "visual": 0,
+        "parameter": 1,
+        "match_change": 1,
+        "exe_on_return": 0,
+        "term": ""
+    },
+    "Pause": {
+        "title": "Pause",
+        "description": "Pauses currently playing music",
+        "prefix": ["pause"],
+        "function": pause_playback,
+        "icon": f"{ASSETS_DIR}/svg/pause.svg",
+        "visual": 0,
+        "parameter": 0,
+        "match_change": 0,
+        "exe_on_return": 1
+    },
+    "Playlist": {
+        "title": "Playlist", "description": "Plays a playlist",
+        "prefix": ["playlist "],
+        "function": play_playlist,
+        "icon": f"{ASSETS_DIR}/svg/pause.svg",
+        "visual": 0,
+        "parameter": 1,
+        "match_change": 1,
+        "exe_on_return": 0,
+        "term": ""
+    },
+    "Liked": {
+        "title": "Liked",
+        "description": "Plays liked music", "prefix": ["liked"],
+        "function": play_liked,
+        "icon": f"{ASSETS_DIR}/svg/heart.svg",
+        "visual": 0,
+        "parameter": 0,
+        "match_change": 0,
+        "exe_on_return": 1
+    },
+    "Resume": {
+        "title": "Resume",
+        "description": "Resumes music playback",
+        "prefix": ["resume", "start"],
+        "function": resume_playback,
+        "icon": f"{ASSETS_DIR}/svg/play.svg",
+        "visual": 0,
+        "parameter": 0,
+        "match_change": 0,
+        "exe_on_return": 1
+    },
+    "Skip": {
+        "title": "Skip",
+        "description": "Skips the current song",
+        "prefix": ["skip", "next"],
+        "function": next_song,
+        "icon": f"{ASSETS_DIR}/svg/forward.svg",
+        "visual": 0,
+        "parameter": 0,
+        "match_change": 0,
+        "exe_on_return": 1
+    },
+    "Goto": {
+        "title": "Go to",
+        "description": "Skips to time e.g. 3:41",
+        "prefix": ["goto", "go to"],
+        "function": goto,
+        "icon": f"{ASSETS_DIR}/svg/forward.svg",
+        "visual": 0,
+        "parameter": 1,
+        "match_change": 0,
+        "exe_on_return": 0,
+        "term": ""
+    },
+    "Previous": {
+        "title": "Previous",
+        "description": "Plays previous song",
+        "prefix": ["previous", "prev"],
+        "function": previous_song,
+        "icon": f"{ASSETS_DIR}/svg/backward.svg",
+        "visual": 0,
+        "parameter": 0,
+        "match_change": 0,
+        "exe_on_return": 1
+    },
+    "Volume": {
+        "title": "Volume",
+        "description": "Changes music volume (1-100)",
+        "prefix": ["volume ", "vol "],
+        "function": change_vol,
+        "icon": f"{ASSETS_DIR}/svg/volume.svg",
+        "visual": 0,
+        "parameter": 1,
+        "match_change": 0,
+        "exe_on_return": 0,
+        "term": ""
+    },
+    "Exit": {
+        "title": "Exit",
+        "description": "Exit Spotlightify",
+        "prefix": ["exit"],
+        "function": print("exit"),
+        "icon": f"{ASSETS_DIR}/svg/moon.svg",
+        "visual": 1,
+        "parameter": 0,
+        "match_change": 0,
+        "exe_on_return": 1
+    },
+    "Shuffle": {
+        "title": r"Shuffle (OFF)",
+        "description": "Toggles shuffle mode",
+        "prefix": ["shuffle"],
+        "function": shuffle_toggle,
+        "icon": f"{ASSETS_DIR}/svg/shuffle.svg",
+        "visual": 0,
+        "parameter": 0,
+        "match_change": 0,
+        "exe_on_return": 1
+    }
+}
 
 # Feature Toggles
 shuffle = 0
 shuffle_text = "(OFF)"
 
-# File Names
-song_cache_file_path = f"{ROOT_DIR}/cache/songs.json"
-playlist_cache_file_path = f"{ROOT_DIR}/cache/playlists.json"
-album_cache_file_path = f"{ROOT_DIR}/cache/albums.json"
-artist_cache_file_path = f"{ROOT_DIR}/cache/artists.json"
-album_art_path = f"{ROOT_DIR}/cache/art/"
+album_art_path = f"{CACHE_DIR}/art/"
 
 client_ID = config.CLIENT_ID
 client_secret = config.CLIENT_SECRET
