@@ -53,6 +53,7 @@ class SvgButton(QPushButton):
         QWidget.__init__(self, parent)
         self.svg = QSvgWidget(self)
         self.svg.load(svg_path)
+        self.setFocusPolicy(Qt.NoFocus)
 
     def setSize(self, w, h) -> None:
         self.resize(w, h)
