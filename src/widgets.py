@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap
 from definitions import ASSETS_DIR
+from src.interactions import shuffle_toggle, pause_playback, resume_playback, next_song, previous_song, like_song_toggle, \
+    current_song_is_liked
 
 
 class FunctionButtonsRow(QWidget):
@@ -19,23 +21,28 @@ class FunctionButtonsRow(QWidget):
         # widget creation, load and setup of icons
         # shuffle button
         self.shuffle_button = SvgButton(self, f"{ASSETS_DIR}/svg/shuffle.svg")
-        #self.shuffle_button.clicked.connect(print("hello"))
+        self.shuffle_button.clicked.connect(shuffle_toggle)
         # self.shuffle_button.mousePressEvent(self.shuffle_button_press())
         self.buttons.append(self.shuffle_button)
         # backward button
         self.backward_button = SvgButton(self, f"{ASSETS_DIR}/svg/backward.svg")
+        self.backward_button.clicked.connect(previous_song)
         # self.backward_button.mousePressEvent(print("backward test"))
         self.buttons.append(self.backward_button)
-        # play button
+        # pause/play button
         self.pause_play_button = SvgButton(self, f"{ASSETS_DIR}/svg/pause.svg")
+        self.pause_play_button.clicked.connect(pause_playback)
         # self.pause_play_button.mousePressEvent(print("pause/play test"))
         self.buttons.append(self.pause_play_button)
         # forward button
         self.forward_button = SvgButton(self, f"{ASSETS_DIR}/svg/forward.svg")
+        self.forward_button.clicked.connect(next_song)
         # self.forward_button.mousePressEvent(print("forward test"))
         self.buttons.append(self.forward_button)
         # repeat button
-        self.like_button = SvgButton(self, f"{ASSETS_DIR}/svg/heart.svg")
+        self.like_button = SvgButton(self, f"{ASSETS_DIR}/svg/heart-no-fill.svg")
+        self.like_button.clicked.connect(lambda: like_song_toggle(self.refresh))
+        self.refresh()
         # self.like_button.mousePressEvent(print("repeat test"))
         self.buttons.append(self.like_button)
         self.set_style()
@@ -47,6 +54,12 @@ class FunctionButtonsRow(QWidget):
             button.move(gap, 13)
             gap += 70
 
+    def refresh(self):
+        if current_song_is_liked():
+            self.like_button.load_svg(f"{ASSETS_DIR}/svg/heart.svg")
+        else:
+            self.like_button.load_svg(f"{ASSETS_DIR}/svg/heart-no-fill.svg")
+
 
 class SvgButton(QPushButton):
     def __init__(self, parent, svg_path):
@@ -57,6 +70,9 @@ class SvgButton(QPushButton):
     def setSize(self, w, h) -> None:
         self.resize(w, h)
         self.svg.resize(w, h)
+
+    def load_svg(self, svg_path):
+        self.svg.load(svg_path)
 
 
 class SuggestRow(QPushButton):
@@ -100,12 +116,14 @@ class SuggestRow(QPushButton):
             self.icon.setScaledContents(True)
         # set style and location of title
         self.title_lbl.move(56, 9)
-        self.title_lbl.setStyleSheet(f"font-size: 20px; color: {self.active_theme['text']}; background-color: rgba(0,0,0,0%);")
+        self.title_lbl.setStyleSheet(
+            f"font-size: 20px; color: {self.active_theme['text']}; background-color: rgba(0,0,0,0%);")
         self.title_lbl.setFont(self.custom_font)
         # set style and location of description
         self.description_lbl.resize(479, 15)
         self.description_lbl.move(56, 33)
-        self.description_lbl.setStyleSheet(f"font-size: 13px; color: {self.active_theme['text']}; background-color: rgba(0,0,0,0%);")
+        self.description_lbl.setStyleSheet(
+            f"font-size: 13px; color: {self.active_theme['text']}; background-color: rgba(0,0,0,0%);")
         self.description_lbl.setFont(self.custom_font)
         # style for widget
         self.setStyleSheet('''
