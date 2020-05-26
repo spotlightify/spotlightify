@@ -283,6 +283,7 @@ def get_song_suggestions(command, term):
         first_command["exe_on_return"] = 1
         first_command["term"] = term
         matched = [first_command]
+        data["songs"].reverse()
         for song in data["songs"]:
             if len(matched) >= 6:
                 break
