@@ -1,5 +1,9 @@
 import sys
 from threading import Thread
+
+import spotipy
+
+import config
 from src.shortcuts import listener
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
@@ -7,10 +11,30 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from src.ui import Ui
 from time import sleep
 from definitions import ASSETS_DIR
-from src.interactions import get_json_cache
+from src.interactions import Interactions
 
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
+
+# Creates spotipy object
+client_ID = config.CLIENT_ID
+client_secret = config.CLIENT_SECRET
+redirect_uri = "http://localhost:8080"
+username = config.USERNAME
+scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify"
+token = spotipy.util.prompt_for_user_token(username, scope=scope, client_id=client_ID, client_secret=client_secret,
+                                              redirect_uri=redirect_uri)
+sp = None
+if token:
+    sp = spotipy.Spotify(auth=token)
+else:
+    print("Error: Can't get token for " + username)
+    exit()
+# creates the interactions object
+interactions = Interactions(sp, username, client_ID, client_secret, scope, redirect_uri)
+
+# UI
+ui = Ui(interactions)
 
 
 def exit_app():
@@ -51,11 +75,5 @@ listener_thread.start()
 
 # Add the menu to the tray
 tray.setContextMenu(menu)
-
-# UI
-ui = Ui()
-
-get_json_cache("songs")
-get_json_cache("playlists")
 
 app.exec_()

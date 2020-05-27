@@ -4,16 +4,18 @@ import time
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit, QPushButton
 from PyQt5 import QtCore, QtGui, QtSvg
 from src.widgets import FunctionButtonsRow, SuggestRow
-from src import interactions
 from definitions import ASSETS_DIR
+from src.widgets import SvgButton
 
 
 class Ui(QWidget):
     QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icon-base
 
-    def __init__(self, parent=None):
+    def __init__(self, interactions, parent=None):
         QWidget.__init__(self, parent)
+        # for spotify interaction
+        self.interactions = interactions
         # row positioning
         center = position_app()
         self.move(center)
@@ -43,13 +45,14 @@ class Ui(QWidget):
         self.resize(540, self.small_row_height + self.standard_row_height)  # makes up the height of the widget
 
         # add grouped widgets
-        self.function_row = FunctionButtonsRow(self)
+        self.function_row = FunctionButtonsRow(self, self.interactions)
         self.function_row.move(0, 0)
         self.function_row.show()
 
-        self.svgWidget = QtSvg.QSvgWidget(f"{ASSETS_DIR}/svg/spotify-logo.svg", self)
+        self.svgWidget = SvgButton(self, f"{ASSETS_DIR}/svg/spotify-logo.svg")
+        self.svgWidget.clicked.connect(self.toggle_function_buttons)
         # svg logo layout
-        self.svgWidget.resize(39, 39)
+        self.svgWidget.setSize(39, 39)
         self.svgWidget.move(9, self.small_row_height + 9)
 
         self.textbox = QLineEdit(self)
@@ -79,7 +82,7 @@ class Ui(QWidget):
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
                 self.suggest_row_handler(source.command_dict)
         if (event.type() == QtCore.QEvent.FocusOut and
-                source is self.textbox and not self.suggestion_has_focus()):
+                source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
             self.hide()
             return True
             # return true here to bypass default behaviour
@@ -91,14 +94,37 @@ class Ui(QWidget):
                 if row.hasFocus():
                     return True
 
+    def toggle_function_buttons(self):
+        if not self.function_row.isHidden():
+            self.resize(540, self.standard_row_height)
+            self.svgWidget.move(9, 9)
+            self.textbox.move(51, 9)
+            self.move(self.x(), self.y() + 47)
+            self.function_row.hide()
+        else:
+            self.resize(540, self.standard_row_height + self.small_row_height)
+            self.svgWidget.move(9, self.small_row_height + 9)
+            self.textbox.move(51, self.small_row_height + 9)
+            self.move(self.x(), self.y() - 47)
+            self.function_row.show()
+        self.create_suggestion_widgets()
+
     def text_changed_handler(self):
         text = self.textbox.text()
         length = len(text)
+        # this for loop resets tab the tab index for the suggestion rows
+        for row in self.rows:
+            if row != 0:
+                row.setFocusPolicy(QtCore.Qt.NoFocus)
+                row.hide()
         if length > 0:
             self.create_suggestion_widgets()
         else:
             self.current_num_of_rows = 0
-            self.resize(540, self.small_row_height + self.standard_row_height)
+            if self.function_row.isHidden():
+                self.resize(540, self.standard_row_height)
+            else:
+                self.resize(540, self.small_row_height + self.standard_row_height)
 
     def textbox_return_pressed_handler(self):
         self.store_previous_command()
@@ -139,7 +165,10 @@ class Ui(QWidget):
         self.rows[row_num] = SuggestRow(self, command)
         self.rows[row_num].clicked.connect(lambda: self.suggest_row_handler(command))
         self.rows[row_num].installEventFilter(self)
-        self.rows[row_num].move(0, 57 * (row_num + 1) + 47)
+        if self.function_row.isHidden():
+            self.rows[row_num].move(0, self.standard_row_height * (1 + row_num))
+        else:
+            self.rows[row_num].move(0, self.standard_row_height * (1 + row_num) + self.small_row_height)
         self.rows[row_num].show()
         self.current_num_of_rows = row_num + 1
 
@@ -150,18 +179,13 @@ class Ui(QWidget):
             self.textbox.deselect()  # deselects selected text as a result of focus
         else:
             self.store_previous_command()
-            interactions.perform_command(command, self)
+            self.interactions.perform_command(command, self)
             self.textbox.clear()
             self.hide()
 
     def create_suggestion_widgets(self):
-        # this for loop resets tab the tab index for the suggestion rows
-        for row in self.rows:
-            if row != 0:
-                row.setFocusPolicy(QtCore.Qt.NoFocus)
-                row.hide()
         term = self.textbox.text().strip().lower()
-        matched_commands = interactions.command_match(term)
+        matched_commands = self.interactions.command_match(term)
         length = len(matched_commands)
         self.dynamic_resize(length)
         if length != 0:
@@ -173,10 +197,11 @@ class Ui(QWidget):
 
     def dynamic_resize(self, size):  # size is int between 1 and 6
         height = 57
-        if 1 <= size <= 6:
-            height = self.standard_row_height * (size + 1) + self.small_row_height
-        else:
-            height = self.standard_row_height + self.small_row_height
+        if 0 <= size <= 6:
+            if self.function_row.isHidden():
+                height = self.standard_row_height * (size + 1)
+            else:
+                height = self.standard_row_height * (size + 1) + self.small_row_height
         self.resize(540, height)
 
 
