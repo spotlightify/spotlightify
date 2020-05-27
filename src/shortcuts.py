@@ -32,6 +32,7 @@ def listener(open_ui):
             pressed_keys.remove(get_vk(key))
         except:
             print("Error occurred removing key from pressed_keys")
+            pressed_keys.clear()
 
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listen:
         listen.join()
