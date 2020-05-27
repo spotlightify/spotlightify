@@ -48,6 +48,7 @@ def show_ui():
         ui.show()
     ui.raise_()
     ui.activateWindow()
+    ui.function_row.refresh()  # refreshes function row buttons
 
 
 # Create icon
