@@ -141,19 +141,18 @@ class Ui(QWidget):
         self.command_position = len(self.previous_commands) - 1
 
     def keyPressEvent(self, event):
+        # code for going back through recently executed commands
         if event.key() == QtCore.Qt.Key_Up:
             length = len(self.previous_commands)
             if length - 1 >= self.command_position != 0:
                 self.command_position -= 1
                 self.textbox.setText(self.previous_commands[self.command_position])
-        elif self.textbox.selectionLength() == len(self.textbox.text()) and (event.key() == QtCore.Qt.Key_Backspace or
-                                                                             event.key() == QtCore.Qt.Key_Delete):
-            self.textbox.clear()
         elif event.key() == QtCore.Qt.Key_Down:
             length = len(self.previous_commands)
             if length - 1 != self.command_position >= 0:
                 self.command_position += 1
                 self.textbox.setText(self.previous_commands[self.command_position])
+        # hides self when escape is pressed
         elif event.key() == QtCore.Qt.Key_Escape:
             self.textbox.clear()
             self.hide()

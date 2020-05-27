@@ -23,18 +23,18 @@ def get_json_cache(file):
 class Interactions:
     def __init__(self, sp, username, client_id, client_secret, scope, redirect_uri):
         self.sp = sp
-        self. username = username
+        self.username = username
         self.client_id = client_id
         self.client_secret = client_secret
         self.scope = scope
         self.redirect_uri = redirect_uri
+        self.current_device = self.sp.devices()["devices"][0]
         # Feature Toggles
         self.shuffle = False
         self.shuffle_text = "(OFF)"
 
     def play_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
-        self.current_device = self.sp.devices()["devices"][0]
         self.sp.start_playback(self.current_device["id"], None, [song_uri])
         self.sp.shuffle(False, self.current_device["id"])
         self.cache_playlists()
