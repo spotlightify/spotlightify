@@ -4,7 +4,6 @@ import time
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit, QPushButton
 from PyQt5 import QtCore, QtGui, QtSvg
 from src.widgets import FunctionButtonsRow, SuggestRow
-from src import interactions
 from definitions import ASSETS_DIR
 from src.widgets import SvgButton
 
@@ -13,8 +12,10 @@ class Ui(QWidget):
     QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icon-base
 
-    def __init__(self, parent=None):
+    def __init__(self, interactions, parent=None):
         QWidget.__init__(self, parent)
+        # for spotify interaction
+        self.interactions = interactions
         # row positioning
         center = position_app()
         self.move(center)
@@ -44,7 +45,7 @@ class Ui(QWidget):
         self.resize(540, self.small_row_height + self.standard_row_height)  # makes up the height of the widget
 
         # add grouped widgets
-        self.function_row = FunctionButtonsRow(self)
+        self.function_row = FunctionButtonsRow(self, self.interactions)
         self.function_row.move(0, 0)
         self.function_row.show()
 
@@ -178,13 +179,13 @@ class Ui(QWidget):
             self.textbox.deselect()  # deselects selected text as a result of focus
         else:
             self.store_previous_command()
-            interactions.perform_command(command, self)
+            self.interactions.perform_command(command, self)
             self.textbox.clear()
             self.hide()
 
     def create_suggestion_widgets(self):
         term = self.textbox.text().strip().lower()
-        matched_commands = interactions.command_match(term)
+        matched_commands = self.interactions.command_match(term)
         length = len(matched_commands)
         self.dynamic_resize(length)
         if length != 0:

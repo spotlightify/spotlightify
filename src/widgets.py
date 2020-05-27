@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap
 from definitions import ASSETS_DIR
-from src.interactions import shuffle_toggle, pause_playback, resume_playback, next_song, previous_song, like_song_toggle, \
-    current_song_is_liked
 
 
 class FunctionButtonsRow(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent, interactions):
         QWidget.__init__(self, parent)
+        # spotipy object
+        self.interactions = interactions
         # gets the current theme
         self.active_theme = parent.active_theme
         # gets the font
@@ -21,27 +21,27 @@ class FunctionButtonsRow(QWidget):
         # widget creation, load and setup of icons
         # shuffle button
         self.shuffle_button = SvgButton(self, f"{ASSETS_DIR}/svg/shuffle.svg")
-        self.shuffle_button.clicked.connect(shuffle_toggle)
+        self.shuffle_button.clicked.connect(interactions.shuffle_toggle)
         # self.shuffle_button.mousePressEvent(self.shuffle_button_press())
         self.buttons.append(self.shuffle_button)
         # backward button
         self.backward_button = SvgButton(self, f"{ASSETS_DIR}/svg/backward.svg")
-        self.backward_button.clicked.connect(previous_song)
+        self.backward_button.clicked.connect(interactions.previous_song)
         # self.backward_button.mousePressEvent(print("backward test"))
         self.buttons.append(self.backward_button)
         # pause/play button
         self.pause_play_button = SvgButton(self, f"{ASSETS_DIR}/svg/pause.svg")
-        self.pause_play_button.clicked.connect(pause_playback)
+        self.pause_play_button.clicked.connect(interactions.pause_playback)
         # self.pause_play_button.mousePressEvent(print("pause/play test"))
         self.buttons.append(self.pause_play_button)
         # forward button
         self.forward_button = SvgButton(self, f"{ASSETS_DIR}/svg/forward.svg")
-        self.forward_button.clicked.connect(next_song)
+        self.forward_button.clicked.connect(interactions.next_song)
         # self.forward_button.mousePressEvent(print("forward test"))
         self.buttons.append(self.forward_button)
         # repeat button
         self.like_button = SvgButton(self, f"{ASSETS_DIR}/svg/heart-no-fill.svg")
-        self.like_button.clicked.connect(lambda: like_song_toggle(self.refresh))
+        self.like_button.clicked.connect(lambda: interactions.like_song_toggle(self.refresh))
         self.refresh()
         # self.like_button.mousePressEvent(print("repeat test"))
         self.buttons.append(self.like_button)
@@ -55,7 +55,7 @@ class FunctionButtonsRow(QWidget):
             gap += 70
 
     def refresh(self):
-        if current_song_is_liked():
+        if self.interactions.current_song_is_liked():
             self.like_button.load_svg(f"{ASSETS_DIR}/svg/heart.svg")
         else:
             self.like_button.load_svg(f"{ASSETS_DIR}/svg/heart-no-fill.svg")
