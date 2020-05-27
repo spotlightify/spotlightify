@@ -259,6 +259,11 @@ class Interactions:
                                 matched = self.get_song_suggestions(command, parameter)
                             elif command["title"] == "Playlist":
                                 matched = self.get_playlist_suggestions(command, parameter)
+                        elif command["parameter"] == 1:
+                            new_command = copy.deepcopy(command)
+                            new_command["exe_on_return"] = 1
+                            new_command["term"] = parameter
+                            matched.append(new_command)
                         break
         if len(matched) == 0:
             matched = self.get_song_suggestions(self.command_list["Play"], og_parameter)
