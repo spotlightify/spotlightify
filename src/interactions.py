@@ -101,8 +101,7 @@ class Interactions:
 
     def current_song_is_liked(self):
         current_song = self.sp.currently_playing()["item"]
-        print(current_song["name"])
-        if self.sp.current_user_saved_tracks_contains([current_song["id"]]):
+        if self.sp.current_user_saved_tracks_contains([current_song["id"]])[0]:
             return True
         else:
             return False
