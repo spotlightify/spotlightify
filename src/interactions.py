@@ -6,7 +6,18 @@ import subprocess
 import json
 import copy
 import config
-from definitions import ASSETS_DIR, ROOT_DIR
+from definitions import ASSETS_DIR, CACHE_DIR, ROOT_DIR
+from pathlib import Path
+
+
+def get_json_cache(file):
+    # takes string param file: "songs" will create songs.json with "{ songs: [], length: 0 }"
+    file_path = f"{CACHE_DIR}{os.path.sep}{file}.json"
+    if not Path(file_path).exists():
+        # creates file if it doesn't exist
+        with open(file_path, "w") as f:
+            json.dump({f"{file}": [], "length": 0}, f)
+    return file_path  # returns file path to json file
 
 
 class Interactions:

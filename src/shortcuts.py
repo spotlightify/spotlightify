@@ -18,15 +18,21 @@ def listener(open_ui):
         return all([get_vk(key) in pressed_keys for key in combination])
 
     def on_press(key):
-        pressed_keys.add(get_vk(key))
+        try:
+            pressed_keys.add(get_vk(key))
+        except:
+            print("Error occurred adding key from pressed_keys")
 
         for combination in combinations:  # Loop though each combination
             if is_combination_pressed(combination):
                 open_ui.trigger()
 
-
     def on_release(key):
-        pressed_keys.remove(get_vk(key))
+        try:
+            pressed_keys.remove(get_vk(key))
+        except:
+            print("Error occurred removing key from pressed_keys")
+            pressed_keys.clear()
 
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listen:
         listen.join()

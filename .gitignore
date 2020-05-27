@@ -4,7 +4,6 @@ __pycache__
 .idea
 
 .cache-*
-cache/*.json
-cache/art/*.jpg
+cache
 
 config.py
