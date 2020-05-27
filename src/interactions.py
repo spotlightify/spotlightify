@@ -368,18 +368,3 @@ playlist_cache_file_path = f"{ROOT_DIR}/cache/playlists.json"
 album_cache_file_path = f"{ROOT_DIR}/cache/albums.json"
 artist_cache_file_path = f"{ROOT_DIR}/cache/artists.json"
 album_art_path = f"{ROOT_DIR}/cache/art/"
-
-'''client_ID = config.CLIENT_ID
-client_secret = config.CLIENT_SECRET
-redirect_uri = "http://localhost:8080"
-username = config.USERNAME
-scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify"
-token = refresh_token()
-current_device = None
-if token:
-    current_device = self.sp.devices()["devices"][0]
-    self.sp.shuffle(False, current_device["id"])
-    cache_playlists()
-    # print(str(current_song_is_liked()))
-else:
-    print("Can't get token for", username)'''
