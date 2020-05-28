@@ -37,24 +37,22 @@ class Interactions:
     def play_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
         self.sp.start_playback(self.current_device["id"], None, [song_uri])
-        self.sp.shuffle(False, self.current_device["id"])
         self.cache_playlists()
 
     def get_song_uri(self, song_input):
-        track = None
         song_uri = None
-        if "spotify:track:" in song_input:  # if the song_input is already a uri
-            song_uri = song_input
-            track = self.sp.track(song_uri)
-            self.add_song_to_json(track)
-        else:
+        try:
+            song = self.sp.track(song_input)
+            song_uri = song["uri"]
+        except:
             track = self.sp.search(song_input, limit=1, market="GB", type="track")["tracks"]["items"][0]
             self.add_song_to_json(track)
             song_uri = track["uri"]
         return song_uri
 
     def add_song_to_json(self, song):
-        filename = song_cache_file_path
+        pass
+        '''filename = song_cache_file_path
         with open(filename, 'r') as f:
             data = json.load(f)
             artists = []
@@ -79,7 +77,7 @@ class Interactions:
             data["length"] = data["length"] + 1
         os.remove(filename)
         with open(filename, 'w') as f:
-            json.dump(data, f, indent=4)
+            json.dump(data, f, indent=4)'''
 
     def download_image(self, path, url, id_):
         img_data = requests.get(url).content
@@ -125,22 +123,9 @@ class Interactions:
         else:
             return False
 
-    def playlist_cache_search(self, prefix, term, matched):
-        with open(playlist_cache_file_path, 'r') as f:
-            data = json.load(f)
-            for playlist in data["playlists"]:
-                if len(matched) >= 5:
-                    return
-                if len(playlist["name"]) >= len(term):
-                    if playlist["name"][:len(term)].lower() == term:
-                        creator = playlist["owner"]
-                        playlist = {"icon": playlist["image"], "title": playlist["name"],
-                                    "description": f"Playlist by {creator}",
-                                    "prefix": [prefix + playlist["name"] + f" {creator}"]}
-                        matched.append(playlist)
-
     def add_playlist_to_json(self, playlist):
-        filename = playlist_cache_file_path
+        pass
+        '''filename = playlist_cache_file_path
         with open(filename, 'r') as f:
             data = json.load(f)
             for playlist_cache in data["playlists"]:
@@ -161,7 +146,7 @@ class Interactions:
             data["length"] = data["length"] + 1
         os.remove(filename)
         with open(filename, 'w') as f:
-            json.dump(data, f, indent=4)
+            json.dump(data, f, indent=4)'''
 
     def play_playlist(self, playlist_id):
         results = self.sp.playlist_tracks(playlist_id=playlist_id)
@@ -295,6 +280,14 @@ class Interactions:
         return matched
 
     def get_song_suggestions(self, command, term):
+        def check_for_duplicates():
+            if len(matched) > 1:
+                for match in matched:
+                    if new_command["title"] == match["title"] and new_command["description"] == match["description"]:
+                        return True
+            else:
+                return False
+
         with open(song_cache_file_path, 'r') as f:
             data = json.load(f)
             first_command = copy.deepcopy(command)
@@ -302,23 +295,19 @@ class Interactions:
             first_command["exe_on_return"] = 1
             first_command["term"] = term
             matched = [first_command]
-            data["songs"].reverse()
-            for song in data["songs"]:
+            for song_id, values in data["songs"].items():
                 if len(matched) >= 6:
                     break
-                if len(song["name"]) >= len(term):
-                    if song["name"][:len(term)].lower() == term:
+                if len(values["name"]) >= len(term):
+                    if values["name"][:len(term)].lower() == term:
                         new_command = copy.deepcopy(command)
-                        artists_string = ""
-                        for artist in song["artists"]:
-                            artists_string += artist["name"] + ", "
-                        artists_string = artists_string[:-2]
-                        new_command["icon"] = song["image"]
-                        new_command["title"] = song["name"]
-                        new_command["description"] = f"By {artists_string}"
-                        new_command["term"] = f"{song['uri']}"
+                        new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
+                        new_command["title"] = values["name"]
+                        new_command["description"] = f"By {values['artists']}"
+                        new_command["term"] = f"{song_id}"
                         new_command["exe_on_return"] = 1
-                        matched.append(new_command)
+                        if not check_for_duplicates():
+                            matched.append(new_command)
         # for sorting commands into alphabetical order
         matched_sorted = [first_command]
         matched.remove(first_command)
@@ -329,16 +318,16 @@ class Interactions:
         with open(playlist_cache_file_path, 'r') as f:
             data = json.load(f)
             matched = []
-            for playlist in data["playlists"]:
+            for playlist_id, values in data["playlists"].items():
                 if len(matched) >= 6:
                     break
-                if len(playlist["name"]) >= len(term):
-                    if playlist["name"][:len(term)].lower() == term:
+                if len(values["name"]) >= len(term):
+                    if values["name"][:len(term)].lower() == term:
                         new_command = copy.deepcopy(command)
-                        new_command["icon"] = playlist["image"]
-                        new_command["title"] = playlist["name"]
-                        new_command["description"] = f"By {playlist['owner']}"
-                        new_command["term"] = f"{playlist['uri']}"
+                        new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
+                        new_command["title"] = values["name"]
+                        new_command["description"] = f"By {values['owner']}"
+                        new_command["term"] = f"{playlist_id}"
                         new_command["exe_on_return"] = 1
                         matched.append(new_command)
         # for sorting commands into alphabetical order
@@ -393,8 +382,8 @@ class Interactions:
          }
 
 # File Names
-song_cache_file_path = f"{ROOT_DIR}/cache/songs.json"
-playlist_cache_file_path = f"{ROOT_DIR}/cache/playlists.json"
+song_cache_file_path = f"{ROOT_DIR}/cache/test-songs.json"
+playlist_cache_file_path = f"{ROOT_DIR}/cache/test-playlists.json"
 album_cache_file_path = f"{ROOT_DIR}/cache/albums.json"
 artist_cache_file_path = f"{ROOT_DIR}/cache/artists.json"
-album_art_path = f"{ROOT_DIR}/cache/art/"
+album_art_path = f"{ROOT_DIR}/cache/art-temp/"
