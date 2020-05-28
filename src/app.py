@@ -1,9 +1,11 @@
 import sys
 from threading import Thread
+from queue import Queue
 
 import spotipy
 
 import config
+from os import sep
 from src.shortcuts import listener
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
@@ -12,7 +14,7 @@ from src.ui import Ui
 from time import sleep
 from definitions import ASSETS_DIR
 from src.interactions import Interactions
-from src.caching import CachingThread
+from src.caching import CachingThread, SongCachingThread
 
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
@@ -54,7 +56,7 @@ def show_ui():
 
 
 # Create icon
-icon = QIcon(f"{ASSETS_DIR}/img/logo_small.png")
+icon = QIcon(f"{ASSETS_DIR}{sep}img{sep}logo_small.png")
 
 # Create tray
 tray = QSystemTrayIcon()
@@ -76,8 +78,14 @@ menu.addAction(exit_)
 listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
 listener_thread.start()
 
-playlist_caching_thread = CachingThread(sp)
+queue = Queue()
+
+song_caching_thread = SongCachingThread(queue)
+song_caching_thread.start()
+
+playlist_caching_thread = CachingThread(sp, queue)
 playlist_caching_thread.start()
+
 
 # Add the menu to the tray
 tray.setContextMenu(menu)
