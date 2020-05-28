@@ -8,85 +8,121 @@ from requests import get
 
 
 class CachingThread(Thread):
-    def __init__(self, sp, file):
+    def __init__(self, sp):
         Thread.__init__(self)
         self.sp = sp
-        self.file = file
-        self.data = None
-        self.file_path = f"{CACHE_DIR}/test_{self.file}.json"
-        self.title = f"[CACHE THREAD] {colors.BLUE}{file}.json{colors.RESET}  "
+        self.title = f"[{colors.BLUE}CACHE THREAD{colors.RESET}]\t"
         print(f"{self.title}Initialised")
 
-    def open_file(self):
-        default_data = {"length": 0, f"{self.file}": {}, "last_updated": str(datetime.now())}
+    @staticmethod
+    def download_image(url, file_name):
+        art_path = f"{CACHE_DIR}{sep}art-temp{sep}"
 
-        try:
-            if path.isfile(self.file_path):
-                print(f"Opening {self.file}.json")
-                with open(self.file_path, 'r') as file:
-                    data = load(file)
-                    self.data = data
-            else:
-                self.data = default_data
-        except:
-            self.data = default_data
-
-    def download_image(self, path_, url, id_):
-        if not path.exists(path_):
-            mkdir(path_)
-        image_path = path_ + id_ + '.jpg'
+        if not path.exists(art_path):
+            mkdir(art_path)
+        image_path = art_path + file_name + ".jpg"
         if not path.isfile(image_path):
             image_data = get(url).content
             with open(image_path, 'wb') as handler:
                 handler.write(image_data)
 
+    @staticmethod
+    def save_data_to_file(data, file):
+        try:
+            with open(file, "w") as f:
+                dump(data, f, separators=(',', ':'))
+        except:
+            print(f"error saving {file}")
+
+    def cache_songs(self, songs):
+        song_path = f"{CACHE_DIR}/test-songs.json"
+
+        data = {"length": 0, "songs": {}, "last_updated": str(datetime.now())}
+
+        try:
+            if path.isfile(song_path):
+                with open(song_path, "r") as file:
+                    data = load(file)
+
+            for song in songs:
+                artists = ""
+                for artist in song["artists"]:
+                    artists += " " + artist["name"]
+                artists = artists.strip()
+
+                self.download_image(song["album"]["images"][2]["url"], song["album"]["id"])
+
+                data["songs"][song["id"]] = {
+                    "name": song["name"],
+                    "artists": artists,
+                    "uri": song["uri"],
+                    "image": song["album"]["id"]
+                }
+
+            data["length"]: len(data["songs"].keys())
+            data["last_updated"]: str(datetime.now())
+
+            self.save_data_to_file(data, song_path)
+
+        except:
+            None
+
     def cache_playlists(self):
-        art_path = f"{CACHE_DIR}{sep}art-temp{sep}"
+        playlists_path = f"{CACHE_DIR}/test-playlists.json"
 
-        results = self.sp.current_user_playlists()
-        playlist_data = results["items"]
-        while results["next"]:
-            results = self.sp.next(results)
-            playlist_data.extend(results["items"])
-        print(f"{self.title}{colors.GREEN}Data{colors.RESET}", playlist_data)
+        data = {"length": 0, "playlists": {}, "last_updated": str(datetime.now())}
 
-        for playlist in playlist_data:
-            # download album art
-            try:
-                if len(playlist["images"]) == 1:
-                    url = playlist["images"][0]["url"]
-                else:
-                    url = playlist["images"][2]["url"]
-            except IndexError:
-                print(IndexError)
+        try:
+            if path.isfile(playlists_path):
+                with open(playlists_path, "r") as file:
+                    data = load(file)
 
-            playlist_id = playlist["id"]
-            if not path.isfile(art_path + playlist_id + ".jpg"):
-                self.download_image(art_path, url, playlist_id)
+            results = self.sp.current_user_playlists()
+            playlist_data = results["items"]
+            while results["next"]:
+                results = self.sp.next(results)
+                playlist_data.extend(results["items"])
 
-            self.data[self.file][playlist_id] = {
-                "name": playlist["name"],
-                "owner": playlist["owner"]["display_name"],
-                "image": f"{art_path}{playlist['id']}.jpg",
-                "uri": playlist["uri"]
-            }
-            self.data["length"] = len(self.data[self.file].keys())
-            self.data["last_updated"] = str(datetime.now())
+            print(f"{self.title}{colors.GREEN}Data{colors.RESET}", playlist_data)
 
-        with open(self.file_path, 'w') as file:
-            dump(self.data, file, indent=4)
+            for playlist in playlist_data:
+                # download album art
+                try:
+                    if len(playlist["images"]) == 1:
+                        url = playlist["images"][0]["url"]
+                    else:
+                        url = playlist["images"][2]["url"]
+                except IndexError:
+                    print(IndexError)
+
+                self.download_image(url, playlist["id"])
+
+                data["playlists"][playlist["id"]] = {
+                    "name": playlist["name"],
+                    "owner": playlist["owner"]["display_name"],
+                    "uri": playlist["uri"],
+                    "image": playlist["id"]
+                }
+
+            data["length"] = len(data["playlists"].keys())
+            data["last_updated"] = str(datetime.now())
+
+            self.save_data_to_file(data, playlists_path)
+
+        except:
+            None
+
+    # def cache_saved(self):
+    #     print('')
 
     def run(self):
         print(f"{self.title}Starting")
-        self.open_file()
-
-        if self.file == "playlist":
-            self.cache_playlists()
+        self.cache_playlists()
 
         print(f"{self.title}Terminating")
         return
 
-#     last_updated = datetime.strptime(current_data["last_updated"], "%Y-%m-%d %H:%M:%S.%f")
-#     now = datetime.now()
-#     time_ago = now - timedelta(hours=1)
-#     # if time_ago <= last_updated <= now:
+# last_updated = datetime.strptime(current_data["last_updated"], "%Y-%m-%d %H:%M:%S.%f")
+# now = datetime.now()
+# time_ago = now - timedelta(hours=1)
+# if time_ago <= last_updated <= now:

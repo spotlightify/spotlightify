@@ -76,7 +76,7 @@ menu.addAction(exit_)
 listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
 listener_thread.start()
 
-playlist_caching_thread = CachingThread(sp, "playlist")
+playlist_caching_thread = CachingThread(sp)
 playlist_caching_thread.start()
 
 # Add the menu to the tray
