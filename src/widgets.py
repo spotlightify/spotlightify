@@ -21,22 +21,22 @@ class FunctionButtonsRow(QWidget):
         # widget creation, load and setup of icons
         # shuffle button
         self.shuffle_button = SvgButton(self, f"{ASSETS_DIR}/svg/shuffle.svg")
-        self.shuffle_button.clicked.connect(interactions.shuffle_toggle)
+        self.shuffle_button.clicked.connect(lambda: interactions.shuffle_toggle(self.refresh))
         # self.shuffle_button.mousePressEvent(self.shuffle_button_press())
         self.buttons.append(self.shuffle_button)
         # backward button
         self.backward_button = SvgButton(self, f"{ASSETS_DIR}/svg/backward.svg")
-        self.backward_button.clicked.connect(interactions.previous_song)
+        self.backward_button.clicked.connect(lambda: interactions.previous_song(self.refresh))
         # self.backward_button.mousePressEvent(print("backward test"))
         self.buttons.append(self.backward_button)
         # pause/play button
         self.pause_play_button = SvgButton(self, f"{ASSETS_DIR}/svg/pause.svg")
-        self.pause_play_button.clicked.connect(interactions.pause_playback)
+        self.pause_play_button.clicked.connect(lambda: interactions.toggle_playback(self.refresh))
         # self.pause_play_button.mousePressEvent(print("pause/play test"))
         self.buttons.append(self.pause_play_button)
         # forward button
         self.forward_button = SvgButton(self, f"{ASSETS_DIR}/svg/forward.svg")
-        self.forward_button.clicked.connect(interactions.next_song)
+        self.forward_button.clicked.connect(lambda: interactions.next_song(self.refresh))
         # self.forward_button.mousePressEvent(print("forward test"))
         self.buttons.append(self.forward_button)
         # repeat button
@@ -55,10 +55,20 @@ class FunctionButtonsRow(QWidget):
             gap += 70
 
     def refresh(self):
-        if self.interactions.current_song_is_liked():
+        if self.interactions.is_current_song_liked():
             self.like_button.load_svg(f"{ASSETS_DIR}/svg/heart.svg")
         else:
             self.like_button.load_svg(f"{ASSETS_DIR}/svg/heart-no-fill.svg")
+
+        if self.interactions.is_song_playing():
+            self.pause_play_button.load_svg(f"{ASSETS_DIR}/svg/pause.svg")
+        else:
+            self.pause_play_button.load_svg(f"{ASSETS_DIR}/svg/play.svg")
+
+        if self.interactions.is_shuffle_on():
+            self.shuffle_button.load_svg(f"{ASSETS_DIR}/svg/shuffle.svg")
+        else:
+            self.shuffle_button.load_svg(f"{ASSETS_DIR}/svg/shuffle-off.svg")
 
 
 class SvgButton(QPushButton):

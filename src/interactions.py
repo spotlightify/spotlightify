@@ -21,7 +21,7 @@ def get_json_cache(file):
 
 
 class Interactions:
-    def __init__(self, sp, username, client_id, client_secret, scope, redirect_uri):
+    def __init__(self, sp: spotipy.Spotify, username, client_id, client_secret, scope, redirect_uri):
         self.sp = sp
         self.username = username
         self.client_id = client_id
@@ -85,6 +85,20 @@ class Interactions:
         with open(path + id_ + '.jpg', 'wb') as handler:
             handler.write(img_data)
 
+    def is_song_playing(self):
+        return self.sp.current_playback()["is_playing"]
+
+    def toggle_playback(self, *refresh_method: classmethod):
+        if self.sp.current_playback()["is_playing"]:
+            self.sp.pause_playback(self.current_device["id"])
+        else:
+            self.sp.start_playback(self.current_device["id"])
+        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+            refresh()
+
+    def is_shuffle_on(self):
+        return self.sp.current_playback()["shuffle_state"]
+
     def cache_playlists(self):
         results = self.sp.current_user_playlists()
         playlists = results["items"]
@@ -94,23 +108,16 @@ class Interactions:
         for playlist in playlists:
             self.add_playlist_to_json(playlist)
 
-    def like_song_toggle(self):
+    def like_song_toggle(self, *refresh_method: classmethod):  # used to immediately refresh a svg
         current_song = self.sp.current_user_playing_track()["item"]
-        # print(self.sp.current_user_saved_tracks())
-        if not self.current_song_is_liked():
+        if not self.is_current_song_liked():
             self.sp.current_user_saved_tracks_add([current_song["uri"]])
         else:
             self.sp.current_user_saved_tracks_delete([current_song["uri"]])
+        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+            refresh()
 
-    def like_song_toggle(self, refresh):  # used to immediately refresh a svg
-        current_song = self.sp.current_user_playing_track()["item"]
-        if not self.current_song_is_liked():
-            self.sp.current_user_saved_tracks_add([current_song["uri"]])
-        else:
-            self.sp.current_user_saved_tracks_delete([current_song["uri"]])
-        refresh()
-
-    def current_song_is_liked(self):
+    def is_current_song_liked(self):
         current_song = self.sp.currently_playing()["item"]
         if self.sp.current_user_saved_tracks_contains([current_song["id"]])[0]:
             return True
@@ -193,7 +200,7 @@ class Interactions:
             self.add_song_to_json(track["track"])
         self.sp.start_playback(self.current_device["id"], None, uris=uris)
 
-    def shuffle_toggle(self):
+    def shuffle_toggle(self, *refresh_method: classmethod):
         if self.shuffle == False:
             self.shuffle = True
             self.sp.shuffle(self.shuffle, self.current_device["id"])
@@ -202,6 +209,8 @@ class Interactions:
             self.shuffle = False
             self.sp.shuffle(self.shuffle, self.current_device["id"])
             self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
+        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+            refresh()
 
     def queue_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
@@ -221,15 +230,19 @@ class Interactions:
         except:
             None
 
-    def next_song(self):
+    def next_song(self, *refresh_method: classmethod):
         try:
             self.sp.next_track(self.current_device["id"])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
         except:
             print("Sorry, this is the Last Track in the Queue")
 
-    def previous_song(self):
+    def previous_song(self, *refresh_method: classmethod):
         try:
             self.sp.previous_track(self.current_device["id"])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
         except:
             print("Sorry, previous song not found")
 
@@ -347,11 +360,19 @@ class Interactions:
                    "function": pause_playback, "icon": f"{ASSETS_DIR}/svg/pause.svg", "visual": 0, "parameter": 0,
                    "match_change": 0, "exe_on_return": 1},
          "Playlist": {"title": "Playlist", "description": "Plays a playlist", "prefix": ["playlist "],
-                      "function": play_playlist, "icon": f"{ASSETS_DIR}/svg/pause.svg", "visual": 0, "parameter": 1,
+                      "function": play_playlist, "icon": f"{ASSETS_DIR}/svg/playlist.svg", "visual": 0, "parameter": 1,
                       "match_change": 1, "exe_on_return": 0, "term": ""},
          "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked"], "function": play_liked,
                    "icon": f"{ASSETS_DIR}/svg/heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
                    "exe_on_return": 1},
+         "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume ", "vol "],
+                    "function": change_vol, "icon": f"{ASSETS_DIR}/svg/volume.svg", "visual": 0, "parameter": 1,
+                    "match_change": 0,
+                    "exe_on_return": 0, "term": ""},
+         "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto", "go to"],
+                  "function": goto, "icon": f"{ASSETS_DIR}/svg/forward.svg", "visual": 0, "parameter": 1,
+                  "match_change": 0,
+                  "exe_on_return": 0, "term": ""},
          "Resume": {"title": "Resume", "description": "Resumes music playback", "prefix": ["resume", "start"],
                     "function": resume_playback, "icon": f"{ASSETS_DIR}/svg/play.svg", "visual": 0, "parameter": 0,
                     "match_change": 0, "exe_on_return": 1},
@@ -359,16 +380,9 @@ class Interactions:
                   "function": next_song, "icon": f"{ASSETS_DIR}/svg/forward.svg", "visual": 0, "parameter": 0,
                   "match_change": 0,
                   "exe_on_return": 1},
-         "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto", "go to"],
-                  "function": goto, "icon": f"{ASSETS_DIR}/svg/forward.svg", "visual": 0, "parameter": 1, "match_change": 0,
-                  "exe_on_return": 0, "term": ""},
          "Previous": {"title": "Previous", "description": "Plays previous song", "prefix": ["previous", "prev"],
                       "function": previous_song, "icon": f"{ASSETS_DIR}/svg/backward.svg", "visual": 0, "parameter": 0,
                       "match_change": 0, "exe_on_return": 1},
-         "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume ", "vol "],
-                    "function": change_vol, "icon": f"{ASSETS_DIR}/svg/volume.svg", "visual": 0, "parameter": 1,
-                    "match_change": 0,
-                    "exe_on_return": 0, "term": ""},
          "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit"],
                   "function": print("exit"), "icon": f"{ASSETS_DIR}/svg/moon.svg", "visual": 1, "parameter": 0,
                   "match_change": 0, "exe_on_return": 1},
