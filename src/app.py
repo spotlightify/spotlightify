@@ -12,6 +12,7 @@ from src.ui import Ui
 from time import sleep
 from definitions import ASSETS_DIR
 from src.interactions import Interactions
+from src.caching import CachingThread
 
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
@@ -24,7 +25,7 @@ username = config.USERNAME
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
         "playlist-read-private playlist-read-private "
 token = spotipy.util.prompt_for_user_token(username, scope=scope, client_id=client_ID, client_secret=client_secret,
-                                              redirect_uri=redirect_uri)
+                                           redirect_uri=redirect_uri)
 sp = None
 if token:
     sp = spotipy.Spotify(auth=token)
@@ -74,6 +75,9 @@ menu.addAction(exit_)
 
 listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
 listener_thread.start()
+
+playlist_caching_thread = CachingThread(sp, "playlist")
+playlist_caching_thread.start()
 
 # Add the menu to the tray
 tray.setContextMenu(menu)

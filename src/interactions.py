@@ -32,7 +32,7 @@ class Interactions:
         # Feature Toggles
         self.shuffle = False
         self.shuffle_text = "(OFF)"
-        self.cache_playlists()
+        # self.cache_playlists()
 
     def play_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
