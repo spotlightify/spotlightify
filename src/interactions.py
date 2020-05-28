@@ -28,7 +28,7 @@ class Interactions:
         self.client_secret = client_secret
         self.scope = scope
         self.redirect_uri = redirect_uri
-        self.current_device = self.sp.devices()["devices"][0]
+        self.current_device_id = self.sp.devices()["devices"][0]["id"]
         # Feature Toggles
         self.shuffle = False
         self.shuffle_text = "(OFF)"
@@ -36,8 +36,8 @@ class Interactions:
 
     def play_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
-        self.sp.start_playback(self.current_device["id"], None, [song_uri])
-        self.sp.shuffle(False, self.current_device["id"])
+        self.sp.start_playback(self.current_device_id, None, [song_uri])
+        self.sp.shuffle(False, self.current_device_id)
         self.cache_playlists()
 
     def get_song_uri(self, song_input):
@@ -91,9 +91,9 @@ class Interactions:
 
     def toggle_playback(self, *refresh_method: classmethod):
         if self.sp.current_playback()["is_playing"]:
-            self.sp.pause_playback(self.current_device["id"])
+            self.sp.pause_playback(self.current_device_id)
         else:
-            self.sp.start_playback(self.current_device["id"])
+            self.sp.start_playback(self.current_device_id)
         for refresh in refresh_method:  # the refresh_method arg should only contain one class method
             refresh()
 
@@ -124,6 +124,9 @@ class Interactions:
             return True
         else:
             return False
+    
+    def set_device(self, device_id):
+        self.current_device_id = device_id
 
     def playlist_cache_search(self, prefix, term, matched):
         with open(playlist_cache_file_path, 'r') as f:
@@ -173,7 +176,7 @@ class Interactions:
         for track in tracks:
             uris.append(track["track"]["uri"])
             self.add_song_to_json(track["track"])
-        self.sp.start_playback(self.current_device["id"], None, uris=uris)
+        self.sp.start_playback(self.current_device_id, None, uris=uris)
 
     def goto(self, time):
         """Get Seconds from time."""
@@ -183,7 +186,7 @@ class Interactions:
         h, m, s = time.split(':')
         time = (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
         try:
-            self.sp.seek_track(time, self.current_device["id"])
+            self.sp.seek_track(time, self.current_device_id)
             self.resume_playback()
         except:
             None
@@ -199,41 +202,41 @@ class Interactions:
         for track in tracks:
             uris.append(track["track"]["uri"])
             self.add_song_to_json(track["track"])
-        self.sp.start_playback(self.current_device["id"], None, uris=uris)
+        self.sp.start_playback(self.current_device_id, None, uris=uris)
 
     def shuffle_toggle(self, *refresh_method: classmethod):
         if self.shuffle == False:
             self.shuffle = True
-            self.sp.shuffle(self.shuffle, self.current_device["id"])
+            self.sp.shuffle(self.shuffle, self.current_device_id)
             self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
         else:
             self.shuffle = False
-            self.sp.shuffle(self.shuffle, self.current_device["id"])
+            self.sp.shuffle(self.shuffle, self.current_device_id)
             self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
         for refresh in refresh_method:  # the refresh_method arg should only contain one class method
             refresh()
 
     def queue_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
-        self.sp.add_to_queue(song_uri, self.current_device["id"])
+        self.sp.add_to_queue(song_uri, self.current_device_id)
 
     def pause_playback(self):
-        self.sp.pause_playback(self.current_device['id'])
+        self.sp.pause_playback(self.current_device_id)
 
     def resume_playback(self):
-        self.sp.start_playback(self.current_device['id'])
+        self.sp.start_playback(self.current_device_id)
 
     def change_vol(self, value):
         try:
             int_ = int(value)
             if 0 <= int_ <= 100:
-                self.sp.volume(int_, self.current_device['id'])
+                self.sp.volume(int_, self.current_device_id)
         except:
             None
 
     def next_song(self, *refresh_method: classmethod):
         try:
-            self.sp.next_track(self.current_device["id"])
+            self.sp.next_track(self.current_device_id)
             for refresh in refresh_method:  # the refresh_method arg should only contain one class method
                 refresh()
         except:
@@ -241,7 +244,7 @@ class Interactions:
 
     def previous_song(self, *refresh_method: classmethod):
         try:
-            self.sp.previous_track(self.current_device["id"])
+            self.sp.previous_track(self.current_device_id)
             for refresh in refresh_method:  # the refresh_method arg should only contain one class method
                 refresh()
         except:
@@ -273,7 +276,9 @@ class Interactions:
                 if len(matched) >= 6:
                     break
                 elif len(term) <= len(prefix):
-                    if term == prefix[:len(term)]:
+                    if command["title"] == "Device" and prefix == og_parameter:
+                        matched = self.get_device_suggestions(command, og_parameter)
+                    elif term == prefix[:len(term)]:
                         matched.append(command)
                         break
                 elif len(term) > len(prefix):
@@ -284,6 +289,8 @@ class Interactions:
                                 matched = self.get_song_suggestions(command, parameter)
                             elif command["title"] == "Playlist":
                                 matched = self.get_playlist_suggestions(command, parameter)
+                            elif command["title"] == "Device":
+                                matched = self.get_device_suggestions(command, parameter)
                         elif command["parameter"] == 1:
                             new_command = copy.deepcopy(command)
                             new_command["exe_on_return"] = 1
@@ -293,6 +300,23 @@ class Interactions:
         if len(matched) == 0:
             matched = self.get_song_suggestions(self.command_list["Play"], og_parameter)
         return matched
+
+    def get_device_suggestions(self, command, term):
+        matched = []
+        devices = self.sp.devices()["devices"]
+        for device in devices:
+            if len(matched) >= 6:
+                break
+            else:
+                new_command = copy.deepcopy(command)
+                new_command["title"] = device["name"]
+                new_command["description"] = f"{device['type']}"
+                new_command["term"] = f"{device['id']}"
+                new_command["exe_on_return"] = 1
+                matched.append(new_command)
+        # for sorting commands into alphabetical order
+        matched_sorted = sorted(matched, key=lambda k: k["title"])
+        return matched_sorted
 
     def get_song_suggestions(self, command, term):
         with open(song_cache_file_path, 'r') as f:
@@ -332,7 +356,7 @@ class Interactions:
             for playlist in data["playlists"]:
                 if len(matched) >= 6:
                     break
-                if len(playlist["name"]) >= len(term):
+                elif len(playlist["name"]) >= len(term):
                     if playlist["name"][:len(term)].lower() == term:
                         new_command = copy.deepcopy(command)
                         new_command["icon"] = playlist["image"]
@@ -389,7 +413,10 @@ class Interactions:
                   "match_change": 0, "exe_on_return": 1},
          "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle"],
                      "function": shuffle_toggle, "icon": f"{ASSETS_DIR}/svg/shuffle.svg", "visual": 0, "parameter": 0,
-                     "match_change": 0, "exe_on_return": 1}
+                     "match_change": 0, "exe_on_return": 1},
+         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
+                     "function": set_device, "icon": f"{ASSETS_DIR}/svg/device.svg", "visual": 0, "parameter": 1,
+                     "match_change": 1, "exe_on_return": 0}
          }
 
 # File Names
