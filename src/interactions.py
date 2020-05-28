@@ -215,7 +215,8 @@ class Interactions:
         if "spotify:track:" in song_input:  # if the song_input is already a uri
             song_uri = song_input
             track = self.sp.track(song_uri)
-            self.add_song_to_json(track)
+            if not track["is_local"]:
+                self.add_song_to_json(track)
         else:
             track = self.sp.search(song_input, limit=1, market="GB", type="track")["tracks"]["items"][0]
             self.add_song_to_json(track)
@@ -286,8 +287,9 @@ class Interactions:
             tracks.extend(results["items"])
         uris = []
         for track in tracks:
-            uris.append(track["track"]["uri"])
-            self.add_song_to_json(track["track"])
+            if not track["is_local"]:
+                uris.append(track["track"]["uri"])
+                self.add_song_to_json(track["track"])
         self.sp.start_playback(self.current_device_id, None, uris=uris)
 
     def play_song(self, song_input):
