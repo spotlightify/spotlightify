@@ -32,6 +32,7 @@ class Interactions:
         # Feature Toggles
         self.shuffle = False
         self.shuffle_text = "(OFF)"
+        self.cache_playlists()
 
     def play_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
@@ -100,7 +101,7 @@ class Interactions:
         return self.sp.current_playback()["shuffle_state"]
 
     def cache_playlists(self):
-        results = self.sp.current_user_playlists()
+        results = self.sp.user_playlists(self.username)
         playlists = results["items"]
         while results['next']:
             results = self.sp.next(results)

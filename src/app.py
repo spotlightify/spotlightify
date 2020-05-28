@@ -21,7 +21,8 @@ client_ID = config.CLIENT_ID
 client_secret = config.CLIENT_SECRET
 redirect_uri = "http://localhost:8080"
 username = config.USERNAME
-scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify"
+scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
+        "playlist-read-private playlist-read-private "
 token = spotipy.util.prompt_for_user_token(username, scope=scope, client_id=client_ID, client_secret=client_secret,
                                               redirect_uri=redirect_uri)
 sp = None
