@@ -21,7 +21,7 @@ class FunctionButtonsRow(QWidget):
         # widget creation, load and setup of icons
         # shuffle button
         self.shuffle_button = SvgButton(self, f"{ASSETS_DIR}/svg/shuffle.svg")
-        self.shuffle_button.clicked.connect(lambda: interactions.shuffle_toggle(self.refresh))
+        self.shuffle_button.clicked.connect(lambda: interactions.toggle_shuffle(self.refresh))
         # self.shuffle_button.mousePressEvent(self.shuffle_button_press())
         self.buttons.append(self.shuffle_button)
         # backward button
@@ -41,7 +41,7 @@ class FunctionButtonsRow(QWidget):
         self.buttons.append(self.forward_button)
         # repeat button
         self.like_button = SvgButton(self, f"{ASSETS_DIR}/svg/heart-no-fill.svg")
-        self.like_button.clicked.connect(lambda: interactions.like_song_toggle(self.refresh))
+        self.like_button.clicked.connect(lambda: interactions.toggle_like_song(self.refresh))
         self.refresh()
         # self.like_button.mousePressEvent(print("repeat test"))
         self.buttons.append(self.like_button)
