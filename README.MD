@@ -2,9 +2,10 @@
 Spotlightify is a GUI based application designed to allow users to quickly interact with the Spotify Desktop application across Windows, Linux and macOS.
 
 ## Prerequisites
+- Spotify Premium Account (We have not yet tested this with a free account so feel free to)
 - Python 3.7 or later
 - A Spotify App must also be created, the instructions follow:
-    1. Open the Spotify Developer Dashboard ([here](https://developer.spotify.com/dashboard/login)) and login using your Spotify account credentials.
+    1. Open the Spotify Developer Dashboard <a href="https://developer.spotify.com/dashboard/login" target="_blank">here</a> and login using your Spotify account credentials.
     2. Click the "CREATE AN APP" button.
     3. Name the application "Spotlightify", leave the description blank and select "Desktop App" from the checkboxes. Click "NEXT".
     4. Respond with "No" to the question "Are you developing a commercial integration?".
@@ -31,7 +32,7 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 ### Linking the Spotify App
-On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to https://www.spotify.com/us/account/overview/, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
+On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
 
 ## Usage
 Run `app.py` to start the application. The GUI is activated by using the shortcut `ctrl + space`. Here is the current list of available functions:
@@ -54,8 +55,8 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 ```
 
 ## Built With
-- [Spotipy](https://spotipy.readthedocs.io/en/2.12.0/) - A Spotify API wrapper for Python
-- [PyQt5](https://www.riverbankcomputing.com/software/pyqt/) - A cross platform GUI framework for Python
+- <a href="https://spotipy.readthedocs.io/en/2.12.0/" target="_blank">Spotipy</a> - A Spotify API wrapper for Python
+- <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">PyQt5</a> - A cross platform GUI framework for Python
 
 ## Contributing
-Join us on [discord](https://discord.gg/6sMm8qr) to discuss how to contribute to the project.
+Join us on <a href="https://discord.gg/6sMm8qr" target="_blank">discord</a> to discuss how to contribute to the project.
