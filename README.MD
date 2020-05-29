@@ -7,8 +7,11 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
     1. Open the Spotify Developer Dashboard ([here](https://developer.spotify.com/dashboard/login)) and login using your Spotify account credentials.
     2. Click the "CREATE AN APP" button.
     3. Name the application "Spotlightify", leave the description blank and select "Desktop App" from the checkboxes. Click "NEXT".
-    4. Respond with "No" to the question "Are you developing a commercial integration?"
-    5. Tick all boxes and click "SUBMIT"
+    4. Respond with "No" to the question "Are you developing a commercial integration?".
+    5. Tick all boxes and click "SUBMIT".
+    6. Now on the dashboard, click "EDIT SETTINGS".
+    7. Under the title "Redirect URIs" enter: "http://localhost:8080", then hit add.
+    8. That is the App set up, keep the dashboard webpage open as we will need `Client ID` and `Client Secret` from it later on.
 
 ## Installing Dependencies
 Creating a Python virtual environment inside of the Spotlightify project folder and installing project dependencies:
@@ -27,6 +30,8 @@ python -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 ```
+### Linking the Spotify App
+On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to https://www.spotify.com/us/account/overview/, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
 
 ## Usage
 Run `app.py` to start the application. The GUI is activated by using the shortcut `ctrl + space`. Here is the current list of available functions:
