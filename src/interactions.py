@@ -330,12 +330,14 @@ class Interactions:
                             return True
             return False
 
+        first_command = copy.deepcopy(command)
+        first_command["title"] = f'{command["title"]} "{term}"'
+        first_command["exe_on_return"] = 1
+        first_command["term"] = term
+        if not os.path.isfile(song_cache_file_path):
+            return [first_command]
         with open(song_cache_file_path, 'r') as f:
             data = json.load(f)
-            first_command = copy.deepcopy(command)
-            first_command["title"] = f'{command["title"]} "{term}"'
-            first_command["exe_on_return"] = 1
-            first_command["term"] = term
             matched = [first_command]
             for song_id, values in data["songs"].items():
                 if len(matched) >= 6:
@@ -345,7 +347,7 @@ class Interactions:
                         new_command = copy.deepcopy(command)
                         new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
                         new_command["title"] = values["name"]
-                        new_command["description"] = f"By {values['artists']}"
+                        new_command["description"] = f"By {values['artist']}"
                         new_command["term"] = f"{song_id}"
                         new_command["exe_on_return"] = 1
                         if not check_for_duplicates():
@@ -357,6 +359,8 @@ class Interactions:
         return matched_sorted
 
     def get_playlist_suggestions(self, command, term):
+        if not os.path.isfile(song_cache_file_path):
+            return []
         with open(playlist_cache_file_path, 'r') as f:
             data = json.load(f)
             matched = []
