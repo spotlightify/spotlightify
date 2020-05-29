@@ -6,21 +6,8 @@ from datetime import datetime, timedelta
 from definitions import CACHE_DIR
 from colors import colors
 from requests import get
-
-
-def download_image(url, file_name):
-    art_path = f"{CACHE_DIR}{sep}art-temp{sep}"
-
-    try:
-        if not path.exists(art_path):
-            mkdir(art_path)
-        image_path = art_path + file_name + ".jpg"
-        if not path.isfile(image_path):
-            image_data = get(url).content
-            with open(image_path, 'wb') as handler:
-                handler.write(image_data)
-    except:
-        print(f"Error occurred saving file {colors.FAIL}{file_name}.jpg{colors.RESET}")
+from time import sleep
+from pprint import pprint
 
 
 def save_data_to_file(data, file):
@@ -31,17 +18,23 @@ def save_data_to_file(data, file):
         print(f"error saving {file}")
 
 
+class ImageQueue(Queue):
+    def put_image(self, file, url):
+        self.put({"file": file, "url": url})
+
+
+# class SongQueue(Queue):
+#     def put_song(self, data):
+
+
 class SongCachingThread(Thread):
-    def __init__(self, queue: Queue):
+    def __init__(self, queue: Queue, image_queue: ImageQueue):
         Thread.__init__(self)
         self.title = f"[{colors.WARNING}CACHE{colors.RESET}]\t"
         self.queue = queue
-        self.call_count = 0
+        self.image_queue = image_queue
 
-    # @staticmethod
     def cache_songs(self, songs):
-        self.call_count += 1
-        print(f"{colors.WARNING}cache_songs call_count: {self.call_count}")
         song_path = f"{CACHE_DIR}/test-songs.json"
 
         data = {"length": 0, "songs": {}, "last_updated": str(datetime.now())}
@@ -64,12 +57,11 @@ class SongCachingThread(Thread):
 
                 # determine url to use for image
                 images = track["album"]["images"]
-                download_image(images[2]["url"], track["album"]["id"])
+                self.image_queue.put_image(track["album"]["id"], images[2]["url"])
 
                 data["songs"][track["id"]] = {
                     "name": track["name"],
-                    "artists": artists,
-                    "uri": track["uri"],
+                    "artist": artists,
                     "image": track["album"]["id"]
                 }
 
@@ -86,20 +78,29 @@ class SongCachingThread(Thread):
         print(f"{self.title}Starting")
 
         while True:
+            song_data = []
+
             while not self.queue.empty():
                 data = self.queue.get()
-                # print('saving', data)
                 if not isinstance(data, list):
                     data = [data]
-                self.cache_songs(data)
+                song_data.extend(data)
+
+            if len(song_data) > 0:
+                self.cache_songs(song_data)
+                song_data = []
+            else:
+                sleep(30)
 
 
 class CachingThread(Thread):
-    def __init__(self, sp, queue: Queue):
+    def __init__(self, sp, cache_type, queue: Queue, image_queue: ImageQueue):
         Thread.__init__(self)
         self.sp = sp
+        self.cache_type = cache_type
         self.title = f"[{colors.BLUE}CACHE{colors.RESET}]\t"
         self.queue = queue
+        self.image_queue = image_queue
         print(f"{self.title}Initialised")
 
     def cache_playlists(self):
@@ -107,12 +108,19 @@ class CachingThread(Thread):
 
         playlists_path = f"{CACHE_DIR}/test-playlists.json"
 
-        data = {"length": 0, "playlists": {}, "last_updated": str(datetime.now())}
+        data = {"length": 0, "playlists": {}, "last_updated": ""}
 
         try:
             if path.isfile(playlists_path):
                 with open(playlists_path, "r") as file:
                     data = load(file)
+
+            last_updated = datetime.strptime(data["last_updated"], "%Y-%m-%d %H:%M:%S.%f")
+            now = datetime.now()
+            time_ago = now - timedelta(days=1)
+            if time_ago <= last_updated <= now:
+                print(f"{self.title}Caching playlists skipped, last updated {last_updated}")
+                return
 
             results = self.sp.current_user_playlists()
             playlist_data = results["items"]
@@ -129,12 +137,11 @@ class CachingThread(Thread):
                         url = playlist["images"][2]["url"]
                 except IndexError:
                     print("Error occurred getting image for playlist", playlist)
-                download_image(url, playlist["id"])
+                self.image_queue.put_image(playlist["id"], url)
 
                 data["playlists"][playlist["id"]] = {
                     "name": playlist["name"],
                     "owner": playlist["owner"]["display_name"],
-                    "uri": playlist["uri"],
                     "image": playlist["id"]
                 }
 
@@ -158,14 +165,51 @@ class CachingThread(Thread):
         end_time = datetime.now()
         print(f"{colors.WARNING}DURATION: {end_time - start_time}{colors.RESET}")
 
+    def cache_liked_songs(self):
+        results = self.sp.current_user_saved_tracks()
+        tracks = results["items"]
+        while results["next"]:
+            results = self.sp.next(results)
+            tracks.extend(results["items"])
+        pprint(tracks)
+        print(f"\n {colors.WARNING}{len(tracks)}{colors.RESET}")
+        self.queue.put(tracks)
+
     def run(self):
         print(f"{self.title}Starting")
-        self.cache_playlists()
-
+        if self.cache_type == "playlists":
+            self.cache_playlists()
+        elif self.cache_type == "liked":
+            self.cache_liked_songs()
         print(f"{self.title}Terminating")
         return
 
-# last_updated = datetime.strptime(current_data["last_updated"], "%Y-%m-%d %H:%M:%S.%f")
-# now = datetime.now()
-# time_ago = now - timedelta(days=1)
-# if time_ago <= last_updated <= now:
+
+class ImageCachingThread(Thread):
+    def __init__(self, image_queue: ImageQueue):
+        Thread.__init__(self)
+        self.image_queue = image_queue
+
+    @staticmethod
+    def download_image(url, file_name):
+        art_path = f"{CACHE_DIR}{sep}art-temp{sep}"
+
+        try:
+            if not path.exists(art_path):
+                mkdir(art_path)
+            image_path = art_path + file_name + ".jpg"
+            if not path.isfile(image_path):
+                image_data = get(url).content
+                with open(image_path, 'wb') as handler:
+                    handler.write(image_data)
+        except:
+            print(f"Error occurred saving file {colors.FAIL}{file_name}.jpg{colors.RESET}")
+
+    def run(self):
+        print("Starting image cache thread")
+
+        while True:
+            while not self.image_queue.empty():
+                image = self.image_queue.get()
+                self.download_image(image["url"], image["file"])
+            sleep(30)
