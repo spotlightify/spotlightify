@@ -359,7 +359,7 @@ class Interactions:
         return matched_sorted
 
     def get_playlist_suggestions(self, command, term):
-        if not os.path.isfile(song_cache_file_path):
+        if not os.path.isfile(playlist_cache_file_path):
             return []
         with open(playlist_cache_file_path, 'r') as f:
             data = json.load(f)
