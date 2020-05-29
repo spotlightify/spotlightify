@@ -1,3 +1,5 @@
+import collections
+
 import requests
 import spotipy
 # from fuzzywuzzy import fuzz
@@ -283,10 +285,12 @@ class Interactions:
         def check_for_duplicates():
             if len(matched) > 1:
                 for match in matched:
-                    if new_command["title"] == match["title"] and new_command["description"] == match["description"]:
-                        return True
-            else:
-                return False
+                    if new_command["title"] == match["title"]:
+                        artists1 = new_command["description"].split(",")
+                        artists2 = match["description"].split(",")
+                        if collections.Counter(artists1) == collections.Counter(artists2):
+                            return True
+            return False
 
         with open(song_cache_file_path, 'r') as f:
             data = json.load(f)

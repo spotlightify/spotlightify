@@ -31,7 +31,7 @@ class Ui(QWidget):
         self.setWindowOpacity(0.9)
         # global styling
         QtGui.QFontDatabase.addApplicationFont(f"{ROOT_DIR}/src/assets/fonts/SFProDisplay-Light.ttf")
-        self.custom_font = QtGui.QFont(QtGui.QFontDatabase.applicationFontFamilies(0)[0])
+        self.custom_font = QtGui.QFont(QtGui.QFontDatabase.applicationFontFamilies(0)[0] + " light")
         # For cycling through previous commands
         self.previous_commands = [""]
         self.command_position = 0
