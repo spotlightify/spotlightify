@@ -1,10 +1,8 @@
 import sys
 from threading import Thread
 from queue import Queue
-
 import spotipy
-
-import config
+from config import CLIENT_ID, CLIENT_SECRET, USERNAME
 from os import sep
 from src.shortcuts import listener
 from PyQt5.QtCore import Qt
@@ -19,27 +17,24 @@ from src.caching import CachingThread, SongCachingThread
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 
-# Creates spotipy object
-client_ID = config.CLIENT_ID
-client_secret = config.CLIENT_SECRET
 redirect_uri = "http://localhost:8080"
-username = config.USERNAME
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
         "playlist-read-private playlist-read-private "
-token = spotipy.util.prompt_for_user_token(username, scope=scope, client_id=client_ID, client_secret=client_secret,
-                                           redirect_uri=redirect_uri)
-sp = None
-if token:
-    sp = spotipy.Spotify(auth=token)
+
+sp_oauth = spotipy.oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
+                                       scope=scope, username=USERNAME)
+token_info = sp_oauth.get_cached_token()
+if not token_info:
+    token = spotipy.util.prompt_for_user_token(USERNAME, scope=scope, client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
+                                                    redirect_uri=redirect_uri)
+    token_info = sp_oauth.get_cached_token()
 else:
-    print("Error: Can't get token for " + username)
+    token = token_info["access_token"]
+try:
+    sp = spotipy.Spotify(auth=token)
+except:
+    print("User token could not be created")
     exit()
-# creates the interactions object
-interactions = Interactions(sp, username, client_ID, client_secret, scope, redirect_uri)
-
-# UI
-ui = Ui(interactions)
-
 
 def exit_app():
     app.quit()
@@ -50,9 +45,18 @@ def show_ui():
     sleep(0.1)
     if not ui.isActiveWindow() or ui.isHidden():
         ui.show()
+    interactions.refresh_token()
     ui.raise_()
     ui.activateWindow()
     ui.function_row.refresh()  # refreshes function row buttons
+
+
+# creates the interactions object
+interactions = Interactions(sp, token_info, sp_oauth, exit_app)
+
+# UI
+ui = Ui(interactions)
+
 
 
 # Create icon

@@ -23,23 +23,32 @@ def get_json_cache(file):
 
 
 class Interactions:
-    def __init__(self, sp: spotipy.Spotify, username, client_id, client_secret, scope, redirect_uri):
+    def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function):
+        self.exit_function = exit_function
+        self.sp_oauth = sp_oauth
         self.sp = sp
-        self.username = username
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.scope = scope
-        self.redirect_uri = redirect_uri
-        self.current_device = self.sp.devices()["devices"][0]
+        self.token_info = token_info
+        try:
+            self.current_device = self.sp.devices()["devices"][0]
+        except:
+            print("[WARNING] No device currently available. Make sure the Spotify desktop app is open and play a song on it to "
+                  "ensure that the device is discoverable. A device can be selected by typing 'device' into the Spotlightify search.")
         # Feature Toggles
         self.shuffle = False
         self.shuffle_text = "(OFF)"
         # self.cache_playlists()
 
+    def exit(self):
+        self.exit_function()
+
     def play_song(self, song_input):
-        song_uri = self.get_song_uri(song_input)
-        self.sp.start_playback(self.current_device["id"], None, [song_uri])
-        self.cache_playlists()
+        try:
+            song_uri = self.get_song_uri(song_input)
+            self.sp.start_playback(self.current_device["id"], None, [song_uri])
+            self.cache_playlists()
+        except spotipy.exceptions.SpotifyException:
+            print("No device selected. Make sure the Spotify desktop app is running and the correct device has been "
+                  "selected. A device can be selected by typing 'device' into the Spotlightify search.")
 
     def get_song_uri(self, song_input):
         song_uri = None
@@ -87,21 +96,30 @@ class Interactions:
             handler.write(img_data)
 
     def is_song_playing(self):
-        return self.sp.current_playback()["is_playing"]
+        try:
+            return self.sp.current_playback()["is_playing"]
+        except:
+            return False
 
     def toggle_playback(self, *refresh_method: classmethod):
-        if self.sp.current_playback()["is_playing"]:
-            self.sp.pause_playback(self.current_device["id"])
-        else:
-            self.sp.start_playback(self.current_device["id"])
-        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-            refresh()
+        try:
+            if self.sp.current_playback()["is_playing"]:
+                self.sp.pause_playback(self.current_device["id"])
+            else:
+                self.sp.start_playback(self.current_device["id"])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Playback could not be toggled")
 
     def is_shuffle_on(self):
-        return self.sp.current_playback()["shuffle_state"]
+        try:
+            return self.sp.current_playback()["shuffle_state"]
+        except:
+            return False
 
     def cache_playlists(self):
-        results = self.sp.user_playlists(self.username)
+        results = self.sp.current_user_playlists()
         playlists = results["items"]
         while results['next']:
             results = self.sp.next(results)
@@ -110,19 +128,25 @@ class Interactions:
             self.add_playlist_to_json(playlist)
 
     def like_song_toggle(self, *refresh_method: classmethod):  # used to immediately refresh a svg
-        current_song = self.sp.current_user_playing_track()["item"]
-        if not self.is_current_song_liked():
-            self.sp.current_user_saved_tracks_add([current_song["uri"]])
-        else:
-            self.sp.current_user_saved_tracks_delete([current_song["uri"]])
-        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-            refresh()
+        try:
+            current_song = self.sp.current_user_playing_track()["item"]
+            if not self.is_current_song_liked():
+                self.sp.current_user_saved_tracks_add([current_song["uri"]])
+            else:
+                self.sp.current_user_saved_tracks_delete([current_song["uri"]])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Song like could not be toggled")
 
     def is_current_song_liked(self):
-        current_song = self.sp.currently_playing()["item"]
-        if self.sp.current_user_saved_tracks_contains([current_song["id"]])[0]:
-            return True
-        else:
+        try:
+            current_song = self.sp.currently_playing()["item"]
+            if self.sp.current_user_saved_tracks_contains([current_song["id"]])[0]:
+                return True
+            else:
+                return False
+        except:
             return False
 
     def add_playlist_to_json(self, playlist):
@@ -151,64 +175,78 @@ class Interactions:
             json.dump(data, f, indent=4)'''
 
     def play_playlist(self, playlist_id):
-        results = self.sp.playlist_tracks(playlist_id=playlist_id)
-        tracks = results["items"]
-        while results["next"]:
-            results = self.sp.next(results)
-            tracks.extend(results["items"])
-        uris = []
-        for track in tracks:
-            uris.append(track["track"]["uri"])
-            self.add_song_to_json(track["track"])
-        self.sp.start_playback(self.current_device["id"], None, uris=uris)
+        try:
+            results = self.sp.playlist_tracks(playlist_id=playlist_id)
+            tracks = results["items"]
+            while results["next"]:
+                results = self.sp.next(results)
+                tracks.extend(results["items"])
+            uris = []
+            for track in tracks:
+                uris.append(track["track"]["uri"])
+                self.add_song_to_json(track["track"])
+            self.sp.start_playback(self.current_device["id"], None, uris=uris)
+        except:
+            print("[ERROR] Could not play playlist")
 
     def goto(self, time):
-        """Get Seconds from time."""
-        time_standard = str(time).count(":")
-        if time_standard == 1:
-            time = "0:" + str(time)
-        h, m, s = time.split(':')
-        time = (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
         try:
+            """Get Seconds from time."""
+            time_standard = str(time).count(":")
+            if time_standard == 1:
+                time = "0:" + str(time)
+            h, m, s = time.split(':')
+            time = (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
             self.sp.seek_track(time, self.current_device["id"])
             self.resume_playback()
         except:
-            None
+            print("[ERROR] Invalid time give. Valid command example: go to 1:40")
 
     def play_liked(self):
-        # TODO FIX THIS METHOD
-        results = self.sp.current_user_saved_tracks()
-        tracks = results["items"]
-        uris = []
-        while results["next"]:
-            results = self.sp.next(results)
-            tracks.extend(results["items"])
-        for track in tracks:
-            uris.append(track["track"]["uri"])
-            self.add_song_to_json(track["track"])
-        self.sp.start_playback(self.current_device["id"], None, uris=uris)
+        try:
+            results = self.sp.current_user_saved_tracks()
+            tracks = results["items"]
+            uris = []
+            while results["next"]:
+                results = self.sp.next(results)
+                tracks.extend(results["items"])
+            for track in tracks:
+                uris.append(track["track"]["uri"])
+                self.add_song_to_json(track["track"])
+            self.sp.start_playback(self.current_device["id"], None, uris=uris)
+        except:
+            print("[ERROR] Could not play liked music")
 
     def shuffle_toggle(self, *refresh_method: classmethod):
-        if self.shuffle == False:
-            self.shuffle = True
-            self.sp.shuffle(self.shuffle, self.current_device["id"])
-            self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
-        else:
-            self.shuffle = False
-            self.sp.shuffle(self.shuffle, self.current_device["id"])
-            self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
-        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-            refresh()
+        try:
+            if self.shuffle == False:
+                self.shuffle = True
+                self.sp.shuffle(self.shuffle, self.current_device["id"])
+                self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
+            else:
+                self.shuffle = False
+                self.sp.shuffle(self.shuffle, self.current_device["id"])
+                self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[WARNING] Could not toggle playlist shuffle")
 
     def queue_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
         self.sp.add_to_queue(song_uri, self.current_device["id"])
 
     def pause_playback(self):
-        self.sp.pause_playback(self.current_device['id'])
+        try:
+            self.sp.pause_playback(self.current_device['id'])
+        except:
+            print("[WARNING] Could not pause playback")
 
     def resume_playback(self):
-        self.sp.start_playback(self.current_device['id'])
+        try:
+            self.sp.start_playback(self.current_device['id'])
+        except:
+            print("[WARNING] Could not resume playback")
 
     def change_vol(self, value):
         try:
@@ -216,7 +254,7 @@ class Interactions:
             if 0 <= int_ <= 100:
                 self.sp.volume(int_, self.current_device['id'])
         except:
-            None
+            print("[ERROR] Invalid volume value. Valid command example: 'volume 20'")
 
     def next_song(self, *refresh_method: classmethod):
         try:
@@ -339,8 +377,13 @@ class Interactions:
         return matched_sorted
 
     def refresh_token(self):
-        return spotipy.util.prompt_for_user_token(self.username, scope=self.scope, client_id=self.client_id, client_secret=self.client_secret,
-                                                redirect_uri=self.redirect_uri)
+        try:
+            if self.sp_oauth.is_token_expired(token_info=self.token_info):
+                self.token_info = self.sp_oauth.refresh_access_token(self.token_info['refresh_token'])
+                token = self.token_info['access_token']
+                self.sp = spotipy.Spotify(auth=token)
+        except:
+            print("[WARNING] Could not refresh user API token")
 
     command_list = \
         {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "], "function": play_song,
@@ -378,7 +421,7 @@ class Interactions:
                       "function": previous_song, "icon": f"{ASSETS_DIR}/svg/backward.svg", "visual": 0, "parameter": 0,
                       "match_change": 0, "exe_on_return": 1},
          "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit"],
-                  "function": print("exit"), "icon": f"{ASSETS_DIR}/svg/moon.svg", "visual": 1, "parameter": 0,
+                  "function": exit, "icon": f"{ASSETS_DIR}/svg/moon.svg", "visual": 0, "parameter": 0,
                   "match_change": 0, "exe_on_return": 1},
          "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle"],
                      "function": shuffle_toggle, "icon": f"{ASSETS_DIR}/svg/shuffle.svg", "visual": 0, "parameter": 0,

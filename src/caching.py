@@ -55,7 +55,6 @@ class SongCachingThread(Thread):
             for song in songs:
                 track = song["track"]
                 last = track["album"]["images"]
-
                 artists = ""
                 for artist in track["artists"]:
                     if artists == "":
