@@ -119,10 +119,13 @@ class Interactions:
             refresh()
 
     def is_current_song_liked(self):
-        current_song = self.sp.currently_playing()["item"]
-        if self.sp.current_user_saved_tracks_contains([current_song["id"]])[0]:
-            return True
-        else:
+        try:
+            current_song = self.sp.currently_playing()["item"]
+            if self.sp.current_user_saved_tracks_contains([current_song["id"]])[0]:
+                return True
+            else:
+                return False
+        except:
             return False
 
     def playlist_cache_search(self, prefix, term, matched):

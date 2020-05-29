@@ -2,40 +2,36 @@ import sys
 from threading import Thread
 from queue import Queue
 
-import spotipy
+from spotipy import Spotify, util
 
-import config
+from config import USERNAME, CLIENT_ID, CLIENT_SECRET
 from os import sep
 from src.shortcuts import listener
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from src.ui import Ui
 from time import sleep
 from definitions import ASSETS_DIR
 from src.interactions import Interactions
-from src.caching import CachingThread, SongCachingThread
+from src.caching import CachingThread, SongCachingThread, ImageCachingThread, ImageQueue
 
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 
 # Creates spotipy object
-client_ID = config.CLIENT_ID
-client_secret = config.CLIENT_SECRET
 redirect_uri = "http://localhost:8080"
-username = config.USERNAME
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
         "playlist-read-private playlist-read-private "
-token = spotipy.util.prompt_for_user_token(username, scope=scope, client_id=client_ID, client_secret=client_secret,
+token = util.prompt_for_user_token(USERNAME, scope=scope, client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
                                            redirect_uri=redirect_uri)
 sp = None
 if token:
-    sp = spotipy.Spotify(auth=token)
+    sp = Spotify(auth=token)
 else:
     print("Error: Can't get token for " + username)
     exit()
 # creates the interactions object
-interactions = Interactions(sp, username, client_ID, client_secret, scope, redirect_uri)
+interactions = Interactions(sp, USERNAME, CLIENT_ID, CLIENT_SECRET, scope, redirect_uri)
 
 # UI
 ui = Ui(interactions)
@@ -79,13 +75,18 @@ listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
 listener_thread.start()
 
 queue = Queue()
+image_queue = ImageQueue()
 
-song_caching_thread = SongCachingThread(queue)
+song_caching_thread = SongCachingThread(queue, image_queue)
 song_caching_thread.start()
 
-playlist_caching_thread = CachingThread(sp, queue)
-playlist_caching_thread.start()
+image_caching_thread = ImageCachingThread(image_queue)
+image_caching_thread.start()
 
+playlist_caching_thread = CachingThread(sp, "playlists", queue, image_queue)
+playlist_caching_thread.start()
+playlist_caching_thread = CachingThread(sp, "liked", queue, image_queue)
+playlist_caching_thread.start()
 
 # Add the menu to the tray
 tray.setContextMenu(menu)
