@@ -11,7 +11,7 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
     4. Respond with "No" to the question "Are you developing a commercial integration?".
     5. Tick all boxes and click "SUBMIT".
     6. Now on the dashboard, click "EDIT SETTINGS".
-    7. Under the title "Redirect URIs" enter: "http://localhost:8080", then hit add.
+    7. Under the title "Redirect URIs" enter: "http://localhost:8080", hit "ADD" and then at the bottom, hit "SAVE".
     8. That is the App set up, keep the dashboard webpage open as we will need `Client ID` and `Client Secret` from it later on.
 
 ## Installing Dependencies
