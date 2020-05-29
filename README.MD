@@ -7,7 +7,7 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
 - A Spotify App must also be created, the instructions follow:
     1. Open the Spotify Developer Dashboard <a href="https://developer.spotify.com/dashboard/login" target="_blank">here</a> and login using your Spotify account credentials.
     2. Click the "CREATE AN APP" button.
-    3. Name the application "Spotlightify", leave the description blank and select "Desktop App" from the checkboxes. Click "NEXT".
+    3. Name the application "Spotlightify", write anything for the description and select "Desktop App" from the checkboxes. Click "NEXT".
     4. Respond with "No" to the question "Are you developing a commercial integration?".
     5. Tick all boxes and click "SUBMIT".
     6. Now on the dashboard, click "EDIT SETTINGS".
