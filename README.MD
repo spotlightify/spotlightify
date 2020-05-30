@@ -31,6 +31,16 @@ python -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 ```
+
+### Linux
+```
+sudo apt-get install python3-pyqt5
+cd path/to/spotlightify-root
+python -m venv venv
+. venv/bin/activate
+pip install -r requirements.txt
+```
+
 ### Linking the Spotify App
 On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
 
