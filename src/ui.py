@@ -46,11 +46,6 @@ class Ui(QWidget):
     def create_widgets(self):
         self.resize(540, self.small_row_height + self.standard_row_height)  # makes up the height of the widget
 
-        # add grouped widgets
-        self.function_row = FunctionButtonsRow(self, self.interactions)
-        self.function_row.move(0, 0)
-        self.function_row.show()
-
         self.svgWidget = SvgButton(self, f"{ASSETS_DIR}/svg/spotify-logo.svg")
         self.svgWidget.clicked.connect(self.toggle_function_buttons)
         # svg logo layout
@@ -78,6 +73,12 @@ class Ui(QWidget):
                             padding-right: 6px;
                         }}''')
         self.textbox.setFont(self.custom_font)
+        # add grouped widgets
+        self.function_row = FunctionButtonsRow(self, self.interactions)
+        self.function_row.move(0, 0)
+        self.function_row.show()
+        self.toggle_function_buttons()
+        
         # Mac setting
         self.textbox.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
 
@@ -111,7 +112,8 @@ class Ui(QWidget):
             self.textbox.move(51, self.small_row_height + 9)
             self.move(self.x(), self.y() - 47)
             self.function_row.show()
-        self.create_suggestion_widgets()
+        if self.textbox.text() != "":
+            self.create_suggestion_widgets()
 
     def text_changed_handler(self):
         text = self.textbox.text()
