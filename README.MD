@@ -36,9 +36,9 @@ pip install -r requirements.txt
 ```
 sudo apt-get install python3-pyqt5
 cd path/to/spotlightify-root
-python -m venv venv
+python3 -m venv venv
 . venv/bin/activate
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ### Linking the Spotify App
