@@ -20,7 +20,7 @@ class Interactions:
         self.token_info = token_info
         self.queue = queue
         try:
-            self.current_device = self.sp.devices()["devices"][0]
+            self.current_device_id = self.sp.devices()["devices"][0]
         except:
             print("[WARNING] No device currently available. Make sure the Spotify desktop app is open and play a song on it to "
                   "ensure that the device is discoverable. A device can be selected by typing 'device' into the Spotlightify search.")
@@ -34,7 +34,7 @@ class Interactions:
     def play_song(self, song_input):
         try:
             song_uri = self.get_song_uri(song_input)
-            self.sp.start_playback(self.current_device["id"], None, [song_uri])
+            self.sp.start_playback(self.current_device_id, None, [song_uri])
         except spotipy.exceptions.SpotifyException:
             print("No device selected. Make sure the Spotify desktop app is running and the correct device has been "
                   "selected. A device can be selected by typing 'device' into the Spotlightify search.")
@@ -60,9 +60,9 @@ class Interactions:
     def toggle_playback(self, *refresh_method: classmethod):
         try:
             if self.sp.current_playback()["is_playing"]:
-                self.sp.pause_playback(self.current_device["id"])
+                self.sp.pause_playback(self.current_device_id)
             else:
-                self.sp.start_playback(self.current_device["id"])
+                self.sp.start_playback(self.current_device_id)
             for refresh in refresh_method:  # the refresh_method arg should only contain one class method
                 refresh()
         except:
@@ -106,7 +106,7 @@ class Interactions:
             uris = []
             for track in tracks:
                 uris.append(track["track"]["uri"])
-            self.sp.start_playback(self.current_device["id"], None, uris=uris)
+            self.sp.start_playback(self.current_device_id, None, uris=uris)
         except:
             print("[ERROR] Could not play playlist")
 
@@ -118,7 +118,7 @@ class Interactions:
                 time = "0:" + str(time)
             h, m, s = time.split(':')
             time = (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
-            self.sp.seek_track(time, self.current_device["id"])
+            self.sp.seek_track(time, self.current_device_id)
             self.resume_playback()
         except:
             print("[ERROR] Invalid time give. Valid command example: go to 1:40")
@@ -133,7 +133,7 @@ class Interactions:
                 tracks.extend(results["items"])
             for track in tracks:
                 uris.append(track["track"]["uri"])
-            self.sp.start_playback(self.current_device["id"], None, uris=uris)
+            self.sp.start_playback(self.current_device_id, None, uris=uris)
         except:
             print("[ERROR] Could not play liked music")
 
@@ -141,11 +141,11 @@ class Interactions:
         try:
             if not self.shuffle:
                 self.shuffle = True
-                self.sp.shuffle(self.shuffle, self.current_device["id"])
+                self.sp.shuffle(self.shuffle, self.current_device_id)
                 self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
             else:
                 self.shuffle = False
-                self.sp.shuffle(self.shuffle, self.current_device["id"])
+                self.sp.shuffle(self.shuffle, self.current_device_id)
                 self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
             for refresh in refresh_method:  # the refresh_method arg should only contain one class method
                 refresh()
@@ -154,17 +154,17 @@ class Interactions:
 
     def queue_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
-        self.sp.add_to_queue(song_uri, self.current_device["id"])
+        self.sp.add_to_queue(song_uri, self.current_device_id)
 
     def pause_playback(self):
         try:
-            self.sp.pause_playback(self.current_device['id'])
+            self.sp.pause_playback(self.current_device_id)
         except:
             print("[WARNING] Could not pause playback")
 
     def resume_playback(self):
         try:
-            self.sp.start_playback(self.current_device['id'])
+            self.sp.start_playback(self.current_device_id)
         except:
             print("[WARNING] Could not resume playback")
 
@@ -172,13 +172,13 @@ class Interactions:
         try:
             int_ = int(value)
             if 0 <= int_ <= 100:
-                self.sp.volume(int_, self.current_device['id'])
+                self.sp.volume(int_, self.current_device_id)
         except:
             print("[ERROR] Invalid volume value. Valid command example: 'volume 20'")
 
     def next_song(self, *refresh_method: classmethod):
         try:
-            self.sp.next_track(self.current_device["id"])
+            self.sp.next_track(self.current_device_id)
             for refresh in refresh_method:  # the refresh_method arg should only contain one class method
                 refresh()
         except:
@@ -186,7 +186,7 @@ class Interactions:
 
     def previous_song(self, *refresh_method: classmethod):
         try:
-            self.sp.previous_track(self.current_device["id"])
+            self.sp.previous_track(self.current_device_id)
             for refresh in refresh_method:  # the refresh_method arg should only contain one class method
                 refresh()
         except:
