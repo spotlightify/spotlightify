@@ -380,9 +380,6 @@ class Interactions:
         except:
             print("[WARNING] Could not refresh user API token")
 
-    def resume_playback(self):
-        self.sp.start_playback(self.current_device_id)
-
     def set_device(self, device_id):
         self.pause_playback()
         self.current_device_id = device_id
