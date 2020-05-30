@@ -4,14 +4,14 @@ from queue import Queue
 from spotipy import Spotify, util, oauth2
 from config import USERNAME, CLIENT_ID, CLIENT_SECRET
 from os import sep, path, mkdir
-from src.shortcuts import listener
+from shortcuts import listener
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
-from src.ui import Ui
+from ui import Ui
 from time import sleep
 from definitions import ASSETS_DIR, CACHE_DIR
-from src.interactions import Interactions
-from src.caching import CachingThread, SongCachingThread, ImageCachingThread, ImageQueue
+from interactions import Interactions
+from caching import CachingThread, SongCachingThread, ImageCachingThread, ImageQueue
 
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
@@ -80,7 +80,7 @@ interactions = Interactions(sp, token_info, sp_oauth, exit_app, queue)
 ui = Ui(interactions)
 
 # Create icon
-icon = QIcon(f"{ASSETS_DIR}{sep}img{sep}logo_small.png")
+icon = QIcon(f"{ASSETS_DIR}img{sep}logo_small.png")
 
 # Create tray
 tray = QSystemTrayIcon()

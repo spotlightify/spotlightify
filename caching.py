@@ -187,7 +187,7 @@ class ImageCachingThread(Thread):
 
     @staticmethod
     def download_image(url, file_name):
-        art_path = f"{CACHE_DIR}{sep}art{sep}"
+        art_path = f"{CACHE_DIR}art{sep}"
 
         try:
             if not path.exists(art_path):

@@ -1,12 +1,8 @@
 from os import sep
-import time
-
-from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit, QPushButton
-from PyQt5 import QtCore, QtGui, QtSvg
-from src.widgets import FunctionButtonsRow, SuggestRow
+from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
+from PyQt5 import QtCore, QtGui
+from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
-from src.widgets import SvgButton
-from definitions import ROOT_DIR
 
 
 class Ui(QWidget):
@@ -45,7 +41,7 @@ class Ui(QWidget):
     def create_widgets(self):
         self.resize(540, self.small_row_height + self.standard_row_height)  # makes up the height of the widget
 
-        self.svgWidget = SvgButton(self, f"{ASSETS_DIR}{sep}svg{sep}spotify-logo.svg")
+        self.svgWidget = SvgButton(self, f"{ASSETS_DIR}svg{sep}spotify-logo.svg")
         self.svgWidget.clicked.connect(self.toggle_function_buttons)
         # svg logo layout
         self.svgWidget.setSize(39, 39)
