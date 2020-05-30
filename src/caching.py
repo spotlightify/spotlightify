@@ -46,6 +46,7 @@ class SongCachingThread(Thread):
                     data = load(file)
 
             for song in songs:
+                print("song caching")
                 track = song["track"]
                 last = track["album"]["images"]
                 artists = ""
@@ -57,7 +58,13 @@ class SongCachingThread(Thread):
 
                 # determine url to use for image
                 images = track["album"]["images"]
-                self.image_queue.put_image(track["album"]["id"], images[2]["url"])
+                try:
+                    if len(images) == 3:
+                        self.image_queue.put_image(track["album"]["id"], images[2]["url"])
+                    else:
+                        self.image_queue.put_image(track["album"]["id"], images[0]["url"])
+                except:
+                    print(f"[ERROR] No image found for song name: {track['name']}")
 
                 data["songs"][track["id"]] = {
                     "name": track["name"],
@@ -85,6 +92,7 @@ class SongCachingThread(Thread):
                 if not isinstance(data, list):
                     data = [data]
                 song_data.extend(data)
+                print(f"Songs being cached: {len(data)}")
 
             if len(song_data) > 0:
                 self.cache_songs(song_data)
@@ -114,13 +122,12 @@ class CachingThread(Thread):
             if path.isfile(playlists_path):
                 with open(playlists_path, "r") as file:
                     data = load(file)
-
-            last_updated = datetime.strptime(data["last_updated"], "%Y-%m-%d %H:%M:%S.%f")
-            now = datetime.now()
-            time_ago = now - timedelta(days=1)
-            if time_ago <= last_updated <= now:
-                print(f"{self.title}Caching playlists skipped, last updated {last_updated}")
-                return
+                    last_updated = datetime.strptime(data["last_updated"], "%Y-%m-%d %H:%M:%S.%f")
+                    now = datetime.now()
+                    time_ago = now - timedelta(days=1)
+                    if time_ago <= last_updated <= now:
+                        print(f"{self.title}Caching playlists skipped, last updated {last_updated}")
+                        return
 
             results = self.sp.current_user_playlists()
             playlist_data = results["items"]
@@ -171,7 +178,6 @@ class CachingThread(Thread):
         while results["next"]:
             results = self.sp.next(results)
             tracks.extend(results["items"])
-        pprint(tracks)
         print(f"\n {colors.WARNING}{len(tracks)}{colors.RESET}")
         self.queue.put(tracks)
 
