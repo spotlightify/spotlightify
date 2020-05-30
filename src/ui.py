@@ -185,7 +185,7 @@ class Ui(QWidget):
             self.textbox.deselect()  # deselects selected text as a result of focus
         else:
             self.store_previous_command()
-            self.interactions.perform_command(command, self)
+            self.interactions.command_perform(command, self)
             self.textbox.clear()
             self.hide()
 

@@ -12,16 +12,6 @@ from definitions import ASSETS_DIR, CACHE_DIR, ROOT_DIR
 from pathlib import Path
 
 
-def get_json_cache(file):
-    # takes string param file: "songs" will create songs.json with "{ songs: [], length: 0 }"
-    file_path = f"{CACHE_DIR}{os.path.sep}{file}.json"
-    if not Path(file_path).exists():
-        # creates file if it doesn't exist
-        with open(file_path, "w") as f:
-            json.dump({f"{file}": [], "length": 0}, f)
-    return file_path  # returns file path to json file
-
-
 class Interactions:
     def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function, queue):
         self.exit_function = exit_function
@@ -230,7 +220,9 @@ class Interactions:
                 if len(matched) >= 6:
                     break
                 elif len(term) <= len(prefix):
-                    if term == prefix[:len(term)]:
+                    if command["title"] == "Device" and prefix == og_parameter:
+                        matched = self.get_device_suggestions(command, og_parameter)
+                    elif term == prefix[:len(term)]:
                         matched.append(command)
                         break
                 elif len(term) > len(prefix):
@@ -241,6 +233,8 @@ class Interactions:
                                 matched = self.get_song_suggestions(command, parameter)
                             elif command["title"] == "Playlist":
                                 matched = self.get_playlist_suggestions(command, parameter)
+                            elif command["title"] == "Device":
+                                matched = self.get_device_suggestions(command, parameter)
                         elif command["parameter"] == 1:
                             new_command = copy.deepcopy(command)
                             new_command["exe_on_return"] = 1
@@ -250,6 +244,68 @@ class Interactions:
         if len(matched) == 0:
             matched = self.get_song_suggestions(self.command_list["Play"], og_parameter)
         return matched
+
+    def command_perform(self, command, parent):
+        self.refresh_token()
+        if command["visual"] == 1 and command["parameter"] == 1:
+            command["function"](self, parent, command["term"])
+        elif command["visual"] == 0 and command["parameter"] == 1:
+            command["function"](self, command["term"])
+        elif command["visual"] == 0 and command["parameter"] == 0:
+            command["function"](self)
+        elif command["visual"] == 1 and command["parameter"] == 0:
+            command["function"](self, parent)
+
+    def download_image(self, path, url, id_):
+        img_data = requests.get(url).content
+        with open(path + id_ + '.jpg', 'wb') as handler:
+            handler.write(img_data)
+
+    def get_device_suggestions(self, command, term):
+        matched = []
+        devices = self.sp.devices()["devices"]
+        for device in devices:
+            if len(matched) >= 6:
+                break
+            else:
+                new_command = copy.deepcopy(command)
+                new_command["title"] = device["name"]
+                new_command["description"] = f"{device['type']}"
+                new_command["term"] = f"{device['id']}"
+                new_command["exe_on_return"] = 1
+                matched.append(new_command)
+        # for sorting commands into alphabetical order
+        matched_sorted = sorted(matched, key=lambda k: k["title"])
+        return matched_sorted
+
+    def get_json_cache(file):
+        # takes string param file: "songs" will create songs.json with "{ songs: [], length: 0 }"
+        file_path = f"{CACHE_DIR}{os.path.sep}{file}.json"
+        if not Path(file_path).exists():
+            # creates file if it doesn't exist
+            with open(file_path, "w") as f:
+                json.dump({f"{file}": [], "length": 0}, f)
+                return file_path  # returns file path to json file
+
+    def get_playlist_suggestions(self, command, term):
+        with open(playlist_cache_file_path, 'r') as f:
+            data = json.load(f)
+            matched = []
+            for playlist in data["playlists"]:
+                if len(matched) >= 6:
+                    break
+                elif len(playlist["name"]) >= len(term):
+                    if playlist["name"][:len(term)].lower() == term:
+                        new_command = copy.deepcopy(command)
+                        new_command["icon"] = playlist["image"]
+                        new_command["title"] = playlist["name"]
+                        new_command["description"] = f"By {playlist['owner']}"
+                        new_command["term"] = f"{playlist['uri']}"
+                        new_command["exe_on_return"] = 1
+                        matched.append(new_command)
+        # for sorting commands into alphabetical order
+        matched_sorted = sorted(matched, key=lambda k: k["title"])
+        return matched_sorted
 
     def get_song_suggestions(self, command, term):
         def check_for_duplicates():
@@ -326,9 +382,51 @@ class Interactions:
         except:
             print("[WARNING] Could not refresh user API token")
 
+    def resume_playback(self):
+        self.sp.start_playback(self.current_device_id)
+
+    def set_device(self, device_id):
+        self.current_device_id = device_id
+
+    def set_vol(self, value):
+        try:
+            int_ = int(value)
+            if 0 <= int_ <= 100:
+                self.sp.volume(int_, self.current_device_id)
+        except:
+            None
+
+    def toggle_like_song(self, *refresh_method: classmethod):  # used to immediately refresh a svg
+        current_song = self.sp.current_user_playing_track()["item"]
+        if not self.is_current_song_liked():
+            self.sp.current_user_saved_tracks_add([current_song["uri"]])
+        else:
+            self.sp.current_user_saved_tracks_delete([current_song["uri"]])
+        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+            refresh()
+
+    def toggle_playback(self, *refresh_method: classmethod):
+        if self.sp.current_playback()["is_playing"]:
+            self.sp.pause_playback(self.current_device_id)
+        else:
+            self.sp.start_playback(self.current_device_id)
+        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+            refresh()
+
+    def toggle_shuffle(self, *refresh_method: classmethod):
+        if self.is_shuffle_on:
+            self.sp.shuffle(False, self.current_device_id)
+            self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
+        else:
+            self.sp.shuffle(True, self.current_device_id)
+            self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
+        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+            refresh()
+
     command_list = \
         {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "], "function": play_song,
-                  "icon": f"{ASSETS_DIR}/svg/play.svg", "visual": 0, "parameter": 1, "match_change": 1, "exe_on_return": 0,
+                  "icon": f"{ASSETS_DIR}/svg/play.svg", "visual": 0, "parameter": 1, "match_change": 1,
+                  "exe_on_return": 0,
                   "term": ""},
          "Queue": {"title": "Queue", "description": "Adds a song to the queue", "prefix": ["queue "],
                    "function": queue_song, "icon": f"{ASSETS_DIR}/svg/list.svg", "visual": 0, "parameter": 1,
@@ -344,7 +442,7 @@ class Interactions:
                    "icon": f"{ASSETS_DIR}/svg/heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
                    "exe_on_return": 1},
          "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume ", "vol "],
-                    "function": change_vol, "icon": f"{ASSETS_DIR}/svg/volume.svg", "visual": 0, "parameter": 1,
+                    "function": set_vol, "icon": f"{ASSETS_DIR}/svg/volume.svg", "visual": 0, "parameter": 1,
                     "match_change": 0,
                     "exe_on_return": 0, "term": ""},
          "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto", "go to"],
@@ -365,9 +463,13 @@ class Interactions:
                   "function": exit, "icon": f"{ASSETS_DIR}/svg/moon.svg", "visual": 0, "parameter": 0,
                   "match_change": 0, "exe_on_return": 1},
          "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle"],
-                     "function": shuffle_toggle, "icon": f"{ASSETS_DIR}/svg/shuffle.svg", "visual": 0, "parameter": 0,
-                     "match_change": 0, "exe_on_return": 1}
+                     "function": toggle_shuffle, "icon": f"{ASSETS_DIR}/svg/shuffle.svg", "visual": 0, "parameter": 0,
+                     "match_change": 0, "exe_on_return": 1},
+         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
+                    "function": set_device, "icon": f"{ASSETS_DIR}/svg/device.svg", "visual": 0, "parameter": 1,
+                    "match_change": 1, "exe_on_return": 0}
          }
+
 
 # File Names
 song_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}songs.json"
