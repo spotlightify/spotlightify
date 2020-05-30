@@ -105,6 +105,8 @@ class Interactions:
                 tracks.extend(results["items"])
             uris = []
             for track in tracks:
+                if track["is_local"]:
+                    continue
                 uris.append(track["track"]["uri"])
             self.sp.start_playback(self.current_device_id, None, uris=uris)
         except:
