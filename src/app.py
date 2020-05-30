@@ -35,6 +35,7 @@ except:
     print("User token could not be created")
     exit()
 
+
 def exit_app():
     app.quit()
     exit()
