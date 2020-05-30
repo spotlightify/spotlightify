@@ -1,13 +1,9 @@
 import collections
-
 import requests
 import spotipy
-# from fuzzywuzzy import fuzz
 from os import sep, path
-import subprocess
 import json
 import copy
-import config
 from definitions import ASSETS_DIR, CACHE_DIR, ROOT_DIR
 from pathlib import Path
 
@@ -280,7 +276,7 @@ class Interactions:
 
     def get_json_cache(file):
         # takes string param file: "songs" will create songs.json with "{ songs: [], length: 0 }"
-        file_path = f"{CACHE_DIR}{sep}{file}.json"
+        file_path = f"{CACHE_DIR}{file}.json"
         if not Path(file_path).exists():
             # creates file if it doesn't exist
             with open(file_path, "w") as f:
@@ -426,55 +422,55 @@ class Interactions:
 
     command_list = \
         {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "], "function": play_song,
-                  "icon": f"{ASSETS_DIR}{sep}svg{sep}play.svg", "visual": 0, "parameter": 1, "match_change": 1,
+                  "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0, "parameter": 1, "match_change": 1,
                   "exe_on_return": 0,
                   "term": ""},
          "Queue": {"title": "Queue", "description": "Adds a song to the queue", "prefix": ["queue "],
-                   "function": queue_song, "icon": f"{ASSETS_DIR}{sep}svg{sep}list.svg", "visual": 0, "parameter": 1,
+                   "function": queue_song, "icon": f"{ASSETS_DIR}svg{sep}list.svg", "visual": 0, "parameter": 1,
                    "match_change": 1,
                    "exe_on_return": 0, "term": ""},
          "Pause": {"title": "Pause", "description": "Pauses currently playing music", "prefix": ["pause"],
-                   "function": pause_playback, "icon": f"{ASSETS_DIR}{sep}svg{sep}pause.svg", "visual": 0, "parameter": 0,
+                   "function": pause_playback, "icon": f"{ASSETS_DIR}svg{sep}pause.svg", "visual": 0, "parameter": 0,
                    "match_change": 0, "exe_on_return": 1},
          "Playlist": {"title": "Playlist", "description": "Plays a playlist", "prefix": ["playlist "],
-                      "function": play_playlist, "icon": f"{ASSETS_DIR}{sep}svg{sep}playlist.svg", "visual": 0, "parameter": 1,
+                      "function": play_playlist, "icon": f"{ASSETS_DIR}svg{sep}playlist.svg", "visual": 0, "parameter": 1,
                       "match_change": 1, "exe_on_return": 0, "term": ""},
          "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked"], "function": play_liked,
-                   "icon": f"{ASSETS_DIR}{sep}svg{sep}heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
+                   "icon": f"{ASSETS_DIR}svg{sep}heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
                    "exe_on_return": 1},
          "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume ", "vol "],
-                    "function": set_vol, "icon": f"{ASSETS_DIR}{sep}svg{sep}volume.svg", "visual": 0, "parameter": 1,
+                    "function": set_vol, "icon": f"{ASSETS_DIR}svg{sep}volume.svg", "visual": 0, "parameter": 1,
                     "match_change": 0,
                     "exe_on_return": 0, "term": ""},
          "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto", "go to"],
-                  "function": goto, "icon": f"{ASSETS_DIR}{sep}svg{sep}forward.svg", "visual": 0, "parameter": 1,
+                  "function": goto, "icon": f"{ASSETS_DIR}svg{sep}forward.svg", "visual": 0, "parameter": 1,
                   "match_change": 0,
                   "exe_on_return": 0, "term": ""},
          "Resume": {"title": "Resume", "description": "Resumes music playback", "prefix": ["resume", "start"],
-                    "function": resume_playback, "icon": f"{ASSETS_DIR}{sep}svg{sep}play.svg", "visual": 0, "parameter": 0,
+                    "function": resume_playback, "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0, "parameter": 0,
                     "match_change": 0, "exe_on_return": 1},
          "Skip": {"title": "Skip", "description": "Skips the current song", "prefix": ["skip", "next"],
-                  "function": next_song, "icon": f"{ASSETS_DIR}{sep}svg{sep}forward.svg", "visual": 0, "parameter": 0,
+                  "function": next_song, "icon": f"{ASSETS_DIR}svg{sep}forward.svg", "visual": 0, "parameter": 0,
                   "match_change": 0,
                   "exe_on_return": 1},
          "Previous": {"title": "Previous", "description": "Plays previous song", "prefix": ["previous", "prev"],
-                      "function": previous_song, "icon": f"{ASSETS_DIR}{sep}svg{sep}backward.svg", "visual": 0, "parameter": 0,
+                      "function": previous_song, "icon": f"{ASSETS_DIR}svg{sep}backward.svg", "visual": 0, "parameter": 0,
                       "match_change": 0, "exe_on_return": 1},
          "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit"],
-                  "function": exit, "icon": f"{ASSETS_DIR}{sep}svg{sep}moon.svg", "visual": 0, "parameter": 0,
+                  "function": exit, "icon": f"{ASSETS_DIR}svg{sep}moon.svg", "visual": 0, "parameter": 0,
                   "match_change": 0, "exe_on_return": 1},
          "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle"],
-                     "function": toggle_shuffle, "icon": f"{ASSETS_DIR}{sep}svg{sep}shuffle.svg", "visual": 0, "parameter": 0,
+                     "function": toggle_shuffle, "icon": f"{ASSETS_DIR}svg{sep}shuffle.svg", "visual": 0, "parameter": 0,
                      "match_change": 0, "exe_on_return": 1},
          "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
-                    "function": set_device, "icon": f"{ASSETS_DIR}{sep}svg{sep}device.svg", "visual": 0, "parameter": 1,
+                    "function": set_device, "icon": f"{ASSETS_DIR}svg{sep}device.svg", "visual": 0, "parameter": 1,
                     "match_change": 1, "exe_on_return": 0}
          }
 
 
 # File Names
-song_cache_file_path = f"{ROOT_DIR}{sep}cache{sep}songs.json"
-playlist_cache_file_path = f"{ROOT_DIR}{sep}cache{sep}playlists.json"
-album_cache_file_path = f"{ROOT_DIR}{sep}cache{sep}albums.json"
-artist_cache_file_path = f"{ROOT_DIR}{sep}cache{sep}artists.json"
-album_art_path = f"{ROOT_DIR}{sep}cache{sep}art{sep}"
+song_cache_file_path = f"{CACHE_DIR}songs.json"
+playlist_cache_file_path = f"{CACHE_DIR}playlists.json"
+album_cache_file_path = f"{CACHE_DIR}albums.json"
+artist_cache_file_path = f"{CACHE_DIR}artists.json"
+album_art_path = f"{CACHE_DIR}art{sep}"
