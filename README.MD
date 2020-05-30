@@ -42,7 +42,7 @@ pip install -r requirements.txt
 ```
 
 ### Linking the Spotify App
-On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
+**Change the name of `_config.py` to `config.py` in the project's root directory.** On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
 
 ## Usage
 Run `app.py` to start the application. The GUI is activated by using the shortcut `ctrl + space`. Here is the current list of available functions:
