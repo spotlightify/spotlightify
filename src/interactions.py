@@ -20,7 +20,7 @@ class Interactions:
         self.token_info = token_info
         self.queue = queue
         try:
-            self.current_device_id = self.sp.devices()["devices"][0]
+            self.current_device_id = self.sp.devices()["devices"][0]["id"]
         except:
             print("[WARNING] No device currently available. Make sure the Spotify desktop app is open and play a song on it to "
                   "ensure that the device is discoverable. A device can be selected by typing 'device' into the Spotlightify search.")
