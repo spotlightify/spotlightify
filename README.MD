@@ -24,7 +24,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ``` 
 
-### MacOS/Linux
+### MacOS
 ```
 cd path/to/spotlightify-root
 python -m venv venv
