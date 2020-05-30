@@ -4,7 +4,7 @@ import spotipy
 from os import sep, path
 import json
 import copy
-from definitions import ASSETS_DIR, CACHE_DIR
+from definitions import ASSETS_DIR, CACHE_DIR, ROOT_DIR
 from pathlib import Path
 
 

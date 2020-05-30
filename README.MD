@@ -15,17 +15,8 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
     8. That is the App set up, keep the dashboard webpage open as we will need `Client ID` and `Client Secret` from it later on.
 
 ## Installing Dependencies
-
-### Linking the Spotify App
-**Change the name of `_config.py` to `config.py` in the project's root directory.** On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
-
-### Installing Fonts
-The fonts found in `assets/fonts` must be installed for this to display correctly.
-
-### OS Specific Setup
-To create the virtual environment run the following commands. 
-
-#### Windows
+Creating a Python virtual environment inside of the Spotlightify project folder and installing project dependencies:
+### Windows
 ```
 cd path\to\spotlightify-root
 python -m venv venv
@@ -33,7 +24,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ``` 
 
-#### MacOS
+### MacOS
 ```
 cd path/to/spotlightify-root
 python -m venv venv
@@ -41,7 +32,7 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-#### Linux
+### Linux
 ```
 sudo apt-get install python3-pyqt5
 cd path/to/spotlightify-root
@@ -49,6 +40,9 @@ python -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
 ```
+
+### Linking the Spotify App
+**Change the name of `_config.py` to `config.py` in the project's root directory.** On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
 
 ## Usage
 Run `app.py` to start the application. The GUI is activated by using the shortcut `ctrl + space`. Here is the current list of available functions:
