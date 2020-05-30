@@ -213,7 +213,7 @@ class Ui(QWidget):
 
 def position_app():
     coord = QDesktopWidget().availableGeometry().center()
-    to_sub = QtCore.QPoint(270, 300)  # half the width of the application
+    to_sub = QtCore.QPoint(270, 450)  # half the width of the application
     center = coord.__sub__(to_sub)
     return center
 

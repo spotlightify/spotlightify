@@ -23,11 +23,12 @@ def get_json_cache(file):
 
 
 class Interactions:
-    def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function):
+    def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function, queue):
         self.exit_function = exit_function
         self.sp_oauth = sp_oauth
         self.sp = sp
         self.token_info = token_info
+        self.queue = queue
         try:
             self.current_device = self.sp.devices()["devices"][0]
         except:
@@ -36,7 +37,6 @@ class Interactions:
         # Feature Toggles
         self.shuffle = False
         self.shuffle_text = "(OFF)"
-        # self.cache_playlists()
 
     def exit(self):
         self.exit_function()
@@ -45,7 +45,6 @@ class Interactions:
         try:
             song_uri = self.get_song_uri(song_input)
             self.sp.start_playback(self.current_device["id"], None, [song_uri])
-            self.cache_playlists()
         except spotipy.exceptions.SpotifyException:
             print("No device selected. Make sure the Spotify desktop app is running and the correct device has been "
                   "selected. A device can be selected by typing 'device' into the Spotlightify search.")
@@ -55,45 +54,14 @@ class Interactions:
         try:
             song = self.sp.track(song_input)
             song_uri = song["uri"]
+            print(f"caching song", song)
+            self.queue.put(song)
         except:
             track = self.sp.search(song_input, limit=1, market="GB", type="track")["tracks"]["items"][0]
-            self.add_song_to_json(track)
             song_uri = track["uri"]
+            print(f"caching song", track)
+            self.queue.put(track)
         return song_uri
-
-    def add_song_to_json(self, song):
-        pass
-        '''filename = song_cache_file_path
-        with open(filename, 'r') as f:
-            data = json.load(f)
-            artists = []
-            for song_cache in data["songs"]:
-                if song_cache["uri"] == song["uri"] or (song_cache["artists"][0]["name"] == song["artists"][0]["name"]
-                                                        and song_cache["name"] == song["name"]):
-                    return
-            for art in song["artists"]:
-                dictionary = {"name": art["name"], "uri": art["uri"]}
-                artists.append(dictionary)
-            refined_song = {
-                "name": song["name"],
-                "artists": artists,
-                "uri": song["uri"],
-                "image": album_art_path + song["album"]["id"] + ".jpg"}
-            # download album art
-            url = song["album"]["images"][2]["url"]
-            id_ = song["album"]["id"]
-            if not os.path.isfile(album_art_path + id_ + ".jpg"):
-                self.download_image(album_art_path, url, id_)
-            data["songs"].append(refined_song)
-            data["length"] = data["length"] + 1
-        os.remove(filename)
-        with open(filename, 'w') as f:
-            json.dump(data, f, indent=4)'''
-
-    def download_image(self, path, url, id_):
-        img_data = requests.get(url).content
-        with open(path + id_ + '.jpg', 'wb') as handler:
-            handler.write(img_data)
 
     def is_song_playing(self):
         try:
@@ -118,15 +86,6 @@ class Interactions:
         except:
             return False
 
-    def cache_playlists(self):
-        results = self.sp.current_user_playlists()
-        playlists = results["items"]
-        while results['next']:
-            results = self.sp.next(results)
-            playlists.extend(results["items"])
-        for playlist in playlists:
-            self.add_playlist_to_json(playlist)
-
     def like_song_toggle(self, *refresh_method: classmethod):  # used to immediately refresh a svg
         try:
             current_song = self.sp.current_user_playing_track()["item"]
@@ -149,31 +108,6 @@ class Interactions:
         except:
             return False
 
-    def add_playlist_to_json(self, playlist):
-        pass
-        '''filename = playlist_cache_file_path
-        with open(filename, 'r') as f:
-            data = json.load(f)
-            for playlist_cache in data["playlists"]:
-                if playlist_cache["uri"] == playlist["uri"]:
-                    return
-            # download album art
-            if len(playlist["images"]) == 1:
-                url = playlist["images"][0]["url"]
-            else:
-                url = playlist["images"][2]["url"]
-            id_ = playlist["id"]
-            if not os.path.isfile(album_art_path + id_ + ".jpg"):
-                self.download_image(album_art_path, url, id_)
-            refined_playlist = {"name": playlist["name"], "owner": playlist["owner"]["display_name"],
-                                "image": album_art_path + id_ + ".jpg",
-                                "uri": playlist["uri"]}
-            data["playlists"].append(refined_playlist)
-            data["length"] = data["length"] + 1
-        os.remove(filename)
-        with open(filename, 'w') as f:
-            json.dump(data, f, indent=4)'''
-
     def play_playlist(self, playlist_id):
         try:
             results = self.sp.playlist_tracks(playlist_id=playlist_id)
@@ -184,7 +118,6 @@ class Interactions:
             uris = []
             for track in tracks:
                 uris.append(track["track"]["uri"])
-                self.add_song_to_json(track["track"])
             self.sp.start_playback(self.current_device["id"], None, uris=uris)
         except:
             print("[ERROR] Could not play playlist")
@@ -212,14 +145,13 @@ class Interactions:
                 tracks.extend(results["items"])
             for track in tracks:
                 uris.append(track["track"]["uri"])
-                self.add_song_to_json(track["track"])
             self.sp.start_playback(self.current_device["id"], None, uris=uris)
         except:
             print("[ERROR] Could not play liked music")
 
     def shuffle_toggle(self, *refresh_method: classmethod):
         try:
-            if self.shuffle == False:
+            if not self.shuffle:
                 self.shuffle = True
                 self.sp.shuffle(self.shuffle, self.current_device["id"])
                 self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
@@ -336,9 +268,11 @@ class Interactions:
         first_command["term"] = term
         if not os.path.isfile(song_cache_file_path):
             return [first_command]
+
         with open(song_cache_file_path, 'r') as f:
             data = json.load(f)
             matched = [first_command]
+
             for song_id, values in data["songs"].items():
                 if len(matched) >= 6:
                     break
@@ -352,6 +286,7 @@ class Interactions:
                         new_command["exe_on_return"] = 1
                         if not check_for_duplicates():
                             matched.append(new_command)
+
         # for sorting commands into alphabetical order
         matched_sorted = [first_command]
         matched.remove(first_command)
@@ -433,8 +368,8 @@ class Interactions:
          }
 
 # File Names
-song_cache_file_path = f"{ROOT_DIR}/cache/test-songs.json"
-playlist_cache_file_path = f"{ROOT_DIR}/cache/test-playlists.json"
-album_cache_file_path = f"{ROOT_DIR}/cache/albums.json"
-artist_cache_file_path = f"{ROOT_DIR}/cache/artists.json"
-album_art_path = f"{ROOT_DIR}/cache/art-temp/"
+song_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}songs.json"
+playlist_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}playlists.json"
+album_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}albums.json"
+artist_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}artists.json"
+album_art_path = f"{ROOT_DIR}{os.sep}cache{os.sep}art{os.sep}"
