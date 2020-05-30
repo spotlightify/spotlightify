@@ -384,6 +384,7 @@ class Interactions:
         self.sp.start_playback(self.current_device_id)
 
     def set_device(self, device_id):
+        self.pause_playback()
         self.current_device_id = device_id
 
     def set_vol(self, value):
