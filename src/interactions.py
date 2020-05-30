@@ -320,13 +320,12 @@ class Interactions:
         first_command["title"] = f'{command["title"]} "{term}"'
         first_command["exe_on_return"] = 1
         first_command["term"] = term
+        matched = [first_command]
         if not os.path.isfile(song_cache_file_path):
             return [first_command]
         try:
             with open(song_cache_file_path, 'r') as f:
                 data = json.load(f)
-                matched = [first_command]
-
                 for song_id, values in data["songs"].items():
                     if len(matched) >= 6:
                         break
@@ -402,12 +401,16 @@ class Interactions:
             refresh()
 
     def toggle_playback(self, *refresh_method: classmethod):
-        if self.sp.current_playback()["is_playing"]:
-            self.sp.pause_playback(self.current_device_id)
-        else:
-            self.sp.start_playback(self.current_device_id)
-        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-            refresh()
+        try:
+            if self.sp.current_playback()["is_playing"]:
+                self.sp.pause_playback(self.current_device_id)
+            else:
+                self.sp.start_playback(self.current_device_id)
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Could not toggle playback. Make a device has been selected. Use the 'device' command to select"
+                  " the appropriate device")
 
     def toggle_shuffle(self, *refresh_method: classmethod):
         if self.is_shuffle_on:

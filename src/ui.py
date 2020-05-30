@@ -37,7 +37,7 @@ class Ui(QWidget):
         self.command_position = 0
         # needed for adding suggestion rows
         self.rows = [0] * 6
-        self.current_num_of_rows = 0  # used to find the default command to execute
+        self.current_num_of_rows = 0  # used to find the default command to executed
         # needed to exit the application
         self.exit = 0
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
@@ -88,6 +88,7 @@ class Ui(QWidget):
                 self.suggest_row_handler(source.command_dict)
         if (event.type() == QtCore.QEvent.FocusOut and
                 source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
+            self.textbox.clear()
             self.hide()
             return True
             # return true here to bypass default behaviour
