@@ -1,3 +1,5 @@
+import collections
+
 import requests
 import spotipy
 # from fuzzywuzzy import fuzz
@@ -11,77 +13,202 @@ from pathlib import Path
 
 
 class Interactions:
-    def __init__(self, sp: spotipy.Spotify, username, client_id, client_secret, scope, redirect_uri):
+    def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function, queue):
+        self.exit_function = exit_function
+        self.sp_oauth = sp_oauth
         self.sp = sp
-        self.username = username
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.scope = scope
-        self.redirect_uri = redirect_uri
-        self.current_device_id = self.sp.devices()["devices"][0]["id"]
+        self.token_info = token_info
+        self.queue = queue
+        try:
+            self.current_device = self.sp.devices()["devices"][0]
+        except:
+            print("[WARNING] No device currently available. Make sure the Spotify desktop app is open and play a song on it to "
+                  "ensure that the device is discoverable. A device can be selected by typing 'device' into the Spotlightify search.")
+        # Feature Toggles
+        self.shuffle = False
         self.shuffle_text = "(OFF)"
-        self.cache_all_playlists()
 
-    def add_playlist_to_json(self, playlist):
-        filename = playlist_cache_file_path
-        with open(filename, 'r') as f:
-            data = json.load(f)
-            for playlist_cache in data["playlists"]:
-                if playlist_cache["uri"] == playlist["uri"]:
-                    return
-            # download album art
-            if len(playlist["images"]) == 1:
-                url = playlist["images"][0]["url"]
+    def exit(self):
+        self.exit_function()
+
+    def play_song(self, song_input):
+        try:
+            song_uri = self.get_song_uri(song_input)
+            self.sp.start_playback(self.current_device["id"], None, [song_uri])
+        except spotipy.exceptions.SpotifyException:
+            print("No device selected. Make sure the Spotify desktop app is running and the correct device has been "
+                  "selected. A device can be selected by typing 'device' into the Spotlightify search.")
+
+    def get_song_uri(self, song_input):
+        song_uri = None
+        try:
+            song = self.sp.track(song_input)
+            song_uri = song["uri"]
+            self.queue.put(song)
+        except:
+            track = self.sp.search(song_input, limit=1, market="GB", type="track")["tracks"]["items"][0]
+            song_uri = track["uri"]
+            self.queue.put(track)
+        return song_uri
+
+    def is_song_playing(self):
+        try:
+            return self.sp.current_playback()["is_playing"]
+        except:
+            return False
+
+    def toggle_playback(self, *refresh_method: classmethod):
+        try:
+            if self.sp.current_playback()["is_playing"]:
+                self.sp.pause_playback(self.current_device["id"])
             else:
-                url = playlist["images"][2]["url"]
-            id_ = playlist["id"]
-            if not os.path.isfile(album_art_path + id_ + ".jpg"):
-                self.download_image(album_art_path, url, id_)
-            refined_playlist = {"name": playlist["name"], "owner": playlist["owner"]["display_name"],
-                                "image": album_art_path + id_ + ".jpg",
-                                "uri": playlist["uri"]}
-            data["playlists"].append(refined_playlist)
-            data["length"] = data["length"] + 1
-        os.remove(filename)
-        with open(filename, 'w') as f:
-            json.dump(data, f, indent=4)
+                self.sp.start_playback(self.current_device["id"])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Playback could not be toggled")
 
-    def add_song_to_json(self, song):
-        filename = song_cache_file_path
-        with open(filename, 'r') as f:
-            data = json.load(f)
-            artists = []
-            for song_cache in data["songs"]:
-                if song_cache["uri"] == song["uri"] or (song_cache["artists"][0]["name"] == song["artists"][0]["name"]
-                                                        and song_cache["name"] == song["name"]):
-                    return
-            for art in song["artists"]:
-                dictionary = {"name": art["name"], "uri": art["uri"]}
-                artists.append(dictionary)
-            refined_song = {
-                "name": song["name"],
-                "artists": artists,
-                "uri": song["uri"],
-                "image": album_art_path + song["album"]["id"] + ".jpg"}
-            # download album art
-            url = song["album"]["images"][2]["url"]
-            id_ = song["album"]["id"]
-            if not os.path.isfile(album_art_path + id_ + ".jpg"):
-                self.download_image(album_art_path, url, id_)
-            data["songs"].append(refined_song)
-            data["length"] = data["length"] + 1
-        os.remove(filename)
-        with open(filename, 'w') as f:
-            json.dump(data, f, indent=4)
+    def is_shuffle_on(self):
+        try:
+            return self.sp.current_playback()["shuffle_state"]
+        except:
+            return False
 
-    def cache_all_playlists(self):
-        results = self.sp.user_playlists(self.username)
-        playlists = results["items"]
-        while results['next']:
-            results = self.sp.next(results)
-            playlists.extend(results["items"])
-        for playlist in playlists:
-            self.add_playlist_to_json(playlist)
+    def like_song_toggle(self, *refresh_method: classmethod):  # used to immediately refresh a svg
+        try:
+            current_song = self.sp.current_user_playing_track()["item"]
+            if not self.is_current_song_liked():
+                self.sp.current_user_saved_tracks_add([current_song["uri"]])
+            else:
+                self.sp.current_user_saved_tracks_delete([current_song["uri"]])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Song like could not be toggled")
+
+    def is_current_song_liked(self):
+        try:
+            current_song = self.sp.currently_playing()["item"]
+            if self.sp.current_user_saved_tracks_contains([current_song["id"]])[0]:
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def play_playlist(self, playlist_id):
+        try:
+            results = self.sp.playlist_tracks(playlist_id=playlist_id)
+            tracks = results["items"]
+            while results["next"]:
+                results = self.sp.next(results)
+                tracks.extend(results["items"])
+            uris = []
+            for track in tracks:
+                uris.append(track["track"]["uri"])
+            self.sp.start_playback(self.current_device["id"], None, uris=uris)
+        except:
+            print("[ERROR] Could not play playlist")
+
+    def goto(self, time):
+        try:
+            """Get Seconds from time."""
+            time_standard = str(time).count(":")
+            if time_standard == 1:
+                time = "0:" + str(time)
+            h, m, s = time.split(':')
+            time = (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
+            self.sp.seek_track(time, self.current_device["id"])
+            self.resume_playback()
+        except:
+            print("[ERROR] Invalid time give. Valid command example: go to 1:40")
+
+    def play_liked(self):
+        try:
+            results = self.sp.current_user_saved_tracks()
+            tracks = results["items"]
+            uris = []
+            while results["next"]:
+                results = self.sp.next(results)
+                tracks.extend(results["items"])
+            for track in tracks:
+                uris.append(track["track"]["uri"])
+            self.sp.start_playback(self.current_device["id"], None, uris=uris)
+        except:
+            print("[ERROR] Could not play liked music")
+
+    def shuffle_toggle(self, *refresh_method: classmethod):
+        try:
+            if not self.shuffle:
+                self.shuffle = True
+                self.sp.shuffle(self.shuffle, self.current_device["id"])
+                self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
+            else:
+                self.shuffle = False
+                self.sp.shuffle(self.shuffle, self.current_device["id"])
+                self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[WARNING] Could not toggle playlist shuffle")
+
+    def queue_song(self, song_input):
+        song_uri = self.get_song_uri(song_input)
+        self.sp.add_to_queue(song_uri, self.current_device["id"])
+
+    def pause_playback(self):
+        try:
+            self.sp.pause_playback(self.current_device['id'])
+        except:
+            print("[WARNING] Could not pause playback")
+
+    def resume_playback(self):
+        try:
+            self.sp.start_playback(self.current_device['id'])
+        except:
+            print("[WARNING] Could not resume playback")
+
+    def change_vol(self, value):
+        try:
+            int_ = int(value)
+            if 0 <= int_ <= 100:
+                self.sp.volume(int_, self.current_device['id'])
+        except:
+            print("[ERROR] Invalid volume value. Valid command example: 'volume 20'")
+
+    def next_song(self, *refresh_method: classmethod):
+        try:
+            self.sp.next_track(self.current_device["id"])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("Sorry, this is the Last Track in the Queue")
+
+    def previous_song(self, *refresh_method: classmethod):
+        try:
+            self.sp.previous_track(self.current_device["id"])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("Sorry, previous song not found")
+
+    def is_int(self, value):
+        try:
+            int(str(value).strip())
+            return True
+        except ValueError:
+            return False
+
+    def perform_command(self, command, parent):
+        self.refresh_token()
+        if command["visual"] == 1 and command["parameter"] == 1:
+            command["function"](self, parent, command["term"])
+        elif command["visual"] == 0 and command["parameter"] == 1:
+            command["function"](self, command["term"])
+        elif command["visual"] == 0 and command["parameter"] == 0:
+            command["function"](self)
+        elif command["visual"] == 1 and command["parameter"] == 0:
+            command["function"](self, parent)
 
     def command_match(self, term):
         matched = []
@@ -179,153 +306,79 @@ class Interactions:
         return matched_sorted
 
     def get_song_suggestions(self, command, term):
-        with open(song_cache_file_path, 'r') as f:
-            data = json.load(f)
-            first_command = copy.deepcopy(command)
-            first_command["title"] = f'{command["title"]} "{term}"'
-            first_command["exe_on_return"] = 1
-            first_command["term"] = term
-            matched = [first_command]
-            data["songs"].reverse()
-            for song in data["songs"]:
-                if len(matched) >= 6:
-                    break
-                if len(song["name"]) >= len(term):
-                    if song["name"][:len(term)].lower() == term:
-                        new_command = copy.deepcopy(command)
-                        artists_string = ""
-                        for artist in song["artists"]:
-                            artists_string += artist["name"] + ", "
-                        artists_string = artists_string[:-2]
-                        new_command["icon"] = song["image"]
-                        new_command["title"] = song["name"]
-                        new_command["description"] = f"By {artists_string}"
-                        new_command["term"] = f"{song['uri']}"
-                        new_command["exe_on_return"] = 1
-                        matched.append(new_command)
+        def check_for_duplicates():
+            if len(matched) > 1:
+                for match in matched:
+                    if new_command["title"] == match["title"]:
+                        artists1 = new_command["description"].split(",")
+                        artists2 = match["description"].split(",")
+                        if collections.Counter(artists1) == collections.Counter(artists2):
+                            return True
+            return False
+
+        first_command = copy.deepcopy(command)
+        first_command["title"] = f'{command["title"]} "{term}"'
+        first_command["exe_on_return"] = 1
+        first_command["term"] = term
+        if not os.path.isfile(song_cache_file_path):
+            return [first_command]
+        try:
+            with open(song_cache_file_path, 'r') as f:
+                data = json.load(f)
+                matched = [first_command]
+
+                for song_id, values in data["songs"].items():
+                    if len(matched) >= 6:
+                        break
+                    if len(values["name"]) >= len(term):
+                        if values["name"][:len(term)].lower() == term:
+                            new_command = copy.deepcopy(command)
+                            new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
+                            new_command["title"] = values["name"]
+                            new_command["description"] = f"By {values['artist']}"
+                            new_command["term"] = f"{song_id}"
+                            new_command["exe_on_return"] = 1
+                            if not check_for_duplicates():
+                                matched.append(new_command)
+        except:
+            None
+
         # for sorting commands into alphabetical order
         matched_sorted = [first_command]
         matched.remove(first_command)
         matched_sorted.extend(sorted(matched, key=lambda k: k["title"]))
         return matched_sorted
 
-    def get_song_uri(self, song_input):
-        track = None
-        song_uri = None
-        if "spotify:track:" in song_input:  # if the song_input is already a uri
-            song_uri = song_input
-            track = self.sp.track(song_uri)
-            if not track["is_local"]:
-                self.add_song_to_json(track)
-        else:
-            track = self.sp.search(song_input, limit=1, market="GB", type="track")["tracks"]["items"][0]
-            self.add_song_to_json(track)
-            song_uri = track["uri"]
-        return song_uri
-
-    def goto(self, time):
-        """Get Seconds from time."""
-        time_standard = str(time).count(":")
-        if time_standard == 1:
-            time = "0:" + str(time)
-        h, m, s = time.split(':')
-        time = (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
-        try:
-            self.sp.seek_track(time, self.current_device_id)
-            self.resume_playback()
-        except:
-            None
-
-    def is_current_song_liked(self):
-        current_song = self.sp.currently_playing()["item"]
-        if self.sp.current_user_saved_tracks_contains([current_song["id"]])[0]:
-            return True
-        else:
-            return False
-
-    def is_int(self, value):
-        try:
-            int(str(value).strip())
-            return True
-        except ValueError:
-            return False
-
-    def is_shuffle_on(self):
-        return self.sp.current_playback()["shuffle_state"]
-
-    def is_song_playing(self):
-        return self.sp.current_playback()["is_playing"]
-
-    def next_song(self, *refresh_method: classmethod):
-        try:
-            self.sp.next_track(self.current_device_id)
-            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-                refresh()
-        except:
-            print("Sorry, this is the Last Track in the Queue")
-
-    def pause_playback(self):
-        self.sp.pause_playback(self.current_device_id)
-
-    def play_liked(self):
-        results = self.sp.current_user_saved_tracks()
-        tracks = results["items"]
-        uris = []
-        while results["next"]:
-            results = self.sp.next(results)
-            tracks.extend(results["items"])
-        for track in tracks:
-            uris.append(track["track"]["uri"])
-            self.add_song_to_json(track["track"])
-        self.sp.start_playback(self.current_device_id, None, uris=uris)
-
-    def play_playlist(self, playlist_id):
-        results = self.sp.playlist_tracks(playlist_id=playlist_id)
-        tracks = results["items"]
-        while results["next"]:
-            results = self.sp.next(results)
-            tracks.extend(results["items"])
-        uris = []
-        for track in tracks:
-            if not track["is_local"]:
-                uris.append(track["track"]["uri"])
-                self.add_song_to_json(track["track"])
-        self.sp.start_playback(self.current_device_id, None, uris=uris)
-
-    def play_song(self, song_input):
-        song_uri = self.get_song_uri(song_input)
-        self.sp.start_playback(self.current_device_id, None, [song_uri])
-        self.sp.shuffle(False, self.current_device_id)
-
-    def playlist_cache_search(self, prefix, term, matched):
+    def get_playlist_suggestions(self, command, term):
+        if not os.path.isfile(playlist_cache_file_path):
+            return []
         with open(playlist_cache_file_path, 'r') as f:
             data = json.load(f)
-            for playlist in data["playlists"]:
-                if len(matched) >= 5:
-                    return
-                if len(playlist["name"]) >= len(term):
-                    if playlist["name"][:len(term)].lower() == term:
-                        creator = playlist["owner"]
-                        playlist = {"icon": playlist["image"], "title": playlist["name"],
-                                    "description": f"Playlist by {creator}",
-                                    "prefix": [prefix + playlist["name"] + f" {creator}"]}
-                        matched.append(playlist)
-
-    def previous_song(self, *refresh_method: classmethod):
-        try:
-            self.sp.previous_track(self.current_device_id)
-            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-                refresh()
-        except:
-            print("Sorry, previous song not found")
-
-    def queue_song(self, song_input):
-        song_uri = self.get_song_uri(song_input)
-        self.sp.add_to_queue(song_uri, self.current_device_id)
+            matched = []
+            for playlist_id, values in data["playlists"].items():
+                if len(matched) >= 6:
+                    break
+                if len(values["name"]) >= len(term):
+                    if values["name"][:len(term)].lower() == term:
+                        new_command = copy.deepcopy(command)
+                        new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
+                        new_command["title"] = values["name"]
+                        new_command["description"] = f"By {values['owner']}"
+                        new_command["term"] = f"{playlist_id}"
+                        new_command["exe_on_return"] = 1
+                        matched.append(new_command)
+        # for sorting commands into alphabetical order
+        matched_sorted = sorted(matched, key=lambda k: k["title"])
+        return matched_sorted
 
     def refresh_token(self):
-        return spotipy.util.prompt_for_user_token(self.username, scope=self.scope, client_id=self.client_id, client_secret=self.client_secret,
-                                                redirect_uri=self.redirect_uri)
+        try:
+            if self.sp_oauth.is_token_expired(token_info=self.token_info):
+                self.token_info = self.sp_oauth.refresh_access_token(self.token_info['refresh_token'])
+                token = self.token_info['access_token']
+                self.sp = spotipy.Spotify(auth=token)
+        except:
+            print("[WARNING] Could not refresh user API token")
 
     def resume_playback(self):
         self.sp.start_playback(self.current_device_id)
@@ -405,7 +458,7 @@ class Interactions:
                       "function": previous_song, "icon": f"{ASSETS_DIR}/svg/backward.svg", "visual": 0, "parameter": 0,
                       "match_change": 0, "exe_on_return": 1},
          "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit"],
-                  "function": print("exit"), "icon": f"{ASSETS_DIR}/svg/moon.svg", "visual": 1, "parameter": 0,
+                  "function": exit, "icon": f"{ASSETS_DIR}/svg/moon.svg", "visual": 0, "parameter": 0,
                   "match_change": 0, "exe_on_return": 1},
          "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle"],
                      "function": toggle_shuffle, "icon": f"{ASSETS_DIR}/svg/shuffle.svg", "visual": 0, "parameter": 0,
@@ -417,9 +470,8 @@ class Interactions:
 
 
 # File Names
-song_cache_file_path = f"{ROOT_DIR}/cache/songs.json"
-playlist_cache_file_path = f"{ROOT_DIR}/cache/playlists.json"
-cache_path = f"{ROOT_DIR}/cache/"
-album_cache_file_path = f"{ROOT_DIR}/cache/albums.json"
-artist_cache_file_path = f"{ROOT_DIR}/cache/artists.json"
-album_art_path = f"{ROOT_DIR}/cache/art/"
+song_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}songs.json"
+playlist_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}playlists.json"
+album_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}albums.json"
+artist_cache_file_path = f"{ROOT_DIR}{os.sep}cache{os.sep}artists.json"
+album_art_path = f"{ROOT_DIR}{os.sep}cache{os.sep}art{os.sep}"
