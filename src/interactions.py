@@ -44,12 +44,10 @@ class Interactions:
         try:
             song = self.sp.track(song_input)
             song_uri = song["uri"]
-            print(f"caching song", song)
             self.queue.put(song)
         except:
             track = self.sp.search(song_input, limit=1, market="GB", type="track")["tracks"]["items"][0]
             song_uri = track["uri"]
-            print(f"caching song", track)
             self.queue.put(track)
         return song_uri
 
