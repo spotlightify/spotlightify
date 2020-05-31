@@ -38,6 +38,7 @@ except:
 
 
 def exit_app():
+    ui.close()  # visually removes ui quicker
     raise Exception("Exit Command")
 
 
@@ -65,7 +66,7 @@ def focus_ui():  # Only way I could think of to properly focus the ui
 
 
 def tray_icon_activated(reason):
-    if reason == tray.Trigger:  # self.Trigger is left click
+    if reason == tray.Trigger:  # tray.Trigger is left click
         show_ui()
 
 
