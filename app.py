@@ -50,20 +50,20 @@ def show_ui():
     interactions.refresh_token()
     ui.raise_()
     ui.activateWindow()
-    # focus_ui()
+    focus_ui()
     ui.function_row.refresh()  # refreshes function row buttons
 
 
-# def focus_ui():  # Only way I could think of to properly focus the ui
-#     mouse = Controller()
-#     # mouse position before focus
-#     mouse_pos_before = mouse.position
-#     # changing the mouse position for click
-#     target_pos_x = ui.pos().x() + ui.textbox.pos().x()
-#     target_pos_y = ui.pos().y() + ui.textbox.pos().y()
-#     mouse.position = (target_pos_x, target_pos_y)
-#     mouse.click(Button.left)
-#     mouse.position = mouse_pos_before
+def focus_ui():  # Only way I could think of to properly focus the ui
+    mouse = Controller()
+    # mouse position before focus
+    mouse_pos_before = mouse.position
+    # changing the mouse position for click
+    target_pos_x = ui.pos().x() + ui.textbox.pos().x()
+    target_pos_y = ui.pos().y() + ui.textbox.pos().y()
+    mouse.position = (target_pos_x, target_pos_y)
+    mouse.click(Button.left)
+    mouse.position = mouse_pos_before
 
 
 def create_cache():
