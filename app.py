@@ -38,8 +38,7 @@ except:
 
 
 def exit_app():
-    app.quit()
-    exit()
+    raise Exception("Exit Command")
 
 
 def show_ui():
@@ -65,6 +64,11 @@ def focus_ui():  # Only way I could think of to properly focus the ui
     mouse.position = mouse_pos_before
 
 
+def tray_icon_activated(reason):
+    if reason == tray.Trigger:  # self.Trigger is left click
+        show_ui()
+
+
 def create_cache():
     if not path.exists(CACHE_DIR):
         mkdir(CACHE_DIR)
@@ -87,7 +91,6 @@ tray = QSystemTrayIcon()
 tray.setIcon(icon)
 tray.setVisible(True)
 tray.setToolTip("Spotlightify")
-tray.activated.connect(show_ui)
 
 # Create menu
 menu = QMenu()
@@ -117,5 +120,6 @@ liked_caching_thread.start()
 
 # Add the menu to the tray
 tray.setContextMenu(menu)
+tray.activated.connect(tray_icon_activated)
 
 app.exec_()
