@@ -45,7 +45,6 @@ def exit_app():
 def show_ui():
     if not ui.isActiveWindow() or ui.isHidden():
         ui.show()
-    # ui.activateWindow()
     sleep(0.1)
     interactions.refresh_token()
     ui.raise_()
