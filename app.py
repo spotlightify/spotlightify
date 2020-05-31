@@ -2,7 +2,6 @@ from threading import Thread
 from pynput.mouse import Button, Controller
 from queue import Queue
 from spotipy import Spotify, util, oauth2
-from config import USERNAME, CLIENT_ID, CLIENT_SECRET
 from os import sep, path, mkdir
 from shortcuts import listener
 from PyQt5.QtGui import QIcon
@@ -12,23 +11,25 @@ from time import sleep
 from definitions import ASSETS_DIR, CACHE_DIR
 from interactions import Interactions
 from caching import CachingThread, SongCachingThread, ImageCachingThread, ImageQueue
+import os
 
+#  Allow users to use the default spotipy env variables
+if not (all(elem in os.environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
+    from config import USERNAME, CLIENT_ID, CLIENT_SECRET
+    redirect_uri = "http://localhost:8080"
+else:
+    CLIENT_ID, CLIENT_SECRET, redirect_uri, USERNAME, = [os.environ[item] for item in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"]]
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
-
-redirect_uri = "http://localhost:8080"
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
         "playlist-read-private playlist-read-private"
 
 sp_oauth = oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
                                        scope=scope, username=USERNAME)
-token_info = sp_oauth.get_cached_token()
-if not token_info:
-    token = util.prompt_for_user_token(USERNAME, scope=scope, client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
-                                                    redirect_uri=redirect_uri)
-    token_info = sp_oauth.get_cached_token()
-else:
-    token = token_info["access_token"]
+
+code = sp_oauth.get_auth_response()
+token_info = sp_oauth.get_access_token(code, as_dict=True)
+token = token_info["access_token"]
 
 try:
     sp = Spotify(auth=token)
