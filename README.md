@@ -70,6 +70,8 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 | Device   | Select device for music playback | device        | None          |
 | Exit     | Exits the application            | exit          | None          |
 ```
+**On first start up, Spotlightify will cache all of your liked and playlist songs, caching both song information and album art. So keep the app open for at least 10 minutes so that all your songs can be cached.**
+
 
 ## Built With
 - <a href="https://spotipy.readthedocs.io/en/2.12.0/" target="_blank">Spotipy</a> - A Spotify API wrapper for Python
