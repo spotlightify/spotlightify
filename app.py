@@ -27,8 +27,7 @@ scope = "streaming user-library-read user-modify-playback-state user-read-playba
 sp_oauth = oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
                                        scope=scope, username=USERNAME)
 
-code = sp_oauth.get_auth_response()
-token_info = sp_oauth.get_access_token(code, as_dict=True)
+token_info = sp_oauth.get_access_token(as_dict=True)
 token = token_info["access_token"]
 
 try:
