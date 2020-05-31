@@ -1,3 +1,4 @@
+import argparse
 from threading import Thread
 from pynput.mouse import Button, Controller
 from queue import Queue
@@ -70,6 +71,12 @@ def create_cache():
         mkdir(CACHE_DIR)
 
 
+# Command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-x", "--xcolors", action="store_true", default=False,
+                    help="use X colors")
+args = parser.parse_args()
+
 queue = Queue()
 image_queue = ImageQueue()
 
@@ -77,7 +84,7 @@ image_queue = ImageQueue()
 interactions = Interactions(sp, token_info, sp_oauth, exit_app, queue)
 
 # UI
-ui = Ui(interactions)
+ui = Ui(interactions, use_x_colors=args.xcolors)
 
 # Create icon
 icon = QIcon(f"{ASSETS_DIR}img{sep}logo_small.png")

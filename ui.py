@@ -1,4 +1,6 @@
+import subprocess
 from os import sep
+from sys import platform
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
 from widgets import FunctionButtonsRow, SuggestRow, SvgButton
@@ -9,7 +11,7 @@ class Ui(QWidget):
     QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icon-base
 
-    def __init__(self, interactions, parent=None):
+    def __init__(self, interactions, parent=None, use_x_colors=False):
         QWidget.__init__(self, parent)
         # for spotify interaction
         self.interactions = interactions
@@ -19,8 +21,15 @@ class Ui(QWidget):
         self.standard_row_height, self.small_row_height = [57, 47]
         self.resize(540, self.standard_row_height * 8)  # keep this, fixes weird bug
         # theming and style
-        self.theme = {"dark": {"bg": "#191414", "text": "#B3B3B3"},
-                      "light": {"bg": "#B3B3B3", "text": "#191414"}}
+        color_bg = "#191414"
+        color_fg = "#B3B3B3"
+
+        # Get colors from Xresources if applicable
+        if use_x_colors and platform == "linux":
+            color_bg, color_fg = self.get_x_colors()
+
+        self.theme = {"dark": {"bg": color_bg, "text": color_fg},
+                      "light": {"bg": color_fg, "text": color_bg}}
         self.active_theme = self.theme["dark"]
         self.setStyleSheet(f"QWidget {{background: {self.active_theme['bg']};}}")
         self.setWindowTitle('Spotlightify')
@@ -37,6 +46,12 @@ class Ui(QWidget):
         self.exit = 0
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         self.create_widgets()
+
+    def get_x_colors(self):
+        x_bg, x_fg = subprocess.check_output(
+                "xrdb -query | grep -e \"^*background:\" -e \"^*foreground\" | awk '{print $2}'",
+                shell=True).decode('UTF-8').split('\n')[:-1]
+        return x_bg, x_fg
 
     def create_widgets(self):
         self.resize(540, self.small_row_height + self.standard_row_height)  # makes up the height of the widget
