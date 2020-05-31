@@ -27,8 +27,7 @@ scope = "streaming user-library-read user-modify-playback-state user-read-playba
 sp_oauth = oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
                                        scope=scope, username=USERNAME)
 
-code = sp_oauth.get_auth_response()
-token_info = sp_oauth.get_access_token(code, as_dict=True)
+token_info = sp_oauth.get_access_token(as_dict=True)
 token = token_info["access_token"]
 
 try:
@@ -46,24 +45,25 @@ def exit_app():
 def show_ui():
     if not ui.isActiveWindow() or ui.isHidden():
         ui.show()
+    # ui.activateWindow()
     sleep(0.1)
     interactions.refresh_token()
     ui.raise_()
     ui.activateWindow()
-    focus_ui()
+    # focus_ui()
     ui.function_row.refresh()  # refreshes function row buttons
 
 
-def focus_ui():  # Only way I could think of to properly focus the ui
-    mouse = Controller()
-    # mouse position before focus
-    mouse_pos_before = mouse.position
-    # changing the mouse position for click
-    target_pos_x = ui.pos().x() + ui.textbox.pos().x()
-    target_pos_y = ui.pos().y() + ui.textbox.pos().y()
-    mouse.position = (target_pos_x, target_pos_y)
-    mouse.click(Button.left)
-    mouse.position = mouse_pos_before
+# def focus_ui():  # Only way I could think of to properly focus the ui
+#     mouse = Controller()
+#     # mouse position before focus
+#     mouse_pos_before = mouse.position
+#     # changing the mouse position for click
+#     target_pos_x = ui.pos().x() + ui.textbox.pos().x()
+#     target_pos_y = ui.pos().y() + ui.textbox.pos().y()
+#     mouse.position = (target_pos_x, target_pos_y)
+#     mouse.click(Button.left)
+#     mouse.position = mouse_pos_before
 
 
 def create_cache():
