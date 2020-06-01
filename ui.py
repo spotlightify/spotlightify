@@ -211,7 +211,7 @@ def position_app():
     sizeObject = QDesktopWidget().screenGeometry(-1)
     height = sizeObject.height()
     coord = QDesktopWidget().availableGeometry().center()
-    to_sub = QtCore.QPoint(270, height - height/2 - 60)  # half the width of the application
+    to_sub = QtCore.QPoint(270, height/2 - 60)  # half the width of the application
     center = coord.__sub__(to_sub)
     return center
 
