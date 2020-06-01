@@ -124,20 +124,6 @@ class Interactions:
         except:
             print("[ERROR] Could not play liked music")
 
-    def shuffle_toggle(self, *refresh_method: classmethod):
-        try:
-            if not self.shuffle:
-                self.shuffle = True
-                self.sp.shuffle(self.shuffle, self.current_device_id)
-                self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
-            else:
-                self.shuffle = False
-                self.sp.shuffle(self.shuffle, self.current_device_id)
-                self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
-            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-                refresh()
-        except:
-            print("[WARNING] Could not toggle playlist shuffle")
 
     def queue_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
