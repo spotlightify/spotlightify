@@ -157,6 +157,7 @@ class Interactions:
     def pause_playback(self):
         try:
             self.sp.pause_playback(self.current_device_id)
+            print(self.sp.current_playback())
         except:
             print("[WARNING] Could not pause playback")
 
@@ -420,6 +421,37 @@ class Interactions:
         for refresh in refresh_method:  # the refresh_method arg should only contain one class method
             refresh()
 
+    def is_repeat_track(self):
+        try:
+            if self.sp.current_playback()['repeat_state'] == 'track':
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def is_repeat_context(self):
+        try:
+            if self.sp.current_playback()['repeat_state'] == 'context':
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def toggle_repeat(self, *refresh_method: classmethod):
+        if self.is_repeat_track():
+            self.sp.repeat('context', self.current_device_id)
+            self.command_list["Repeat"]["title"] = "Repeat (OFF)"
+        elif self.is_repeat_context():
+            self.sp.repeat('off', self.current_device_id)
+            self.command_list["Repeat"]["title"] = "Repeat (SINGLE)"
+        else:
+            self.sp.repeat('track', self.current_device_id)
+            self.command_list["Repeat"]["title"] = "Repeat (ALBUM/PLAYLIST)"
+        for refresh in refresh_method:
+            refresh()
+
     command_list = \
         {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "], "function": play_song,
                   "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0, "parameter": 1, "match_change": 1,
@@ -464,7 +496,10 @@ class Interactions:
                      "match_change": 0, "exe_on_return": 1},
          "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
                     "function": set_device, "icon": f"{ASSETS_DIR}svg{sep}device.svg", "visual": 0, "parameter": 1,
-                    "match_change": 1, "exe_on_return": 0}
+                    "match_change": 1, "exe_on_return": 0},
+         "Repeat": {"title": r"Repeat (SINGLE)","description": "Cycles through the different repeat modes", "prefix": ["repeat"],
+                    "function": toggle_repeat,"icon": f"{ASSETS_DIR}svg{sep}repeat.svg","visual": 0,"parameter": 0,"match_change": 0,
+                    "exe_on_return": 1}
          }
 
 
