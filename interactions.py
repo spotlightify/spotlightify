@@ -157,7 +157,6 @@ class Interactions:
     def pause_playback(self):
         try:
             self.sp.pause_playback(self.current_device_id)
-            print(self.sp.current_playback())
         except:
             print("[WARNING] Could not pause playback")
 
