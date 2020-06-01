@@ -440,17 +440,20 @@ class Interactions:
             return False
 
     def toggle_repeat(self, *refresh_method: classmethod):
-        if self.is_repeat_track():
-            self.sp.repeat('context', self.current_device_id)
-            self.command_list["Repeat"]["title"] = "Repeat (OFF)"
-        elif self.is_repeat_context():
-            self.sp.repeat('off', self.current_device_id)
-            self.command_list["Repeat"]["title"] = "Repeat (SINGLE)"
-        else:
-            self.sp.repeat('track', self.current_device_id)
-            self.command_list["Repeat"]["title"] = "Repeat (ALBUM/PLAYLIST)"
-        for refresh in refresh_method:
-            refresh()
+        try:
+            if self.is_repeat_track():
+                self.sp.repeat('off', self.current_device_id)
+                self.command_list["Repeat"]["title"] = "Repeat (ALL)"
+            elif self.is_repeat_context():
+                self.sp.repeat('track', self.current_device_id)
+                self.command_list["Repeat"]["title"] = "Repeat (OFF)"
+            else:
+                self.sp.repeat('context', self.current_device_id)
+                self.command_list["Repeat"]["title"] = "Repeat (TRACK)"
+            for refresh in refresh_method:
+                refresh()
+        except:
+            print("[Error] Could not toggle repeat type")
 
     command_list = \
         {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "], "function": play_song,
