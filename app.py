@@ -74,7 +74,7 @@ def create_cache():
 # Command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-x", "--xcolors", action="store_true", default=False,
-                    help="use X colors")
+                    help="use X colors (Linux only)")
 args = parser.parse_args()
 
 queue = Queue()
