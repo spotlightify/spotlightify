@@ -22,7 +22,6 @@ class Interactions:
                   "ensure that the device is discoverable. A device can be selected by typing 'device' into the Spotlightify search.")
         # Feature Toggles
         self.shuffle = False
-        self.shuffle_text = "(OFF)"
 
     def exit(self):
         self.exit_function()
@@ -94,17 +93,7 @@ class Interactions:
 
     def play_playlist(self, playlist_id):
         try:
-            results = self.sp.playlist_tracks(playlist_id=playlist_id)
-            tracks = results["items"]
-            while results["next"]:
-                results = self.sp.next(results)
-                tracks.extend(results["items"])
-            uris = []
-            for track in tracks:
-                if track["is_local"]:
-                    continue
-                uris.append(track["track"]["uri"])
-            self.sp.start_playback(self.current_device_id, None, uris=uris)
+            self.sp.start_playback(self.current_device_id, f"spotify:playlist:{playlist_id}")
         except:
             print("[ERROR] Could not play playlist")
 
@@ -411,7 +400,7 @@ class Interactions:
                   " the appropriate device")
 
     def toggle_shuffle(self, *refresh_method: classmethod):
-        if self.is_shuffle_on:
+        if self.is_shuffle_on():
             self.sp.shuffle(False, self.current_device_id)
             self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
         else:
