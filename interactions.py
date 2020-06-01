@@ -20,8 +20,6 @@ class Interactions:
         except:
             print("[WARNING] No device currently available. Make sure the Spotify desktop app is open and play a song on it to "
                   "ensure that the device is discoverable. A device can be selected by typing 'device' into the Spotlightify search.")
-        # Feature Toggles
-        self.shuffle = False
 
     def exit(self):
         self.exit_function()
@@ -140,14 +138,6 @@ class Interactions:
             self.sp.start_playback(self.current_device_id)
         except:
             print("[WARNING] Could not resume playback")
-
-    def change_vol(self, value):
-        try:
-            int_ = int(value)
-            if 0 <= int_ <= 100:
-                self.sp.volume(int_, self.current_device_id)
-        except:
-            print("[ERROR] Invalid volume value. Valid command example: 'volume 20'")
 
     def next_song(self, *refresh_method: classmethod):
         try:
@@ -362,16 +352,19 @@ class Interactions:
             if 0 <= int_ <= 100:
                 self.sp.volume(int_, self.current_device_id)
         except:
-            None
+            print("[ERROR] Invalid volume value. Valid command example: 'volume 20'")
 
     def toggle_like_song(self, *refresh_method: classmethod):  # used to immediately refresh a svg
-        current_song = self.sp.current_user_playing_track()["item"]
-        if not self.is_current_song_liked():
-            self.sp.current_user_saved_tracks_add([current_song["uri"]])
-        else:
-            self.sp.current_user_saved_tracks_delete([current_song["uri"]])
-        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-            refresh()
+        try:
+            current_song = self.sp.current_user_playing_track()["item"]
+            if not self.is_current_song_liked():
+                self.sp.current_user_saved_tracks_add([current_song["uri"]])
+            else:
+                self.sp.current_user_saved_tracks_delete([current_song["uri"]])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Could not toggle Save to your Liked Songs")
 
     def toggle_playback(self, *refresh_method: classmethod):
         try:
@@ -386,14 +379,17 @@ class Interactions:
                   " the appropriate device")
 
     def toggle_shuffle(self, *refresh_method: classmethod):
-        if self.is_shuffle_on():
-            self.sp.shuffle(False, self.current_device_id)
-            self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
-        else:
-            self.sp.shuffle(True, self.current_device_id)
-            self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
-        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-            refresh()
+        try:
+            if self.is_shuffle_on():
+                self.sp.shuffle(False, self.current_device_id)
+                self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
+            else:
+                self.sp.shuffle(True, self.current_device_id)
+                self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Could not toggle shuffle")
 
     command_list = \
         {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play"], "function": play_song,
