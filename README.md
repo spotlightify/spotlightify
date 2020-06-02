@@ -68,6 +68,7 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 | Pause    | Pauses music playback            | pause         | None          |
 | Shuffle  | Toggles shuffle playback         | shuffle       | None          |
 | Device   | Select device for music playback | device        | None          |
+| Repeat   | Toggles repeating modes          | repeat        | None          |
 | Exit     | Exits the application            | exit          | None          |
 ```
 **On first start up, Spotlightify will cache all of your liked and playlist songs, caching both song information and album art. So keep the app open for at least 10 minutes so that all your songs can be cached.**
@@ -78,4 +79,4 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 - <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">PyQt5</a> - A cross platform GUI framework for Python
 
 ## Contributing
-Join us on <a href="https://discord.gg/7MqXdg" target="_blank">discord</a> to discuss how to contribute to the project.
+Join us on <a href="https://discord.gg/nrDke3q" target="_blank">discord</a> to discuss how to contribute to the project.
