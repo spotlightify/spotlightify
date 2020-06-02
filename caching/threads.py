@@ -22,6 +22,9 @@ class CacheThread(Thread):
         self.song_queue = song_queue
         self.image_queue = image_queue
         self.is_working = False
+        self.title = self.get_title()
+
+        print(f"{self.title} Initialised")
 
     @staticmethod
     def open_if_exists(file_path: str, default_data: object):
@@ -42,13 +45,14 @@ class CacheThread(Thread):
         except:
             print(f"error saving {file_path}")
 
-    @staticmethod
-    def check_time(updated: str):
+    def check_time(self, updated: str):
         try:
             last_updated = datetime.strptime(updated, "%Y-%m-%d %H:%M:%S.%f")
             now = datetime.now()
             time_ago = now - timedelta(days=1)
             if time_ago <= last_updated <= now:
+                last_updated_str = last_updated.strftime("%c").replace("  ", " ")
+                print(f"{self.title} Skipping caching, last updated {last_updated_str}")
                 return True
             else:
                 return False
@@ -107,12 +111,18 @@ class CacheThread(Thread):
     def working(self):
         return self.is_working
 
+    def get_title(self):
+        name = self.__class__.__name__.replace("CacheThread", "").upper()
+        return f"[{colors.BLUE}CACHE{colors.RESET}] [{colors.YELLOW}{name}{colors.RESET}]"
+
 
 class SongCacheThread(CacheThread):
     def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
         CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def cache_songs(self, songs):
+        self.is_working = True
+
         default_data = self.default_data_template("songs")
 
         data = self.open_if_exists(songs_path, default_data)
@@ -122,7 +132,7 @@ class SongCacheThread(CacheThread):
                 song = song["track"]
 
             if song["is_local"]:
-                print(f"Skipping local track {colors.WARNING}{song['name']}{colors.RESET}")
+                print(f"{self.title} Skipping local track {colors.BOLD}{song['name']}{colors.RESET}")
                 continue
 
             self.get_image(song["album"]["id"], song["album"])
@@ -137,10 +147,14 @@ class SongCacheThread(CacheThread):
         data["last_updated"] = str(datetime.now())
 
         self.save_data(songs_path, data)
+        self.is_working = False
 
     def run(self):
+        print(f"{self.title} Starting")
+
         while True:
             song_data = []
+            self.is_working = False
 
             while not self.song_queue.empty():
                 self.is_working = True
@@ -174,10 +188,10 @@ class ImageCacheThread(CacheThread):
                 with open(image_path, 'wb') as handler:
                     handler.write(image_data)
         except:
-            print(f"Error occurred saving file {colors.FAIL}{file_name}.jpg{colors.RESET}")
+            print(f"Error occurred saving file {colors.RED}{file_name}.jpg{colors.RESET}")
 
     def run(self):
-        print("Starting image cache thread")
+        print(f"{self.title} Starting")
 
         while True:
             while not self.image_queue.empty():
@@ -193,12 +207,13 @@ class PlaylistCacheThread(CacheThread):
         CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def run(self):
+        print(f"{self.title} Starting")
+
         self.is_working = True
         default_data = self.default_data_template("playlists")
 
         data = self.open_if_exists(playlists_path, default_data)
         if self.check_time(data["last_updated"]):
-            print("skipping playlists caching")
             return
 
         playlist_data = self.get_all(self.sp.current_user_playlists())
@@ -228,6 +243,8 @@ class LikedCacheThread(CacheThread):
         CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def run(self):
+        print(f"{self.title} Starting")
+
         self.is_working = True
         liked_data = self.get_all(self.sp.current_user_saved_tracks())
         self.song_queue.put(liked_data)
@@ -239,12 +256,13 @@ class AlbumCacheThread(CacheThread):
         CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def run(self):
+        print(f"{self.title} Starting")
+
         self.is_working = True
         default_data = self.default_data_template("albums")
 
         data = self.open_if_exists(albums_path, default_data)
         if self.check_time(data["last_updated"]):
-            print("skipping albums caching")
             return
 
         album_data = self.get_all(self.sp.current_user_saved_albums())
@@ -289,13 +307,14 @@ class ArtistCacheThread(CacheThread):
         CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def run(self):
+        print(f"{self.title} Starting")
+
         self.is_working = True
         default_data = self.default_data_template("artists")
 
         data = self.open_if_exists(artists_path, default_data)
 
         if self.check_time(data["last_updated"]):
-            print("skipping artists caching")
             return
 
         artist_data = self.get_all(self.sp.current_user_followed_artists()["artists"], field="artists")

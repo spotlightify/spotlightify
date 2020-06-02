@@ -11,6 +11,7 @@ from definitions import ASSETS_DIR
 from interactions import Interactions
 from caching.manager import CacheManager
 from caching.queues import SongQueue, ImageQueue
+from colors import colors
 
 #  Allow users to use the default spotipy env variables
 if not (all(elem in environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
@@ -35,6 +36,7 @@ token = token_info["access_token"]
 
 try:
     sp = Spotify(auth=token)
+    print(f"{colors.PINK}{colors.BOLD}Welcome to Spotlightify{colors.RESET}\n\n")
 except:
     print("User token could not be created")
     exit()
@@ -42,6 +44,10 @@ except:
 
 def exit_app():
     ui.close()  # visually removes ui quicker
+    if cache_manager.has_running_tasks():
+        print("Tasks running, not exiting")
+        return
+
     raise Exception("Exit Command")
 
 
