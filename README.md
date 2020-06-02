@@ -68,6 +68,7 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 | Pause    | Pauses music playback            | pause         | None          |
 | Shuffle  | Toggles shuffle playback         | shuffle       | None          |
 | Device   | Select device for music playback | device        | None          |
+| Repeat   | Toggles repeating modes          | repeat        | None          |
 | Exit     | Exits the application            | exit          | None          |
 ```
 **On first start up, Spotlightify will cache all of your liked and playlist songs, caching both song information and album art. So keep the app open for at least 10 minutes so that all your songs can be cached.**

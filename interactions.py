@@ -391,7 +391,40 @@ class Interactions:
         except:
             print("[ERROR] Could not toggle shuffle")
 
-    # add a space after prefixes
+    def is_repeat_track(self):
+        try:
+            if self.sp.current_playback()['repeat_state'] == 'track':
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def is_repeat_context(self):
+        try:
+            if self.sp.current_playback()['repeat_state'] == 'context':
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def toggle_repeat(self, *refresh_method: classmethod):
+        try:
+            if self.is_repeat_track():
+                self.sp.repeat('off', self.current_device_id)
+                self.command_list["Repeat"]["title"] = "Repeat (ALL)"
+            elif self.is_repeat_context():
+                self.sp.repeat('track', self.current_device_id)
+                self.command_list["Repeat"]["title"] = "Repeat (OFF)"
+            else:
+                self.sp.repeat('context', self.current_device_id)
+                self.command_list["Repeat"]["title"] = "Repeat (TRACK)"
+            for refresh in refresh_method:
+                refresh()
+        except:
+            print("[Error] Could not toggle repeat type")
+
     command_list = \
         {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "], "function": play_song,
                   "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0, "parameter": 1, "match_change": 1,
@@ -436,7 +469,10 @@ class Interactions:
                      "match_change": 0, "exe_on_return": 1},
          "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device "],
                     "function": set_device, "icon": f"{ASSETS_DIR}svg{sep}device.svg", "visual": 0, "parameter": 1,
-                    "match_change": 1, "exe_on_return": 0}
+                    "match_change": 1, "exe_on_return": 0},
+         "Repeat": {"title": r"Repeat (ALL)","description": "Cycles through the different repeat modes", "prefix": ["repeat"],
+                    "function": toggle_repeat,"icon": f"{ASSETS_DIR}svg{sep}repeat.svg","visual": 0,"parameter": 0,"match_change": 0,
+                    "exe_on_return": 1}
          }
 
 
