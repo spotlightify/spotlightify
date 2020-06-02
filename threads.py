@@ -15,106 +15,135 @@ artists_path = f"{CACHE_DIR}artists.json"
 albums_path = f"{CACHE_DIR}albums.json"
 
 
-def save_data_to_file(data, file):
-    try:
-        with open(file, "w") as f:
-            dump(data, f, separators=(',', ':'))
-    except:
-        print(f"error saving {file}")
-
-
-def check_time(updated):
-    try:
-        last_updated = datetime.strptime(updated, "%Y-%m-%d %H:%M:%S.%f")
-        now = datetime.now()
-        time_ago = now - timedelta(days=1)
-        if time_ago <= last_updated <= now:
-            return True
-        else:
-            return False
-    except:
-        return False
-
-
-def get_all(sp: Spotify, result):
-    print("get_all()", len(result["items"]))
-    data = result["items"]
-    while result["next"]:
-        try:
-            result = sp.next(data)
-            data.extend(result["items"])
-        except Exception as e:
-            print(e)
-    print(data)
-    return data
-
-
-def combine_artists(data):
-    artists = ""
-    for artist in data["artists"]:
-        if artists == "":
-            artists = artist["name"]
-        else:
-            artists += ", " + artist["name"]
-    return artists
-
-
-# def open_file_if_exists(file_path, default):
-
-
-class SongCachingThread(Thread):
-    def __init__(self, song_queue: SongQueue, image_queue: ImageQueue):
+class CacheThread(Thread):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
         Thread.__init__(self)
+        self.sp = sp
         self.song_queue = song_queue
         self.image_queue = image_queue
+        self.is_working = False
+
+    @staticmethod
+    def open_if_exists(file_path: str, default_data: object):
+        data = default_data
+        try:
+            if path.isfile(file_path):
+                with open(file_path, "r") as file:
+                    data = load(file)
+            return data
+        except:
+            return default_data
+
+    @staticmethod
+    def save_data(file_path: str, data: object):
+        try:
+            with open(file_path, "w") as f:
+                dump(data, f, separators=(',', ':'))
+        except:
+            print(f"error saving {file_path}")
+
+    @staticmethod
+    def check_time(updated: str):
+        try:
+            last_updated = datetime.strptime(updated, "%Y-%m-%d %H:%M:%S.%f")
+            now = datetime.now()
+            time_ago = now - timedelta(days=1)
+            if time_ago <= last_updated <= now:
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    @staticmethod
+    def combine_artists(data: object):
+        artists = ""
+        for artist in data["artists"]:
+            if artists == "":
+                artists = artist["name"]
+            else:
+                artists += ", " + artist["name"]
+        return artists
+
+    @staticmethod
+    def default_data_template(name: str):
+        entry_name = "name"
+        data_template = {"length": 0, "last_updated": ""}
+        if len(name) != 0:
+            entry_name = name
+
+        data_template[entry_name] = {}
+
+        return data_template
+
+    def get_image(self, file_id: str, data: object):
+        if "images" in data:
+            images_length = len(data["images"])
+
+            if images_length > 0:
+                if images_length == 1:
+                    url = data["images"][0]["url"]
+                else:
+                    url = data["images"][-1]["url"]
+
+                self.image_queue.put_image(file_id, url)
+                return
+
+        print("No valid image found")
+
+    def get_all(self, initial_data: object, **kwargs):
+        field = kwargs.get("field", None)
+
+        result = initial_data
+        data = result["items"]
+        while result["next"]:
+            if field is not None:
+                result = self.sp.next(result)[field]
+            else:
+                result = self.sp.next(result)
+            data.extend(result["items"])
+        return data
+
+    def working(self):
+        return self.is_working
+
+
+class SongCacheThread(CacheThread):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
+        CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def cache_songs(self, songs):
-        data = {"length": 0, "songs": {}, "last_updated": ""}
+        default_data = self.default_data_template("songs")
 
-        if path.isfile(songs_path):
-            with open(songs_path, "r") as file:
-                data = load(file)
+        data = self.open_if_exists(songs_path, default_data)
 
         for song in songs:
-            try:
-                if "track" in song:
-                    song = song["track"]
+            if "track" in song:
+                song = song["track"]
 
-                if song["is_local"]:
-                    print(f"Skipping local track {colors.WARNING}{song['name']}{colors.RESET}")
-                    continue
+            if song["is_local"]:
+                print(f"Skipping local track {colors.WARNING}{song['name']}{colors.RESET}")
+                continue
 
-                image = ""
+            self.get_image(song["album"]["id"], song["album"])
 
-                try:
-                    # determine url to use for image
-                    images = song["album"]["images"]
-                    if len(images) == 3:
-                        self.image_queue.put_image(song["album"]["id"], images[2]["url"])
-                    else:
-                        self.image_queue.put_image(song["album"]["id"], images[0]["url"])
-                    image = song["album"]["id"]
-                except:
-                    print(f"[ERROR] No image found for song name: {song['name']}")
-
-                data["songs"][song["id"]] = {
-                    "name": song["name"],
-                    "artist": combine_artists(song),
-                    "image": image
-                }
-            except Exception as ex:
-                print(ex)
+            data["songs"][song["id"]] = {
+                "name": song["name"],
+                "artist": self.combine_artists(song),
+                "image": song["album"]["id"]
+            }
 
         data["length"] = len(data["songs"])
         data["last_updated"] = str(datetime.now())
 
-        save_data_to_file(data, songs_path)
+        self.save_data(songs_path, data)
 
     def run(self):
         while True:
             song_data = []
 
             while not self.song_queue.empty():
+                self.is_working = True
                 data = self.song_queue.get()
                 if not isinstance(data, list):
                     data = [data]
@@ -123,13 +152,13 @@ class SongCachingThread(Thread):
             if len(song_data) > 0:
                 self.cache_songs(song_data)
             else:
+                self.is_working = False
                 sleep(30)
 
 
-class ImageCachingThread(Thread):
-    def __init__(self, image_queue: ImageQueue):
-        Thread.__init__(self)
-        self.image_queue = image_queue
+class ImageCacheThread(CacheThread):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
+        CacheThread.__init__(self, sp, song_queue, image_queue)
 
     @staticmethod
     def download_image(url, file_name):
@@ -138,6 +167,7 @@ class ImageCachingThread(Thread):
         try:
             if not path.exists(art_path):
                 mkdir(art_path)
+
             image_path = art_path + file_name + ".jpg"
             if not path.isfile(image_path):
                 image_data = get(url).content
@@ -151,48 +181,30 @@ class ImageCachingThread(Thread):
 
         while True:
             while not self.image_queue.empty():
+                self.is_working = True
                 image = self.image_queue.get()
                 self.download_image(image["url"], image["file"])
+            self.is_working = False
             sleep(30)
 
 
-class PlaylistCachingThread(Thread):
+class PlaylistCacheThread(CacheThread):
     def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
-        Thread.__init__(self)
-
-        self.sp = sp
-        self.song_queue = song_queue
-        self.image_queue = image_queue
+        CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def run(self):
-        data = {"length": 0, "playlists": {}, "last_updated": ""}
+        self.is_working = True
+        default_data = self.default_data_template("playlists")
 
-        # try:
-        if path.isfile(playlists_path):
-            with open(playlists_path, "r") as file:
-                data = load(file)
-                if check_time(data["last_updated"]):
-                    print("skipping playlists caching")
-                    return
+        data = self.open_if_exists(playlists_path, default_data)
+        if self.check_time(data["last_updated"]):
+            print("skipping playlists caching")
+            return
 
-        result = self.sp.current_user_playlists()
-        playlist_data = result["items"]
-        while result["next"]:
-            result = self.sp.next(result)
-            playlist_data.extend(result["items"])
+        playlist_data = self.get_all(self.sp.current_user_playlists())
 
         for playlist in playlist_data:
-            # download album art
-            try:
-                if len(playlist["images"]) == 1:
-                    url = playlist["images"][0]["url"]
-                else:
-                    url = playlist["images"][2]["url"]
-                self.image_queue.put_image(playlist["id"], url)
-
-            except IndexError:
-                print("Error occurred getting image for playlist", playlist)
-
+            self.get_image(playlist["id"], playlist)
             data["playlists"][playlist["id"]] = {
                 "name": playlist["name"],
                 "owner": playlist["owner"]["display_name"],
@@ -202,154 +214,94 @@ class PlaylistCachingThread(Thread):
         data["length"] = len(data["playlists"].keys())
         data["last_updated"] = str(datetime.now())
 
-        save_data_to_file(data, playlists_path)
+        self.save_data(playlists_path, data)
 
         for key in data["playlists"].keys():
-            result = self.sp.playlist_tracks(playlist_id=key)
-            song_data = result["items"]
+            song_data = self.get_all(self.sp.playlist_tracks(playlist_id=key))
+            self.song_queue.put(song_data)
 
-            while result["next"]:
-                result = self.sp.next(result)
-                song_data.extend(result["items"])
+        self.is_working = False
+
+
+class LikedCacheThread(CacheThread):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
+        CacheThread.__init__(self, sp, song_queue, image_queue)
+
+    def run(self):
+        self.is_working = True
+        liked_data = self.get_all(self.sp.current_user_saved_tracks())
+        self.song_queue.put(liked_data)
+        self.is_working = False
+
+
+class AlbumCacheThread(CacheThread):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
+        CacheThread.__init__(self, sp, song_queue, image_queue)
+
+    def run(self):
+        self.is_working = True
+        default_data = self.default_data_template("albums")
+
+        data = self.open_if_exists(albums_path, default_data)
+        if self.check_time(data["last_updated"]):
+            print("skipping albums caching")
+            return
+
+        album_data = self.get_all(self.sp.current_user_saved_albums())
+
+        for album in album_data:
+            album = album["album"]
+
+            self.get_image(album["id"], album)
+
+            song_data = self.get_all(self.sp.album_tracks(album_id=album["id"]))
+
+            # unsure if songs_list is needed or API can play an from a URI
+            songs_list = []
+            song_index = 0
+            for song in song_data:
+                songs_list.append(song["id"])
+
+                temp_song = song_data[song_index]
+                temp_song["album"] = album
+                song_data[song_index] = temp_song
+
+                song_index += 1
 
             self.song_queue.put(song_data)
 
+            data["albums"][album["id"]] = {
+                "name": album["name"],
+                "artist": self.combine_artists(album),
+                "image": album["id"],
+                "songs": songs_list
+            }
 
-class LikedCachingThread(Thread):
-    def __init__(self, sp: Spotify, song_queue: SongQueue):
-        Thread.__init__(self)
+        data["length"] = len(data["albums"].keys())
+        data["last_updated"] = str(datetime.now())
 
-        self.sp = sp
-        self.song_queue = song_queue
-
-    def run(self):
-        try:
-            result = self.sp.current_user_saved_tracks()
-            liked_data = result["items"]
-            while result["next"]:
-                result = self.sp.next(result)
-                liked_data.extend(result["items"])
-
-            self.song_queue.put(liked_data)
-
-        except Exception as ex:
-            print(ex)
+        self.save_data(albums_path, default_data)
+        self.is_working = False
 
 
-class AlbumCachingThread(Thread):
+class ArtistCacheThread(CacheThread):
     def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
-        Thread.__init__(self)
-
-        self.sp = sp
-        self.song_queue = song_queue
-        self.image_queue = image_queue
+        CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def run(self):
-        data = {"length": 0, "albums": {}, "last_updated": ""}
+        self.is_working = True
+        default_data = self.default_data_template("artists")
 
-        try:
-            if path.isfile(albums_path):
-                with open(albums_path, "r") as file:
-                    data = load(file)
-                    if check_time(data["last_updated"]):
-                        print("skipping albums caching")
-                        return
+        data = self.open_if_exists(artists_path, default_data)
 
-            result = self.sp.current_user_saved_albums()
-            album_data = result["items"]
+        if self.check_time(data["last_updated"]):
+            print("skipping artists caching")
+            return
 
-            while result["next"]:
-                result = self.sp.next(result)
-                album_data.extend(result["items"])
-
-            for album in album_data:
-                album = album["album"]
-
-                # download album art
-                try:
-                    if len(album["images"]) == 1:
-                        url = album["images"][0]["url"]
-                    else:
-                        url = album["images"][2]["url"]
-                    self.image_queue.put_image(album["id"], url)
-
-                except IndexError:
-                    print("Error occurred getting image for album", album)
-
-                result = self.sp.album_tracks(album_id=album["id"])
-                song_data = result["items"]
-
-                while result["next"]:
-                    song_data.extend(result["items"])
-
-                self.song_queue.put(song_data)
-
-                songs_list = []
-                song_index = 0
-                for song in song_data:
-                    songs_list.append(song["id"])
-
-                    temp_song = song_data[song_index]
-                    temp_song["album"] = album
-                    song_data[song_index] = temp_song
-
-                    song_index += 1
-
-                data["albums"][album["id"]] = {
-                    "name": album["name"],
-                    "artist": combine_artists(album),
-                    "image": album["id"],
-                    "songs": songs_list
-                }
-
-            data["length"] = len(data["albums"].keys())
-            data["last_updated"] = str(datetime.now())
-
-            save_data_to_file(data, albums_path)
-
-        except Exception as ex:
-            print("fuc")
-            print(ex)
-
-
-class ArtistCachingThread(Thread):
-    def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
-        Thread.__init__(self)
-
-        self.sp = sp
-        self.song_queue = song_queue
-        self.image_queue = image_queue
-
-    def run(self):
-        data = {"length": 0, "artists": {}, "last_updated": ""}
-
-        if path.isfile(artists_path):
-            with open(artists_path, "r") as file:
-                data = load(file)
-                if check_time(data["last_updated"]):
-                    print("skipping artists caching")
-                    return
-
-        result = self.sp.current_user_followed_artists()["artists"]
-        artist_data = result["items"]
-
-        while result["next"]:
-            result = self.sp.next(result)["artists"]
-            artist_data.extend(result["items"])
-
-        print(artist_data)
+        artist_data = self.get_all(self.sp.current_user_followed_artists()["artists"], field="artists")
 
         for artist in artist_data:
-            # download art
-            try:
-                if len(artist["images"]) == 1:
-                    url = artist["images"][0]["url"]
-                else:
-                    url = artist["images"][2]["url"]
-                self.image_queue.put_image(artist["id"], url)
-
-            except IndexError:
-                print("Error occurred getting image for artist", artist)
+            self.get_image(artist["id"], artist)
 
             genre = "Music"
             if len(artist["genres"]) > 0:
@@ -364,9 +316,11 @@ class ArtistCachingThread(Thread):
         data["length"] = len(data["artists"].keys())
         data["last_updated"] = str(datetime.now())
 
-        save_data_to_file(data, artists_path)
+        self.save_data(artists_path, data)
 
         for key in data["artists"].keys():
             result = self.sp.artist_top_tracks(artist_id=key)
             song_data = result["tracks"]
             self.song_queue.put(song_data)
+
+        self.is_working = False
