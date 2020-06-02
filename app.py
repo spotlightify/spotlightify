@@ -50,7 +50,7 @@ def show_ui():
     ui.raise_()
     ui.activateWindow()
     focus_ui()
-    ui.function_row.refresh()  # refreshes function row buttons
+    ui.function_row.refresh(None)  # refreshes function row buttons
 
 
 def focus_ui():  # Only way I could think of to properly focus the ui
@@ -82,7 +82,7 @@ image_queue = ImageQueue()
 interactions = Interactions(sp, token_info, sp_oauth, exit_app, queue)
 
 # UI
-ui = Ui(interactions)
+ui = Ui(interactions, sp)
 
 # Create icon
 icon = QIcon(f"{ASSETS_DIR}img{sep}logo_small.png")

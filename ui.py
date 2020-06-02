@@ -3,16 +3,18 @@ from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
 from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
+from spotipy import Spotify
 
 
 class Ui(QWidget):
     QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icon-base
 
-    def __init__(self, interactions, parent=None):
+    def __init__(self, interactions, sp: Spotify, parent=None):
         QWidget.__init__(self, parent)
         # for spotify interaction
         self.interactions = interactions
+        self.sp = sp
         # row positioning
         center = position_app()
         self.move(center)
@@ -69,7 +71,7 @@ class Ui(QWidget):
                         }}''')
         self.textbox.setFont(self.custom_font)
         # add grouped widgets
-        self.function_row = FunctionButtonsRow(self, self.interactions)
+        self.function_row = FunctionButtonsRow(self, self.sp)
         self.function_row.move(0, 0)
         self.function_row.show()
         self.toggle_function_buttons()
@@ -211,7 +213,7 @@ def position_app():
     sizeObject = QDesktopWidget().screenGeometry(-1)
     height = sizeObject.height()
     coord = QDesktopWidget().availableGeometry().center()
-    to_sub = QtCore.QPoint(270, height/2 - 60)  # half the width of the application
+    to_sub = QtCore.QPoint(270, height / 3)
     center = coord.__sub__(to_sub)
     return center
 

@@ -4,12 +4,15 @@ import spotipy
 from os import sep, path
 import json
 import copy
+from manager import PlaybackManager
 from definitions import ASSETS_DIR, CACHE_DIR
 from pathlib import Path
 
 
 class Interactions:
     def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function, queue):
+        self.manager = PlaybackManager(sp, queue)
+        self.manager.set_device("")
         self.exit_function = exit_function
         self.sp_oauth = sp_oauth
         self.sp = sp
@@ -467,11 +470,11 @@ class Interactions:
          "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle "],
                      "function": toggle_shuffle, "icon": f"{ASSETS_DIR}svg{sep}shuffle.svg", "visual": 0, "parameter": 0,
                      "match_change": 0, "exe_on_return": 1},
-         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device "],
+         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
                     "function": set_device, "icon": f"{ASSETS_DIR}svg{sep}device.svg", "visual": 0, "parameter": 1,
                     "match_change": 1, "exe_on_return": 0},
-         "Repeat": {"title": r"Repeat (ALL)","description": "Cycles through the different repeat modes", "prefix": ["repeat"],
-                    "function": toggle_repeat,"icon": f"{ASSETS_DIR}svg{sep}repeat.svg","visual": 0,"parameter": 0,"match_change": 0,
+         "Repeat": {"title": r"Repeat (ALL)", "description": "Cycles through the different repeat modes", "prefix": ["repeat"],
+                    "function": toggle_repeat, "icon": f"{ASSETS_DIR}svg{sep}repeat.svg","visual": 0,"parameter": 0,"match_change": 0,
                     "exe_on_return": 1}
          }
 

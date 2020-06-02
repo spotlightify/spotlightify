@@ -1,5 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
+from functions import check, toggle, playback
+from spotipy import Spotify
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap
 from definitions import ASSETS_DIR
@@ -7,10 +9,12 @@ from os import sep
 
 
 class FunctionButtonsRow(QWidget):
-    def __init__(self, parent, interactions):
+    def __init__(self, parent, sp):
         QWidget.__init__(self, parent)
-        # spotipy object
-        self.interactions = interactions
+        # creates a useful function object
+        self.sp = sp
+        toggles = toggle.ToggleFunctions(sp)
+        playback_change = playback.PlaybackFunctions(sp)
         # gets the current theme
         self.active_theme = parent.active_theme
         # gets the font
@@ -22,28 +26,28 @@ class FunctionButtonsRow(QWidget):
         # widget creation, load and setup of icons
         # shuffle button
         self.shuffle_button = SvgButton(self, f"{ASSETS_DIR}svg{sep}shuffle.svg")
-        self.shuffle_button.clicked.connect(lambda: interactions.toggle_shuffle(self.refresh))
+        self.shuffle_button.clicked.connect(lambda: self.refresh(toggles.shuffle()))
         # self.shuffle_button.mousePressEvent(self.shuffle_button_press())
         self.buttons.append(self.shuffle_button)
         # backward button
         self.backward_button = SvgButton(self, f"{ASSETS_DIR}svg{sep}backward.svg")
-        self.backward_button.clicked.connect(lambda: interactions.previous_song(self.refresh))
+        self.backward_button.clicked.connect(lambda: self.refresh(playback_change.previous()))
         # self.backward_button.mousePressEvent(print("backward test"))
         self.buttons.append(self.backward_button)
         # pause/play button
         self.pause_play_button = SvgButton(self, f"{ASSETS_DIR}svg{sep}pause.svg")
-        self.pause_play_button.clicked.connect(lambda: interactions.toggle_playback(self.refresh))
+        self.pause_play_button.clicked.connect(lambda: self.refresh(toggles.playback()))
         # self.pause_play_button.mousePressEvent(print("pause/play test"))
         self.buttons.append(self.pause_play_button)
         # forward button
         self.forward_button = SvgButton(self, f"{ASSETS_DIR}svg{sep}forward.svg")
-        self.forward_button.clicked.connect(lambda: interactions.next_song(self.refresh))
+        self.forward_button.clicked.connect(lambda: self.refresh(playback_change.skip()))
         # self.forward_button.mousePressEvent(print("forward test"))
         self.buttons.append(self.forward_button)
         # repeat button
         self.like_button = SvgButton(self, f"{ASSETS_DIR}svg{sep}heart-no-fill.svg")
-        self.like_button.clicked.connect(lambda: interactions.toggle_like_song(self.refresh))
-        self.refresh()
+        self.like_button.clicked.connect(lambda: self.refresh(toggles.like_song()))
+        self.refresh(None)
         # self.like_button.mousePressEvent(print("repeat test"))
         self.buttons.append(self.like_button)
         self.set_style()
@@ -55,18 +59,21 @@ class FunctionButtonsRow(QWidget):
             button.move(gap, 13)
             gap += 70
 
-    def refresh(self):
-        if self.interactions.is_current_song_liked():
+    def refresh(self, method):
+        if method is not None:
+            method()
+        checks = check.CheckFunctions(self.sp)
+        if checks.is_song_liked():
             self.like_button.load_svg(f"{ASSETS_DIR}svg{sep}heart.svg")
         else:
             self.like_button.load_svg(f"{ASSETS_DIR}svg{sep}heart-no-fill.svg")
 
-        if self.interactions.is_song_playing():
+        if checks.is_song_playing():
             self.pause_play_button.load_svg(f"{ASSETS_DIR}svg{sep}pause.svg")
         else:
             self.pause_play_button.load_svg(f"{ASSETS_DIR}svg{sep}play.svg")
 
-        if self.interactions.is_shuffle_on():
+        if checks.is_shuffle_on():
             self.shuffle_button.load_svg(f"{ASSETS_DIR}svg{sep}shuffle.svg")
         else:
             self.shuffle_button.load_svg(f"{ASSETS_DIR}svg{sep}shuffle-off.svg")
