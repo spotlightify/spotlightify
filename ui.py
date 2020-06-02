@@ -73,7 +73,7 @@ class Ui(QWidget):
         self.function_row.move(0, 0)
         self.function_row.show()
         self.toggle_function_buttons()
-        
+
         # Mac setting
         self.textbox.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
 
@@ -211,7 +211,7 @@ def position_app():
     sizeObject = QDesktopWidget().screenGeometry(-1)
     height = sizeObject.height()
     coord = QDesktopWidget().availableGeometry().center()
-    to_sub = QtCore.QPoint(270, height/2 - 60)  # half the width of the application
+    to_sub = QtCore.QPoint(270, height / 3)  # half the width of the application
     center = coord.__sub__(to_sub)
     return center
 
