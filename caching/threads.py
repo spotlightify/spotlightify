@@ -7,7 +7,7 @@ from colors import colors
 from requests import get
 from time import sleep
 from definitions import CACHE_DIR
-from queues import SongQueue, ImageQueue
+from caching.queues import SongQueue, ImageQueue
 
 songs_path = f"{CACHE_DIR}songs.json"
 playlists_path = f"{CACHE_DIR}playlists.json"
