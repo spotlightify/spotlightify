@@ -240,7 +240,6 @@ class Interactions:
         return matched_sorted
 
     def get_json_cache(file):
-        # takes string param file: "songs" will create songs.json with "{ songs: [], length: 0 }"
         file_path = f"{CACHE_DIR}{file}.json"
         if not Path(file_path).exists():
             # creates file if it doesn't exist
