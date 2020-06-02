@@ -20,9 +20,6 @@ class Interactions:
         except:
             print("[WARNING] No device currently available. Make sure the Spotify desktop app is open and play a song on it to "
                   "ensure that the device is discoverable. A device can be selected by typing 'device' into the Spotlightify search.")
-        # Feature Toggles
-        self.shuffle = False
-        self.shuffle_text = "(OFF)"
 
     def exit(self):
         self.exit_function()
@@ -94,17 +91,7 @@ class Interactions:
 
     def play_playlist(self, playlist_id):
         try:
-            results = self.sp.playlist_tracks(playlist_id=playlist_id)
-            tracks = results["items"]
-            while results["next"]:
-                results = self.sp.next(results)
-                tracks.extend(results["items"])
-            uris = []
-            for track in tracks:
-                if track["is_local"]:
-                    continue
-                uris.append(track["track"]["uri"])
-            self.sp.start_playback(self.current_device_id, None, uris=uris)
+            self.sp.start_playback(self.current_device_id, f"spotify:playlist:{playlist_id}")
         except:
             print("[ERROR] Could not play playlist")
 
@@ -135,20 +122,6 @@ class Interactions:
         except:
             print("[ERROR] Could not play liked music")
 
-    def shuffle_toggle(self, *refresh_method: classmethod):
-        try:
-            if not self.shuffle:
-                self.shuffle = True
-                self.sp.shuffle(self.shuffle, self.current_device_id)
-                self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
-            else:
-                self.shuffle = False
-                self.sp.shuffle(self.shuffle, self.current_device_id)
-                self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
-            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-                refresh()
-        except:
-            print("[WARNING] Could not toggle playlist shuffle")
 
     def queue_song(self, song_input):
         song_uri = self.get_song_uri(song_input)
@@ -165,14 +138,6 @@ class Interactions:
             self.sp.start_playback(self.current_device_id)
         except:
             print("[WARNING] Could not resume playback")
-
-    def change_vol(self, value):
-        try:
-            int_ = int(value)
-            if 0 <= int_ <= 100:
-                self.sp.volume(int_, self.current_device_id)
-        except:
-            print("[ERROR] Invalid volume value. Valid command example: 'volume 20'")
 
     def next_song(self, *refresh_method: classmethod):
         try:
@@ -387,16 +352,19 @@ class Interactions:
             if 0 <= int_ <= 100:
                 self.sp.volume(int_, self.current_device_id)
         except:
-            None
+            print("[ERROR] Invalid volume value. Valid command example: 'volume 20'")
 
     def toggle_like_song(self, *refresh_method: classmethod):  # used to immediately refresh a svg
-        current_song = self.sp.current_user_playing_track()["item"]
-        if not self.is_current_song_liked():
-            self.sp.current_user_saved_tracks_add([current_song["uri"]])
-        else:
-            self.sp.current_user_saved_tracks_delete([current_song["uri"]])
-        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-            refresh()
+        try:
+            current_song = self.sp.current_user_playing_track()["item"]
+            if not self.is_current_song_liked():
+                self.sp.current_user_saved_tracks_add([current_song["uri"]])
+            else:
+                self.sp.current_user_saved_tracks_delete([current_song["uri"]])
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Could not toggle Save to your Liked Songs")
 
     def toggle_playback(self, *refresh_method: classmethod):
         try:
@@ -411,14 +379,17 @@ class Interactions:
                   " the appropriate device")
 
     def toggle_shuffle(self, *refresh_method: classmethod):
-        if self.is_shuffle_on:
-            self.sp.shuffle(False, self.current_device_id)
-            self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
-        else:
-            self.sp.shuffle(True, self.current_device_id)
-            self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
-        for refresh in refresh_method:  # the refresh_method arg should only contain one class method
-            refresh()
+        try:
+            if self.is_shuffle_on():
+                self.sp.shuffle(False, self.current_device_id)
+                self.command_list["Shuffle"]["title"] = "Shuffle (ON)"
+            else:
+                self.sp.shuffle(True, self.current_device_id)
+                self.command_list["Shuffle"]["title"] = "Shuffle (OFF)"
+            for refresh in refresh_method:  # the refresh_method arg should only contain one class method
+                refresh()
+        except:
+            print("[ERROR] Could not toggle shuffle")
 
     def is_repeat_track(self):
         try:
@@ -463,40 +434,40 @@ class Interactions:
                    "function": queue_song, "icon": f"{ASSETS_DIR}svg{sep}list.svg", "visual": 0, "parameter": 1,
                    "match_change": 1,
                    "exe_on_return": 0, "term": ""},
-         "Pause": {"title": "Pause", "description": "Pauses currently playing music", "prefix": ["pause"],
+         "Pause": {"title": "Pause", "description": "Pauses currently playing music", "prefix": ["pause ", "stop "],
                    "function": pause_playback, "icon": f"{ASSETS_DIR}svg{sep}pause.svg", "visual": 0, "parameter": 0,
                    "match_change": 0, "exe_on_return": 1},
          "Playlist": {"title": "Playlist", "description": "Plays a playlist", "prefix": ["playlist "],
                       "function": play_playlist, "icon": f"{ASSETS_DIR}svg{sep}playlist.svg", "visual": 0, "parameter": 1,
                       "match_change": 1, "exe_on_return": 0, "term": ""},
-         "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked"], "function": play_liked,
+         "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked "], "function": play_liked,
                    "icon": f"{ASSETS_DIR}svg{sep}heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
                    "exe_on_return": 1},
-         "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume ", "vol "],
+         "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume "],
                     "function": set_vol, "icon": f"{ASSETS_DIR}svg{sep}volume.svg", "visual": 0, "parameter": 1,
                     "match_change": 0,
                     "exe_on_return": 0, "term": ""},
-         "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto", "go to"],
+         "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto ", "go to "],
                   "function": goto, "icon": f"{ASSETS_DIR}svg{sep}forward.svg", "visual": 0, "parameter": 1,
                   "match_change": 0,
                   "exe_on_return": 0, "term": ""},
-         "Resume": {"title": "Resume", "description": "Resumes music playback", "prefix": ["resume", "start"],
+         "Resume": {"title": "Resume", "description": "Resumes music playback", "prefix": ["resume ", "start "],
                     "function": resume_playback, "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0, "parameter": 0,
                     "match_change": 0, "exe_on_return": 1},
-         "Skip": {"title": "Skip", "description": "Skips the current song", "prefix": ["skip", "next"],
+         "Skip": {"title": "Skip", "description": "Skips the current song", "prefix": ["skip ", "next "],
                   "function": next_song, "icon": f"{ASSETS_DIR}svg{sep}forward.svg", "visual": 0, "parameter": 0,
                   "match_change": 0,
                   "exe_on_return": 1},
-         "Previous": {"title": "Previous", "description": "Plays previous song", "prefix": ["previous", "prev"],
+         "Previous": {"title": "Previous", "description": "Plays previous song", "prefix": ["previous "],
                       "function": previous_song, "icon": f"{ASSETS_DIR}svg{sep}backward.svg", "visual": 0, "parameter": 0,
                       "match_change": 0, "exe_on_return": 1},
-         "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit"],
+         "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit ","quit "],
                   "function": exit, "icon": f"{ASSETS_DIR}svg{sep}moon.svg", "visual": 0, "parameter": 0,
                   "match_change": 0, "exe_on_return": 1},
-         "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle"],
+         "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle "],
                      "function": toggle_shuffle, "icon": f"{ASSETS_DIR}svg{sep}shuffle.svg", "visual": 0, "parameter": 0,
                      "match_change": 0, "exe_on_return": 1},
-         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
+         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device "],
                     "function": set_device, "icon": f"{ASSETS_DIR}svg{sep}device.svg", "visual": 0, "parameter": 1,
                     "match_change": 1, "exe_on_return": 0},
          "Repeat": {"title": r"Repeat (ALL)","description": "Cycles through the different repeat modes", "prefix": ["repeat"],
