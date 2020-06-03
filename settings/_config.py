@@ -12,7 +12,7 @@ class Config:
 
 		try:
 			with open(f"{CACHE_DIR}config.json") as file:
-				file_contents = load(file)
+				self.open_json()
 		except FileNotFoundError:
 			print("Cache.json does not exist.")
 			print("Creating file...")
@@ -27,14 +27,14 @@ class Config:
 	def open_json(self):
 		""" Opens JSON with specific val that's passed to the property decorated methods """
 		with open(f"{CACHE_DIR}cache.json") as file:
-			data = file.read()
-			json_obj = loads(data)
+			json_obj = load(file)
 		return json_obj
+
 
 	@property
 	def username(self):
 		js = self.open_json()
-		_username = js
+		self._username = js['username']
 		return self._username
 
 	@username.setter
@@ -43,6 +43,8 @@ class Config:
 
 	@property
 	def client_id(self):
+		js = self.open_json()
+		self._client_id = js['client_id']
 		return self._client_id
 
 	@client_id.setter
@@ -51,14 +53,12 @@ class Config:
 
 	@property
 	def client_sec(self):
+		js = self.open_json()
+		self._client_secret = js['client_secret']
 		return self._client_secret
 
 	@client_sec.setter
 	def client_sec(self, _client_secret):
 		self._client_secret = _client_secret
 
-u = "Mark"
-cid = "1234567890"
-cl_sec = "a2f3rff3sda323s33d"
 
-c = Config(u, cid, cl_sec)
