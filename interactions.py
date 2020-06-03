@@ -94,6 +94,18 @@ class Interactions:
             self.sp.start_playback(self.current_device_id, f"spotify:playlist:{playlist_id}")
         except:
             print("[ERROR] Could not play playlist")
+    
+    def play_album(self, album_id):
+        try:
+            self.sp.start_playback(self.current_device_id, f"spotify:album:{album_id}")
+        except:
+            print("[ERROR] Could not play album")
+
+    def play_artist(self, artist_id):
+        try:
+            self.sp.start_playback(self.current_device_id, f"spotify:artist:{artist_id}")
+        except:
+            print("[ERROR] Could not play artist")
 
     def goto(self, time):
         try:
@@ -162,17 +174,6 @@ class Interactions:
         except ValueError:
             return False
 
-    def perform_command(self, command, parent):
-        self.refresh_token()
-        if command["visual"] == 1 and command["parameter"] == 1:
-            command["function"](self, parent, command["term"])
-        elif command["visual"] == 0 and command["parameter"] == 1:
-            command["function"](self, command["term"])
-        elif command["visual"] == 0 and command["parameter"] == 0:
-            command["function"](self)
-        elif command["visual"] == 1 and command["parameter"] == 0:
-            command["function"](self, parent)
-
     def command_match(self, term):
         matched = []
         og_parameter = term
@@ -194,6 +195,10 @@ class Interactions:
                                 matched = self.get_song_suggestions(command, parameter)
                             elif command["title"] == "Playlist":
                                 matched = self.get_playlist_suggestions(command, parameter)
+                            elif command["title"] == "Album":
+                                matched = self.get_album_suggestions(command, parameter)
+                            elif command["title"] == "Artist":
+                                matched = self.get_artist_suggestions(command, parameter)
                             elif command["title"] == "Device":
                                 matched = self.get_device_suggestions(command, parameter)
                         elif command["parameter"] == 1:
@@ -246,26 +251,6 @@ class Interactions:
             with open(file_path, "w") as f:
                 json.dump({f"{file}": [], "length": 0}, f)
                 return file_path  # returns file path to json file
-
-    def get_playlist_suggestions(self, command, term):
-        with open(playlist_cache_file_path, 'r') as f:
-            data = json.load(f)
-            matched = []
-            for playlist in data["playlists"]:
-                if len(matched) >= 6:
-                    break
-                elif len(playlist["name"]) >= len(term):
-                    if playlist["name"][:len(term)].lower() == term:
-                        new_command = copy.deepcopy(command)
-                        new_command["icon"] = playlist["image"]
-                        new_command["title"] = playlist["name"]
-                        new_command["description"] = f"By {playlist['owner']}"
-                        new_command["term"] = f"{playlist['uri']}"
-                        new_command["exe_on_return"] = 1
-                        matched.append(new_command)
-        # for sorting commands into alphabetical order
-        matched_sorted = sorted(matched, key=lambda k: k["title"])
-        return matched_sorted
 
     def get_song_suggestions(self, command, term):
         def check_for_duplicates():
@@ -326,6 +311,50 @@ class Interactions:
                         new_command["title"] = values["name"]
                         new_command["description"] = f"By {values['owner']}"
                         new_command["term"] = f"{playlist_id}"
+                        new_command["exe_on_return"] = 1
+                        matched.append(new_command)
+        # for sorting commands into alphabetical order
+        matched_sorted = sorted(matched, key=lambda k: k["title"])
+        return matched_sorted
+
+    def get_album_suggestions(self, command, term):
+        if not path.isfile(album_cache_file_path):
+            return []
+        with open(album_cache_file_path, 'r') as f:
+            data = json.load(f)
+            matched = []
+            for album_id, values in data["albums"].items():
+                if len(matched) >= 6:
+                    break
+                if len(values["name"]) >= len(term):
+                    if values["name"][:len(term)].lower() == term:
+                        new_command = copy.deepcopy(command)
+                        new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
+                        new_command["title"] = values["name"]
+                        new_command["description"] = f"By {values['artist']}"
+                        new_command["term"] = f"{album_id}"
+                        new_command["exe_on_return"] = 1
+                        matched.append(new_command)
+        # for sorting commands into alphabetical order
+        matched_sorted = sorted(matched, key=lambda k: k["title"])
+        return matched_sorted
+
+    def get_artist_suggestions(self, command, term):
+        if not path.isfile(artist_cache_file_path):
+            return []
+        with open(artist_cache_file_path, 'r') as f:
+            data = json.load(f)
+            matched = []
+            for artist_id, values in data["artists"].items():
+                if len(matched) >= 6:
+                    break
+                if len(values["name"]) >= len(term):
+                    if values["name"][:len(term)].lower() == term:
+                        new_command = copy.deepcopy(command)
+                        new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
+                        new_command["title"] = values["name"]
+                        new_command["description"] = f"{values['genre']}"
+                        new_command["term"] = f"{artist_id}"
                         new_command["exe_on_return"] = 1
                         matched.append(new_command)
         # for sorting commands into alphabetical order
@@ -439,6 +468,12 @@ class Interactions:
          "Playlist": {"title": "Playlist", "description": "Plays a playlist", "prefix": ["playlist "],
                       "function": play_playlist, "icon": f"{ASSETS_DIR}svg{sep}playlist.svg", "visual": 0, "parameter": 1,
                       "match_change": 1, "exe_on_return": 0, "term": ""},
+         "Album": {"title": "Album", "description": "Plays an album", "prefix": ["album "],
+                    "function": play_album, "icon": f"{ASSETS_DIR}svg{sep}album.svg", "visual": 0, "parameter": 1,
+                    "match_change": 1, "exe_on_return": 0, "term": ""},
+         "Artist": {"title": "Artist", "description": "Plays an artist's discography", "prefix": ["artist "],
+                    "function": play_artist, "icon": f"{ASSETS_DIR}svg{sep}artist.svg", "visual": 0, "parameter": 1,
+                    "match_change": 1, "exe_on_return": 0, "term": ""},
          "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked "], "function": play_liked,
                    "icon": f"{ASSETS_DIR}svg{sep}heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
                    "exe_on_return": 1},

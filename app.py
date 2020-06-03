@@ -26,7 +26,7 @@ else:
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
-        "playlist-read-private playlist-read-private user-follow-read"
+        "playlist-read-private playlist-read-private playlist-read-collaborative user-follow-read"
 
 sp_oauth = oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
                                scope=scope, username=USERNAME)
