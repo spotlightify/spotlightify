@@ -501,7 +501,7 @@ class Interactions:
          "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle "],
                      "function": toggle_shuffle, "icon": f"{ASSETS_DIR}svg{sep}shuffle.svg", "visual": 0, "parameter": 0,
                      "match_change": 0, "exe_on_return": 1},
-         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device "],
+         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
                     "function": set_device, "icon": f"{ASSETS_DIR}svg{sep}device.svg", "visual": 0, "parameter": 1,
                     "match_change": 1, "exe_on_return": 0},
          "Repeat": {"title": r"Repeat (ALL)","description": "Cycles through the different repeat modes", "prefix": ["repeat"],
