@@ -2,7 +2,7 @@ from threading import Thread
 from pynput.mouse import Button, Controller
 from queue import Queue
 from spotipy import Spotify, util, oauth2
-from os import sep, path, mkdir
+from os import sep, path, mkdir, kill, getpid, environ
 from shortcuts import listener
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
@@ -11,14 +11,13 @@ from time import sleep
 from definitions import ASSETS_DIR, CACHE_DIR
 from interactions import Interactions
 from caching import CachingThread, SongCachingThread, ImageCachingThread, ImageQueue
-import os
 
 #  Allow users to use the default spotipy env variables
-if not (all(elem in os.environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
+if not (all(elem in environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
     from config import USERNAME, CLIENT_ID, CLIENT_SECRET
     redirect_uri = "http://localhost:8080"
 else:
-    CLIENT_ID, CLIENT_SECRET, redirect_uri, USERNAME, = [os.environ[item] for item in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"]]
+    CLIENT_ID, CLIENT_SECRET, redirect_uri, USERNAME, = [environ[item] for item in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"]]
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
@@ -39,7 +38,7 @@ except:
 
 def exit_app():
     ui.close()  # visually removes ui quicker
-    raise Exception("Exit Command")
+    kill(getpid(), 9)
 
 
 def show_ui():

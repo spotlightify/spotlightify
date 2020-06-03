@@ -28,9 +28,14 @@ class MiscFunctions:
             print("[Error] could not select default device.")
 
     def set_volume(self, value: int):
+        '''
+        Changes the volume of the currently playing device
+        :param value: int between 1 and 10
+        '''
         try:
-            int_ = int(value)
-            if 0 <= int_ <= 100:
-                self.sp.volume(int_, self.current_device_id)
+            if 0 <= value <= 10:
+                self.sp.volume(value*10)
+            else:
+                raise Exception
         except:
-            print("[Error] Invalid volume value. Valid command example: 'volume 20'")
+            print("[Error] Invalid volume value. Valid command example: 'volume 8'")

@@ -35,7 +35,7 @@ class Interactions:
                    "function": PlaybackManager.play_liked,
                    "icon": f"{ASSETS_DIR}svg{sep}heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
                    "exe_on_return": 1},
-         "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume "],
+         "Volume": {"title": "Volume", "description": "Changes music volume (1-10)", "prefix": ["volume "],
                     "function": PlaybackManager.set_volume, "icon": f"{ASSETS_DIR}svg{sep}volume.svg", "visual": 0,
                     "parameter": 1,
                     "match_change": 0,
@@ -60,7 +60,8 @@ class Interactions:
                       "parameter": 0,
                       "match_change": 0, "exe_on_return": 1},
          "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit ", "quit "],
-                  "function": exit, "icon": f"{ASSETS_DIR}svg{sep}moon.svg", "visual": 0, "parameter": 0,
+                  "function": PlaybackManager.exit,
+                  "icon": f"{ASSETS_DIR}svg{sep}moon.svg", "visual": 0, "parameter": 1,
                   "match_change": 0, "exe_on_return": 1},
          "Shuffle": {"title": r"Shuffle", "description": "Shuffle is (OFF). Click to change to (ON)", "prefix": ["shuffle "],
                      "function": PlaybackManager.toggle_shuffle, "icon": f"{ASSETS_DIR}svg{sep}shuffle.svg",
@@ -82,8 +83,9 @@ class Interactions:
     def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function, queue):
         self.manager = PlaybackManager(sp, queue)
         self.manager.set_device("")
-        self.exit_function = exit_function
         self.sp_oauth = sp_oauth
+        # assigns exit function
+        Interactions.command_list["Exit"]["term"] = exit_function
         self.sp = sp
         self.token_info = token_info
         self.queue = queue
@@ -92,15 +94,6 @@ class Interactions:
         except:
             print("[WARNING] No device currently available. Make sure the Spotify desktop app is open and play a song on it to "
                   "ensure that the device is discoverable. A device can be selected by typing 'device' into the Spotlightify search.")
-
-    def exit(self):
-        self.exit_function()
-
-    def play_playlist(self, playlist_id): ###### check this works in new class
-        try:
-            self.sp.start_playback(self.current_device_id, f"spotify:playlist:{playlist_id}")
-        except:
-            print("[ERROR] Could not play playlist")
 
     def perform_command(self, command, parent):
         self.refresh_token()

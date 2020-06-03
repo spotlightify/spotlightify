@@ -85,12 +85,12 @@ class PlaybackManager:
     def toggle_like_song(self):
         self.toggle.like_song()
 
-    def set_volume(self, volume: int):
-        if 0 <= volume <= 10:
-            volume *= 10
+    def set_volume(self, volume: str):
+        try:
+            volume = int(volume)
             self.misc.set_volume(volume)
-        else:
-            print("[Error] Invalid Volume Range. Must be an int of range 1 - 10 ")
+        except:
+            print("[Error] Volume must be a valid number between 1 and 10.")
 
     def set_device(self, id_: str):
         """
@@ -105,3 +105,6 @@ class PlaybackManager:
 
     def get_devices(self) -> list:  # Will probably not be needed here after command class has been broken up
         return self.misc.get_device_list()
+
+    def exit(self, exit_function):
+        exit_function()
