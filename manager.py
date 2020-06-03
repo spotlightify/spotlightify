@@ -14,10 +14,10 @@ class PlaybackManager:
         self.misc = misc.MiscFunctions(sp)
 
     def pause(self):
-        self.toggle.playback(state=False)
+        self.playback.pause()
 
     def resume(self):
-        self.toggle.playback(state=True)
+        self.playback.resume()
 
     def toggle_playback(self):
         self.toggle.playback()
@@ -27,6 +27,9 @@ class PlaybackManager:
 
     def previous(self):
         self.playback.previous()
+
+    def goto(self, time: str):
+        self.playback.goto(time)
 
     def toggle_shuffle(self):
         self.toggle.shuffle()
@@ -54,7 +57,7 @@ class PlaybackManager:
         """
         format_ = self.check.song_link_type(id_, "song")
         if format_ == "id":
-            self.play.id(id_, "song")
+            self.play.id(id_, "track")
         elif format_ == "uri":
             self.play.uri(id_)
         else:

@@ -34,12 +34,3 @@ class MiscFunctions:
                 self.sp.volume(int_, self.current_device_id)
         except:
             print("[Error] Invalid volume value. Valid command example: 'volume 20'")
-
-    def refresh_token(self):
-        try:
-            if self.sp_oauth.is_token_expired(token_info=self.token_info):
-                self.token_info = self.sp_oauth.refresh_access_token(self.token_info['refresh_token'])
-                token = self.token_info['access_token']
-                self.sp = spotipy.Spotify(auth=token)
-        except:
-            print("[Warning] Could not refresh user API token")

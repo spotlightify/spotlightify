@@ -1,5 +1,6 @@
 import spotipy
 from functions import check
+from interactions import Interactions
 
 
 class ToggleFunctions:
@@ -24,33 +25,12 @@ class ToggleFunctions:
         try:
             if self.check.is_shuffle_on():
                 self.sp.shuffle(False)
+                Interactions.command_list["Shuffle"]["description"] = "Shuffle is (OFF). Click to change to (ON)"
             else:
                 self.sp.shuffle(True)
+                Interactions.command_list["Shuffle"]["description"] = "Shuffle is (ON). Click to change to (OFF)"
         except:
             print("[Error] Shuffle could not be toggled")
-
-    def shuffle_with_str(self) -> str:  # return description string for command
-        try:
-            if self.check.is_shuffle_on():
-                self.sp.shuffle(False)
-                return "Shuffle is currently OFF. Click to turn ON."
-            else:
-                self.sp.shuffle(True)
-                return "Shuffle is currently ON. Click to turn OFF."
-        except:
-            print("[Error] Shuffle could not be toggled")
-
-    def playback_with_str(self):
-        try:
-            if self.check.is_song_playing():
-                self.sp.pause_playback()
-                return "Shuffle is currently OFF. Click to turn ON."
-            else:
-                self.sp.start_playback()
-                return "Shuffle is currently ON. Click to turn OFF."
-        except:
-            print("[Error] Playback could not be toggled")
-            return False
 
     def playback(self):
         try:
@@ -63,15 +43,15 @@ class ToggleFunctions:
 
     def repeat(self):  # return description string for command
         try:
-            if self.is_repeat_track():
-                self.sp.repeat('off', self.current_device_id)
-                self.command_list["Repeat"]["title"] = "Repeat (ALL)"
-            elif self.is_repeat_context():
-                self.sp.repeat('track', self.current_device_id)
-                self.command_list["Repeat"]["title"] = "Repeat (OFF)"
+            if self._is_repeat_track():
+                self.sp.repeat('off')
+                Interactions.command_list["Repeat"]["description"] = "Repeat is (OFF). Click to change to (ALL)"
+            elif self._is_repeat_context():
+                self.sp.repeat('track')
+                Interactions.command_list["Repeat"]["description"] = "Repeat is (TRACK). Click to change to (OFF)"
             else:
-                self.sp.repeat('context', self.current_device_id)
-                self.command_list["Repeat"]["title"] = "Repeat (TRACK)"
+                self.sp.repeat('context')
+                Interactions.command_list["Repeat"]["description"] = "Repeat is (ALL). Click to change to (TRACK)"
         except:
             print("[Error] Could not toggle repeat type")
 

@@ -7,9 +7,78 @@ import copy
 from manager import PlaybackManager
 from definitions import ASSETS_DIR, CACHE_DIR
 from pathlib import Path
+from functions import misc
 
 
 class Interactions:
+    command_list = \
+        {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "],
+                  "function": PlaybackManager.play_song,
+                  "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0, "parameter": 1, "match_change": 1,
+                  "exe_on_return": 0,
+                  "term": ""},
+         "Queue": {"title": "Queue", "description": "Adds a song to the queue", "prefix": ["queue "],
+                   "function": PlaybackManager.queue_song, "icon": f"{ASSETS_DIR}svg{sep}list.svg", "visual": 0,
+                   "parameter": 1,
+                   "match_change": 1,
+                   "exe_on_return": 0, "term": ""},
+         "Pause": {"title": "Pause", "description": "Pauses currently playing music", "prefix": ["pause ", "stop "],
+                   "function": PlaybackManager.pause, "icon": f"{ASSETS_DIR}svg{sep}pause.svg", "visual": 0,
+                   "parameter": 0,
+                   "match_change": 0, "exe_on_return": 1},
+         "Playlist": {"title": "Playlist", "description": "Plays a playlist", "prefix": ["playlist "],
+                      "function": PlaybackManager.play_playlist, "icon": f"{ASSETS_DIR}svg{sep}playlist.svg",
+                      "visual": 0,
+                      "parameter": 1,
+                      "match_change": 1, "exe_on_return": 0, "term": ""},
+         "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked "],
+                   "function": PlaybackManager.toggle_like_song,
+                   "icon": f"{ASSETS_DIR}svg{sep}heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
+                   "exe_on_return": 1},
+         "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume "],
+                    "function": PlaybackManager.set_volume, "icon": f"{ASSETS_DIR}svg{sep}volume.svg", "visual": 0,
+                    "parameter": 1,
+                    "match_change": 0,
+                    "exe_on_return": 0, "term": ""},
+         "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto ", "go to "],
+                  "function": PlaybackManager.goto, "icon": f"{ASSETS_DIR}svg{sep}forward.svg", "visual": 0,
+                  "parameter": 1,
+                  "match_change": 0,
+                  "exe_on_return": 0, "term": ""},
+         "Resume": {"title": "Resume", "description": "Resumes music playback", "prefix": ["resume ", "start "],
+                    "function": PlaybackManager.resume, "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0,
+                    "parameter": 0,
+                    "match_change": 0, "exe_on_return": 1},
+         "Skip": {"title": "Skip", "description": "Skips the current song", "prefix": ["skip ", "next "],
+                  "function": PlaybackManager.skip, "icon": f"{ASSETS_DIR}svg{sep}forward.svg", "visual": 0,
+                  "parameter": 0,
+                  "match_change": 0,
+                  "exe_on_return": 1},
+         "Previous": {"title": "Previous", "description": "Plays previous song", "prefix": ["previous "],
+                      "function": PlaybackManager.previous, "icon": f"{ASSETS_DIR}svg{sep}backward.svg",
+                      "visual": 0,
+                      "parameter": 0,
+                      "match_change": 0, "exe_on_return": 1},
+         "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit ", "quit "],
+                  "function": exit, "icon": f"{ASSETS_DIR}svg{sep}moon.svg", "visual": 0, "parameter": 0,
+                  "match_change": 0, "exe_on_return": 1},
+         "Shuffle": {"title": r"Shuffle", "description": "Shuffle is (OFF). Click to change to (ON)", "prefix": ["shuffle "],
+                     "function": PlaybackManager.toggle_shuffle, "icon": f"{ASSETS_DIR}svg{sep}shuffle.svg",
+                     "visual": 0,
+                     "parameter": 0,
+                     "match_change": 0, "exe_on_return": 1},
+         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
+                    "function": PlaybackManager.set_device, "icon": f"{ASSETS_DIR}svg{sep}device.svg", "visual": 0,
+                    "parameter": 1,
+                    "match_change": 1, "exe_on_return": 0},
+         "Repeat": {"title": r"Repeat", "description": "Repeat is (OFF). Click to change to (ALL)",
+                    "prefix": ["repeat"],
+                    "function": PlaybackManager.toggle_repeat, "icon": f"{ASSETS_DIR}svg{sep}repeat.svg",
+                    "visual": 0,
+                    "parameter": 0, "match_change": 0,
+                    "exe_on_return": 1}
+         }
+
     def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function, queue):
         self.manager = PlaybackManager(sp, queue)
         self.manager.set_device("")
@@ -168,18 +237,18 @@ class Interactions:
     def perform_command(self, command, parent):
         self.refresh_token()
         if command["visual"] == 1 and command["parameter"] == 1:
-            command["function"](self, parent, command["term"])
+            command["function"](self.manager, parent, command["term"])
         elif command["visual"] == 0 and command["parameter"] == 1:
-            command["function"](self, command["term"])
+            command["function"](self.manager, command["term"])
         elif command["visual"] == 0 and command["parameter"] == 0:
-            command["function"](self)
+            command["function"](self.manager)
         elif command["visual"] == 1 and command["parameter"] == 0:
-            command["function"](self, parent)
+            command["function"](self.manager, parent)
 
     def command_match(self, term):
         matched = []
         og_parameter = term
-        for command in self.command_list.values():
+        for command in Interactions.command_list.values():
             for prefix in command["prefix"]:
                 if len(matched) >= 6:
                     break
@@ -206,19 +275,8 @@ class Interactions:
                             matched.append(new_command)
                         break
         if len(matched) == 0:
-            matched = self.get_song_suggestions(self.command_list["Play"], og_parameter)
+            matched = self.get_song_suggestions(Interactions.command_list["Play"], og_parameter)
         return matched
-
-    def command_perform(self, command, parent):
-        self.refresh_token()
-        if command["visual"] == 1 and command["parameter"] == 1:
-            command["function"](self, parent, command["term"])
-        elif command["visual"] == 0 and command["parameter"] == 1:
-            command["function"](self, command["term"])
-        elif command["visual"] == 0 and command["parameter"] == 0:
-            command["function"](self)
-        elif command["visual"] == 1 and command["parameter"] == 0:
-            command["function"](self, parent)
 
     def download_image(self, path, url, id_):
         img_data = requests.get(url).content
@@ -307,33 +365,10 @@ class Interactions:
                                 matched.append(new_command)
         except:
             None
-
         # for sorting commands into alphabetical order
         matched_sorted = [first_command]
         matched.remove(first_command)
         matched_sorted.extend(sorted(matched, key=lambda k: k["title"]))
-        return matched_sorted
-
-    def get_playlist_suggestions(self, command, term):
-        if not path.isfile(playlist_cache_file_path):
-            return []
-        with open(playlist_cache_file_path, 'r') as f:
-            data = json.load(f)
-            matched = []
-            for playlist_id, values in data["playlists"].items():
-                if len(matched) >= 6:
-                    break
-                if len(values["name"]) >= len(term):
-                    if values["name"][:len(term)].lower() == term:
-                        new_command = copy.deepcopy(command)
-                        new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
-                        new_command["title"] = values["name"]
-                        new_command["description"] = f"By {values['owner']}"
-                        new_command["term"] = f"{playlist_id}"
-                        new_command["exe_on_return"] = 1
-                        matched.append(new_command)
-        # for sorting commands into alphabetical order
-        matched_sorted = sorted(matched, key=lambda k: k["title"])
         return matched_sorted
 
     def refresh_token(self):
@@ -428,55 +463,6 @@ class Interactions:
         except:
             print("[Error] Could not toggle repeat type")
 
-    command_list = \
-        {"Play": {"title": "Play", "description": "Plays a song", "prefix": ["play "], "function": play_song,
-                  "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0, "parameter": 1, "match_change": 1,
-                  "exe_on_return": 0,
-                  "term": ""},
-         "Queue": {"title": "Queue", "description": "Adds a song to the queue", "prefix": ["queue "],
-                   "function": queue_song, "icon": f"{ASSETS_DIR}svg{sep}list.svg", "visual": 0, "parameter": 1,
-                   "match_change": 1,
-                   "exe_on_return": 0, "term": ""},
-         "Pause": {"title": "Pause", "description": "Pauses currently playing music", "prefix": ["pause ", "stop "],
-                   "function": pause_playback, "icon": f"{ASSETS_DIR}svg{sep}pause.svg", "visual": 0, "parameter": 0,
-                   "match_change": 0, "exe_on_return": 1},
-         "Playlist": {"title": "Playlist", "description": "Plays a playlist", "prefix": ["playlist "],
-                      "function": play_playlist, "icon": f"{ASSETS_DIR}svg{sep}playlist.svg", "visual": 0, "parameter": 1,
-                      "match_change": 1, "exe_on_return": 0, "term": ""},
-         "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked "], "function": play_liked,
-                   "icon": f"{ASSETS_DIR}svg{sep}heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
-                   "exe_on_return": 1},
-         "Volume": {"title": "Volume", "description": "Changes music volume (1-100)", "prefix": ["volume "],
-                    "function": set_vol, "icon": f"{ASSETS_DIR}svg{sep}volume.svg", "visual": 0, "parameter": 1,
-                    "match_change": 0,
-                    "exe_on_return": 0, "term": ""},
-         "Goto": {"title": "Go to", "description": "Skips to time e.g. 3:41", "prefix": ["goto ", "go to "],
-                  "function": goto, "icon": f"{ASSETS_DIR}svg{sep}forward.svg", "visual": 0, "parameter": 1,
-                  "match_change": 0,
-                  "exe_on_return": 0, "term": ""},
-         "Resume": {"title": "Resume", "description": "Resumes music playback", "prefix": ["resume ", "start "],
-                    "function": resume_playback, "icon": f"{ASSETS_DIR}svg{sep}play.svg", "visual": 0, "parameter": 0,
-                    "match_change": 0, "exe_on_return": 1},
-         "Skip": {"title": "Skip", "description": "Skips the current song", "prefix": ["skip ", "next "],
-                  "function": next_song, "icon": f"{ASSETS_DIR}svg{sep}forward.svg", "visual": 0, "parameter": 0,
-                  "match_change": 0,
-                  "exe_on_return": 1},
-         "Previous": {"title": "Previous", "description": "Plays previous song", "prefix": ["previous "],
-                      "function": previous_song, "icon": f"{ASSETS_DIR}svg{sep}backward.svg", "visual": 0, "parameter": 0,
-                      "match_change": 0, "exe_on_return": 1},
-         "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit ","quit "],
-                  "function": exit, "icon": f"{ASSETS_DIR}svg{sep}moon.svg", "visual": 0, "parameter": 0,
-                  "match_change": 0, "exe_on_return": 1},
-         "Shuffle": {"title": r"Shuffle (OFF)", "description": "Toggles shuffle mode", "prefix": ["shuffle "],
-                     "function": toggle_shuffle, "icon": f"{ASSETS_DIR}svg{sep}shuffle.svg", "visual": 0, "parameter": 0,
-                     "match_change": 0, "exe_on_return": 1},
-         "Device": {"title": r"Device", "description": "Select device to play music from", "prefix": ["device"],
-                    "function": set_device, "icon": f"{ASSETS_DIR}svg{sep}device.svg", "visual": 0, "parameter": 1,
-                    "match_change": 1, "exe_on_return": 0},
-         "Repeat": {"title": r"Repeat (ALL)", "description": "Cycles through the different repeat modes", "prefix": ["repeat"],
-                    "function": toggle_repeat, "icon": f"{ASSETS_DIR}svg{sep}repeat.svg","visual": 0,"parameter": 0,"match_change": 0,
-                    "exe_on_return": 1}
-         }
 
 
 # File Names
