@@ -19,17 +19,10 @@ class Config:
 			self.create_file()
 
 	def create_file(self):
-		""" Method creates cache.json in the correct dir."""
-		gen = self.generate_json()
-		with open(f"{CACHE_DIR}cache.json", "w") as file:
-			dump(gen, file)
-
-
-	def generate_json(self):
-		""" Generates the config json info """
-		data_set = {"username": "", "client_id": "", "client_secret": ""}
-		json_dump = dumps(data_set)
-		return json_dump
+		""" Generates the json in the correct dir."""
+		data_set = {"username": "value", "client_id": "value", "client_secret": "value"}
+		with open(f"{CACHE_DIR}cache.json", "w",  encoding='utf-8') as file:
+			dump(data_set, file, ensure_ascii=False, indent=4)
 
 	def open_json(self):
 		""" Opens JSON with specific val that's passed to the property decorated methods """
@@ -64,4 +57,8 @@ class Config:
 	def client_sec(self, _client_secret):
 		self._client_secret = _client_secret
 
+u = "Mark"
+cid = "1234567890"
+cl_sec = "a2f3rff3sda323s33d"
 
+c = Config(u, cid, cl_sec)
