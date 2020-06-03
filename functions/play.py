@@ -26,7 +26,10 @@ class PlayFunctions:
     def id(self, id_: str, type_: str):
         try:
             uri = f"spotify:{type_}:{id_}"
-            self.sp.start_playback(uris=[uri])
+            if type_ == "track":
+                self.sp.start_playback(uris=[uri])
+            else:
+                self.sp.start_playback(context_uri=uri)
         except:
             print(f"[Error] Could not play {type_} from ID")
 
@@ -40,22 +43,15 @@ class PlayFunctions:
                 tracks.extend(results["items"])
             for track in tracks:
                 uris.append(track["track"]["uri"])
-            self.sp.start_playback(self.current_device_id, None, uris=uris)
+            self.sp.start_playback(uris=uris)
         except:
             print("[ERROR] Could not play liked music")
-
-    def queue(self, id_: str):
-        try:
-            uri = f"spotify:song:{id_}"
-            self.sp.start_playback(uris=[uri])
-        except:
-            print(f"[Error] Could not queue song from ID")
 
     def term(self, term: str):
         try:
             track = self.sp.search(term, limit=1, market="GB", type="track")["tracks"]["items"][0]
             uri = track["uri"]
-            self.sp.add_to_queue(uri)
+            self.sp.start_playback(uris=[uri])
             self._queue.put(track)
         except:
             print("[Error] Could not play song from term inputted")
@@ -64,4 +60,20 @@ class PlayFunctions:
         try:
             self.sp.start_playback(uri=[uri])
         except:
+            print(f"[Error] Could not queue song from URI")
+
+    def queue_id(self, id_: str):
+        try:
+            uri = f"spotify:track:{id_}"
+            self.sp.add_to_queue(uri=uri)
+        except:
             print(f"[Error] Could not queue song from ID")
+
+    def queue_term(self, term: str):
+        try:
+            track = self.sp.search(term, limit=1, market="GB", type="track")["tracks"]["items"][0]
+            uri = track["uri"]
+            self.sp.add_to_queue(uri=uri)
+            self._queue.put(track)
+        except:
+            print("[Error] Could not queue song from term inputted")
