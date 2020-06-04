@@ -27,7 +27,13 @@ class CheckFunctions:
         except:
             return False
 
-    def song_link_type(self, id_: str, item_type: str):
+    def item_link_type(self, id_: str, item_type: str) -> str:
+        '''
+        Used to determine if an item (song, album, playlist or artist) link (identifier) is of type uri, id or term
+        :param id_: the identifier of link uri/id/term
+        :param item_type: the item type of song, album, playlist or artist
+        :return:
+        '''
         if item_type == "song":
             if "spotify:song:" in id_:
                 return "uri"

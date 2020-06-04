@@ -1,15 +1,15 @@
 from threading import Thread
 from pynput.mouse import Button, Controller
 from queue import Queue
-from spotipy import Spotify, util, oauth2
+from spotipy import Spotify, oauth2
 from os import sep, path, mkdir, kill, getpid, environ
 from shortcuts import listener
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
-from ui import Ui
+from spotlight.ui import Ui
 from time import sleep
 from definitions import ASSETS_DIR, CACHE_DIR
-from interactions import Interactions
+from spotlight.interactions import Interactions
 from caching import CachingThread, SongCachingThread, ImageCachingThread, ImageQueue
 
 #  Allow users to use the default spotipy env variables

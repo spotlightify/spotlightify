@@ -1,13 +1,10 @@
 import collections
-import requests
 import spotipy
 from os import sep, path
 import json
 import copy
-from manager import PlaybackManager
+from spotlight.manager.manager import PlaybackManager
 from definitions import ASSETS_DIR, CACHE_DIR
-from pathlib import Path
-from functions import misc
 
 
 class Interactions:

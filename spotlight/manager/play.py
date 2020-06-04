@@ -47,15 +47,6 @@ class PlayFunctions:
         except:
             print("[ERROR] Could not play liked music")
 
-    def term(self, term: str):
-        try:
-            track = self.sp.search(term, limit=1, market="GB", type="track")["tracks"]["items"][0]
-            uri = track["uri"]
-            self.sp.start_playback(uris=[uri])
-            self._queue.put(track)
-        except:
-            print("[Error] Could not play song from term inputted")
-
     def queue_uri(self, uri: str):
         try:
             self.sp.start_playback(uri=[uri])

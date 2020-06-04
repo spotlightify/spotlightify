@@ -1,67 +1,67 @@
 from queue import Queue
 
-from functions import misc, play, playback, toggle, check
+from spotlight.manager import misc, play, playback, toggle, check
 import spotipy
 
 
 class PlaybackManager:
     def __init__(self, sp: spotipy.Spotify, queue: Queue):
         self.sp = sp
-        self.playback = playback.PlaybackFunctions(sp)
-        self.play = play.PlayFunctions(sp, queue)
-        self.toggle = toggle.ToggleFunctions(sp)
-        self.check = check.CheckFunctions(sp)
-        self.misc = misc.MiscFunctions(sp)
+        self._playback = playback.PlaybackFunctions(sp)
+        self._play = play.PlayFunctions(sp, queue)
+        self._toggle = toggle.ToggleFunctions(sp)
+        self._check = check.CheckFunctions(sp)
+        self._misc = misc.MiscFunctions(sp)
 
     def pause(self):
-        self.playback.pause()
+        self._playback.pause()
 
     def resume(self):
-        self.playback.resume()
+        self._playback.resume()
 
     def toggle_playback(self):
-        self.toggle.playback()
+        self._toggle.playback()
 
     def skip(self):
-        self.playback.skip()
+        self._playback.skip()
 
     def previous(self):
-        self.playback.previous()
+        self._playback.previous()
 
     def goto(self, time: str):
-        self.playback.goto(time)
+        self._playback.goto(time)
 
     def toggle_shuffle(self):
-        self.toggle.shuffle()
+        self._toggle.shuffle()
 
     def toggle_repeat(self):
-        self.toggle.repeat()
+        self._toggle.repeat()
 
     def queue_song(self, id_: str):
         """
         Queue's a song given an id/uri/term
         :param id_: id/uri/term for song
         """
-        format_ = self.check.song_link_type(id_, "song")
+        format_ = self._check.item_link_type(id_, "song")
         if format_ == "id":
-            self.play.queue_id(id_)
+            self._play.queue_id(id_)
         elif format_ == "uri":
-            self.play.queue_uri(id_)
+            self._play.queue_uri(id_)
         else:
-            self.play.queue_term(id_)
+            self._play.queue_term(id_)
 
     def play_song(self, id_):
         """
         Play's a song given an id/uri/term
         :param id_: id/uri/term for song
         """
-        format_ = self.check.song_link_type(id_, "song")
+        format_ = self._check.item_link_type(id_, "song")
         if format_ == "id":
-            self.play.id(id_, "track")
+            self._play.id(id_, "track")
         elif format_ == "uri":
-            self.play.uri(id_)
+            self._play.uri(id_)
         else:
-            self.play.term(id_)
+            self._play.term(id_)
 
     def play_artist(self, id_):
         self.__play(id_, "artist")
@@ -73,22 +73,28 @@ class PlaybackManager:
         self.__play(id_, "playlist")
 
     def __play(self, id_: str, item_type: str):
-        format_ = self.check.song_link_type(id_, item_type)
+        '''
+
+        :param id_: uri/id/term
+        :param item_type: the format of song, either uri, id or term
+        :return:
+        '''
+        format_ = self._check.item_link_type(id_, item_type)
         if format_ == "uri":
-            self.play.uri(id_)
+            self._play.uri(id_)
         else:
-            self.play.id(id_, item_type)
+            self._play.id(id_, item_type)
 
     def play_liked(self):
-        self.play.liked_songs()
+        self._play.liked_songs()
 
     def toggle_like_song(self):
-        self.toggle.like_song()
+        self._toggle.like_song()
 
     def set_volume(self, volume: str):
         try:
             volume = int(volume)
-            self.misc.set_volume(volume)
+            self._misc.set_volume(volume)
         except:
             print("[Error] Volume must be a valid number between 1 and 10.")
 
@@ -99,12 +105,12 @@ class PlaybackManager:
         :return: None
         """
         if id_ == "":
-            self.misc.set_default_device()
+            self._misc.set_default_device()
         else:
-            self.misc.set_device(id_)
+            self._misc.set_device(id_)
 
     def get_devices(self) -> list:  # Will probably not be needed here after command class has been broken up
-        return self.misc.get_device_list()
+        return self._misc.get_device_list()
 
     def exit(self, exit_function):
         exit_function()
