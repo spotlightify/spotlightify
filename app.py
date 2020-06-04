@@ -10,7 +10,7 @@ from spotlight.ui import Ui
 from time import sleep
 from spotlight.interactions import Interactions
 from definitions import ASSETS_DIR
-from interactions import Interactions
+from spotlight.interactions import Interactions
 from caching.manager import CacheManager
 from caching.queues import SongQueue, ImageQueue
 from colors import colors
