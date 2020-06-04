@@ -21,15 +21,26 @@ class Config:
 	def create_file(self):
 		""" Generates the json in the correct dir."""
 		data_set = {"username": "value", "client_id": "value", "client_secret": "value"}
-		with open(f"{CACHE_DIR}cache.json", "w",  encoding='utf-8') as file:
+		with open(f"{CACHE_DIR}config.json", "w", encoding='utf-8') as file:
 			dump(data_set, file, ensure_ascii=False, indent=4)
 
 	def open_json(self):
 		""" Opens JSON with specific val that's passed to the property decorated methods """
-		with open(f"{CACHE_DIR}cache.json") as file:
+		with open(f"{CACHE_DIR}config.json") as file:
 			json_obj = load(file)
 		return json_obj
 
+	def save_json(self, username, client_id, client_secret ):
+		""" Method creates config.json in the correct dir"""
+		data = {
+			"username": f"{username}",
+			"client_id": f"{client_id}",
+			"client_secret": f"{client_secret}"
+		}
+
+		with open(f"{CACHE_DIR}config.json", "w") as file:
+			dump(data, file)
+			print("Config updated")
 
 	@property
 	def username(self):
@@ -38,8 +49,8 @@ class Config:
 		return self._username
 
 	@username.setter
-	def username(self, _username):
-		self._username = _username
+	def username(self, val):
+		self._username = val
 
 	@property
 	def client_id(self):
@@ -48,8 +59,8 @@ class Config:
 		return self._client_id
 
 	@client_id.setter
-	def client_id(self, _client_id):
-		self._client_id = _client_id
+	def client_id(self, val):
+		self._client_id = val
 
 	@property
 	def client_sec(self):
@@ -60,5 +71,3 @@ class Config:
 	@client_sec.setter
 	def client_sec(self, _client_secret):
 		self._client_secret = _client_secret
-
-
