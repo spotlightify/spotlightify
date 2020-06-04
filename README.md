@@ -2,7 +2,7 @@
 Spotlightify is a GUI based application designed to allow users to quickly interact with the Spotify Desktop application across Windows, Linux and macOS.
 
 ## Prerequisites
-- Spotify Premium Account (We have not yet tested this with a free account so feel free to)
+- Spotify Premium Account
 - Python 3.7 or later
 - A Spotify App must also be created, the instructions follow:
     1. Open the Spotify Developer Dashboard <a href="https://developer.spotify.com/dashboard/login" target="_blank">here</a> and login using your Spotify account credentials.
@@ -79,4 +79,4 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 - <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">PyQt5</a> - A cross platform GUI framework for Python
 
 ## Contributing
-Join us on <a href="https://discord.gg/7MqXdg" target="_blank">discord</a> to discuss how to contribute to the project.
+Join us on <a href="https://discord.gg/nrDke3q" target="_blank">discord</a> to discuss how to contribute to the project.

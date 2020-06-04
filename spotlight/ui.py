@@ -75,7 +75,7 @@ class Ui(QWidget):
         self.function_row.move(0, 0)
         self.function_row.show()
         self.toggle_function_buttons()
-        
+
         # Mac setting
         self.textbox.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
 

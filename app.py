@@ -8,29 +8,37 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from spotlight.ui import Ui
 from time import sleep
-from definitions import ASSETS_DIR, CACHE_DIR
 from spotlight.interactions import Interactions
-from caching import CachingThread, SongCachingThread, ImageCachingThread, ImageQueue
+from definitions import ASSETS_DIR
+from interactions import Interactions
+from caching.manager import CacheManager
+from caching.queues import SongQueue, ImageQueue
+from colors import colors
 
 #  Allow users to use the default spotipy env variables
 if not (all(elem in environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
     from config import USERNAME, CLIENT_ID, CLIENT_SECRET
+
     redirect_uri = "http://localhost:8080"
 else:
-    CLIENT_ID, CLIENT_SECRET, redirect_uri, USERNAME, = [environ[item] for item in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"]]
+    CLIENT_ID, CLIENT_SECRET, redirect_uri, USERNAME, = [environ[item] for item in
+                                                         ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET",
+                                                          "SPOTIPY_REDIRECT_URI", "USERNAME"]]
+
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
-        "playlist-read-private playlist-read-private"
+        "playlist-read-private playlist-read-private user-follow-read"
 
 sp_oauth = oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
-                                       scope=scope, username=USERNAME)
+                               scope=scope, username=USERNAME)
 
 token_info = sp_oauth.get_access_token(as_dict=True)
 token = token_info["access_token"]
 
 try:
     sp = Spotify(auth=token)
+    print(f"{colors.PINK}{colors.BOLD}Welcome to Spotlightify{colors.RESET}\n\n")
 except:
     print("User token could not be created")
     exit()
@@ -69,16 +77,11 @@ def tray_icon_activated(reason):
         show_ui()
 
 
-def create_cache():
-    if not path.exists(CACHE_DIR):
-        mkdir(CACHE_DIR)
-
-
-queue = Queue()
+song_queue = SongQueue()
 image_queue = ImageQueue()
 
 # creates the interactions object
-interactions = Interactions(sp, token_info, sp_oauth, exit_app, queue)
+interactions = Interactions(sp, token_info, sp_oauth, exit_app, song_queue)
 
 # UI
 ui = Ui(interactions, sp)
@@ -105,18 +108,7 @@ menu.addAction(exit_)
 listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
 listener_thread.start()
 
-create_cache()
-
-song_caching_thread = SongCachingThread(queue, image_queue)
-song_caching_thread.start()
-
-image_caching_thread = ImageCachingThread(image_queue)
-image_caching_thread.start()
-
-playlist_caching_thread = CachingThread(sp, "playlists", queue, image_queue)
-playlist_caching_thread.start()
-liked_caching_thread = CachingThread(sp, "liked", queue, image_queue)
-liked_caching_thread.start()
+cache_manager = CacheManager(sp, song_queue, image_queue)
 
 # Add the menu to the tray
 tray.setContextMenu(menu)
