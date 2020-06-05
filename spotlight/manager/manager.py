@@ -112,5 +112,8 @@ class PlaybackManager:
     def get_devices(self) -> list:  # Will probably not be needed here after command class has been broken up
         return self._misc.get_device_list()
 
+    def current_song(self) -> dict:
+        return self._playback.get_current_song_info()
+
     def exit(self, exit_function):
         exit_function()

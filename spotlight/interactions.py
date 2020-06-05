@@ -84,7 +84,13 @@ class Interactions:
                     "function": PlaybackManager.toggle_repeat, "icon": f"{ASSETS_DIR}svg{sep}repeat.svg",
                     "visual": 0,
                     "parameter": 0, "match_change": 0,
-                    "exe_on_return": 1}
+                    "exe_on_return": 1},
+         "Currently": {"title": r"Current Song", "description": "Gets the current song",
+                    "prefix": ["currently playing"],
+                    "function": None, "icon": f"{ASSETS_DIR}svg{sep}repeat.svg",
+                    "visual": 0,
+                    "parameter": 0, "match_change": 1,
+                    "exe_on_return": 0}
          }
 
     def __init__(self, sp: spotipy.Spotify, token_info, sp_oauth, exit_function, queue):
@@ -140,6 +146,8 @@ class Interactions:
                                 matched = self.get_artist_suggestions(command, parameter)
                             elif command["title"] == "Device":
                                 matched = self.get_device_suggestions(command, parameter)
+                            elif command["title"] == "Currently":
+                                matched = self.get_device_suggestions(command, parameter)
                         elif command["parameter"] == 1:
                             new_command = copy.deepcopy(command)
                             new_command["exe_on_return"] = 1
@@ -166,6 +174,13 @@ class Interactions:
         # for sorting commands into alphabetical order
         matched_sorted = sorted(matched, key=lambda k: k["title"])
         return matched_sorted
+    
+    def get_currently_playing(self):
+        command = copy.deepcopy(Interactions.command_list["Currently"])
+        current_song = self.manager.current_song()
+        command["title"] = f"Playing {current_song['name']}"
+        command["description"] = f"Playing {current_song['artist']}"
+        return command
 
     def get_playlist_suggestions(self, command, term):
         with open(playlist_cache_file_path, 'r') as f:
