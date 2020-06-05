@@ -7,3 +7,5 @@ __pycache__
 cache
 
 config.py
+.vscode
+.pylintrc
