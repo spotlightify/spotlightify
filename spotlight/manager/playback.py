@@ -40,13 +40,11 @@ class PlaybackFunctions:
             self.sp.seek_track(time)
         except:
             print("[ERROR] Invalid time give. Valid command example: go to 1:40")
-    
+
     def get_current_song_info(self) -> dict:
         try:
             song = self.sp.current_playback()["item"]
-            info["name"] = song["name"]
-            info["artist"] = ", ".join([artist["name"] for artist in song["artists"]])
-            return info
+            return {"name": song["name"], "artist": ", ".join([artist["name"] for artist in song["artists"]])}
         except:
             print("[Error] could not get current song information.")
-            return None
+            return {"name": "Nothing Currently Playing", "artist": ""}

@@ -85,9 +85,9 @@ class Interactions:
                     "visual": 0,
                     "parameter": 0, "match_change": 0,
                     "exe_on_return": 1},
-         "Currently": {"title": r"Current Song", "description": "Gets the current song",
+         "Currently": {"title": r"Currently Playing", "description": "Gets the current song",
                     "prefix": ["currently playing"],
-                    "function": None, "icon": f"{ASSETS_DIR}svg{sep}repeat.svg",
+                    "function": None, "icon": f"{ASSETS_DIR}svg{sep}play.svg",
                     "visual": 0,
                     "parameter": 0, "match_change": 1,
                     "exe_on_return": 0}
@@ -129,6 +129,8 @@ class Interactions:
                 elif len(term) <= len(prefix):
                     if command["title"] == "Device" and prefix == og_parameter:
                         matched = self.get_device_suggestions(command, og_parameter)
+                    elif command["title"] == "Currently Playing" and prefix == og_parameter:
+                        matched = self.get_currently_playing()
                     elif term == prefix[:len(term)]:
                         matched.append(command)
                         break
@@ -145,8 +147,6 @@ class Interactions:
                             elif command["title"] == "Artist":
                                 matched = self.get_artist_suggestions(command, parameter)
                             elif command["title"] == "Device":
-                                matched = self.get_device_suggestions(command, parameter)
-                            elif command["title"] == "Currently":
                                 matched = self.get_device_suggestions(command, parameter)
                         elif command["parameter"] == 1:
                             new_command = copy.deepcopy(command)
@@ -179,8 +179,8 @@ class Interactions:
         command = copy.deepcopy(Interactions.command_list["Currently"])
         current_song = self.manager.current_song()
         command["title"] = f"Playing {current_song['name']}"
-        command["description"] = f"Playing {current_song['artist']}"
-        return command
+        command["description"] = f"By {current_song['artist']}"
+        return [command]
 
     def get_playlist_suggestions(self, command, term):
         with open(playlist_cache_file_path, 'r') as f:
