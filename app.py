@@ -10,7 +10,6 @@ from spotlight.ui import Ui
 from time import sleep
 from spotlight.interactions import Interactions
 from definitions import ASSETS_DIR
-from spotlight.interactions import Interactions
 from caching.manager import CacheManager
 from caching.queues import SongQueue, ImageQueue
 from colors import colors
@@ -28,7 +27,7 @@ else:
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
-        "playlist-read-private playlist-read-private user-follow-read"
+        "playlist-read-private playlist-read-private playlist-read-collaborative user-follow-read"
 
 sp_oauth = oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
                                scope=scope, username=USERNAME)

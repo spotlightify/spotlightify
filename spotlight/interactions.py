@@ -28,6 +28,16 @@ class Interactions:
                       "visual": 0,
                       "parameter": 1,
                       "match_change": 1, "exe_on_return": 0, "term": ""},
+         "Album": {"title": "Album", "description": "Plays an album", "prefix": ["album "],
+                    "function": PlaybackManager.play_album, "icon": f"{ASSETS_DIR}svg{sep}album.svg",
+                    "visual": 0,
+                    "parameter": 1,
+                    "match_change": 1, "exe_on_return": 0, "term": ""},
+         "Artist": {"title": "Artist", "description": "Plays an artist's discography", "prefix": ["artist "],
+                    "function": PlaybackManager.play_artist, "icon": f"{ASSETS_DIR}svg{sep}artist.svg",
+                    "visual": 0,
+                    "parameter": 1,
+                    "match_change": 1, "exe_on_return": 0, "term": ""},
          "Liked": {"title": "Liked", "description": "Plays liked music", "prefix": ["liked "],
                    "function": PlaybackManager.play_liked,
                    "icon": f"{ASSETS_DIR}svg{sep}heart.svg", "visual": 0, "parameter": 0, "match_change": 0,
@@ -124,6 +134,10 @@ class Interactions:
                                 matched = self.get_song_suggestions(command, parameter)
                             elif command["title"] == "Playlist":
                                 matched = self.get_playlist_suggestions(command, parameter)
+                            elif command["title"] == "Album":
+                                matched = self.get_album_suggestions(command, parameter)
+                            elif command["title"] == "Artist":
+                                matched = self.get_artist_suggestions(command, parameter)
                             elif command["title"] == "Device":
                                 matched = self.get_device_suggestions(command, parameter)
                         elif command["parameter"] == 1:
@@ -167,6 +181,46 @@ class Interactions:
                         new_command["title"] = values["name"]
                         new_command["description"] = f"By {values['owner']}"
                         new_command["term"] = f"{playlist_id}"
+                        new_command["exe_on_return"] = 1
+                        matched.append(new_command)
+        # for sorting commands into alphabetical order
+        matched_sorted = sorted(matched, key=lambda k: k["title"])
+        return matched_sorted
+
+    def get_album_suggestions(self, command, term):
+        with open(album_cache_file_path, 'r') as f:
+            data = json.load(f)
+            matched = []
+            for album_id, values in data["albums"].items():
+                if len(matched) >= 6:
+                    break
+                if len(values["name"]) >= len(term):
+                    if values["name"][:len(term)].lower() == term:
+                        new_command = copy.deepcopy(command)
+                        new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
+                        new_command["title"] = values["name"]
+                        new_command["description"] = f"By {values['artist']}"
+                        new_command["term"] = f"{album_id}"
+                        new_command["exe_on_return"] = 1
+                        matched.append(new_command)
+        # for sorting commands into alphabetical order
+        matched_sorted = sorted(matched, key=lambda k: k["title"])
+        return matched_sorted
+
+    def get_artist_suggestions(self, command, term):
+        with open(artist_cache_file_path, 'r') as f:
+            data = json.load(f)
+            matched = []
+            for artist_id, values in data["artists"].items():
+                if len(matched) >= 6:
+                    break
+                if len(values["name"]) >= len(term):
+                    if values["name"][:len(term)].lower() == term:
+                        new_command = copy.deepcopy(command)
+                        new_command["icon"] = f'{album_art_path}{values["image"]}.jpg'
+                        new_command["title"] = values["name"]
+                        new_command["description"] = f"{values['genre']}"
+                        new_command["term"] = f"{artist_id}"
                         new_command["exe_on_return"] = 1
                         matched.append(new_command)
         # for sorting commands into alphabetical order
