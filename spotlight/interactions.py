@@ -129,6 +129,8 @@ class Interactions:
                 elif len(term) <= len(prefix):
                     if command["title"] == "Device" and prefix == og_parameter:
                         matched = self.get_device_suggestions(command, og_parameter)
+                    elif command["title"] == "Current Song" and prefix == og_parameter:
+                        matched = self.get_currently_playing()
                     elif term == prefix[:len(term)]:
                         matched.append(command)
                         break
@@ -145,8 +147,6 @@ class Interactions:
                             elif command["title"] == "Artist":
                                 matched = self.get_artist_suggestions(command, parameter)
                             elif command["title"] == "Device":
-                                matched = self.get_device_suggestions(command, parameter)
-                            elif command["title"] == "Currently":
                                 matched = self.get_device_suggestions(command, parameter)
                         elif command["parameter"] == 1:
                             new_command = copy.deepcopy(command)
