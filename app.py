@@ -1,37 +1,43 @@
 from threading import Thread
 from pynput.mouse import Button, Controller
 from queue import Queue
-from spotipy import Spotify, util, oauth2
-from os import sep, path, mkdir
+from spotipy import Spotify, oauth2
+from os import sep, path, mkdir, kill, getpid, environ
 from shortcuts import listener
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
-from ui import Ui
+from spotlight.ui import Ui
 from time import sleep
-from definitions import ASSETS_DIR, CACHE_DIR
-from interactions import Interactions
-from caching import CachingThread, SongCachingThread, ImageCachingThread, ImageQueue
-import os
+from spotlight.interactions import Interactions
+from definitions import ASSETS_DIR
+from caching.manager import CacheManager
+from caching.queues import SongQueue, ImageQueue
+from colors import colors
 
 #  Allow users to use the default spotipy env variables
-if not (all(elem in os.environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
+if not (all(elem in environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
     from config import USERNAME, CLIENT_ID, CLIENT_SECRET
+
     redirect_uri = "http://localhost:8080"
 else:
-    CLIENT_ID, CLIENT_SECRET, redirect_uri, USERNAME, = [os.environ[item] for item in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"]]
+    CLIENT_ID, CLIENT_SECRET, redirect_uri, USERNAME, = [environ[item] for item in
+                                                         ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET",
+                                                          "SPOTIPY_REDIRECT_URI", "USERNAME"]]
+
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
-        "playlist-read-private playlist-read-private"
+        "playlist-read-private playlist-read-private playlist-read-collaborative user-follow-read"
 
 sp_oauth = oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
-                                       scope=scope, username=USERNAME)
+                               scope=scope, username=USERNAME)
 
 token_info = sp_oauth.get_access_token(as_dict=True)
 token = token_info["access_token"]
 
 try:
     sp = Spotify(auth=token)
+    print(f"{colors.PINK}{colors.BOLD}Welcome to Spotlightify{colors.RESET}\n\n")
 except:
     print("User token could not be created")
     exit()
@@ -39,7 +45,7 @@ except:
 
 def exit_app():
     ui.close()  # visually removes ui quicker
-    raise Exception("Exit Command")
+    kill(getpid(), 9)
 
 
 def show_ui():
@@ -50,7 +56,7 @@ def show_ui():
     ui.raise_()
     ui.activateWindow()
     focus_ui()
-    ui.function_row.refresh()  # refreshes function row buttons
+    ui.function_row.refresh(None)  # refreshes function row buttons
 
 
 def focus_ui():  # Only way I could think of to properly focus the ui
@@ -70,19 +76,14 @@ def tray_icon_activated(reason):
         show_ui()
 
 
-def create_cache():
-    if not path.exists(CACHE_DIR):
-        mkdir(CACHE_DIR)
-
-
-queue = Queue()
+song_queue = SongQueue()
 image_queue = ImageQueue()
 
 # creates the interactions object
-interactions = Interactions(sp, token_info, sp_oauth, exit_app, queue)
+interactions = Interactions(sp, token_info, sp_oauth, exit_app, song_queue)
 
 # UI
-ui = Ui(interactions)
+ui = Ui(interactions, sp)
 
 # Create icon
 icon = QIcon(f"{ASSETS_DIR}img{sep}logo_small.png")
@@ -106,18 +107,7 @@ menu.addAction(exit_)
 listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
 listener_thread.start()
 
-create_cache()
-
-song_caching_thread = SongCachingThread(queue, image_queue)
-song_caching_thread.start()
-
-image_caching_thread = ImageCachingThread(image_queue)
-image_caching_thread.start()
-
-playlist_caching_thread = CachingThread(sp, "playlists", queue, image_queue)
-playlist_caching_thread.start()
-liked_caching_thread = CachingThread(sp, "liked", queue, image_queue)
-liked_caching_thread.start()
+cache_manager = CacheManager(sp, song_queue, image_queue)
 
 # Add the menu to the tray
 tray.setContextMenu(menu)
