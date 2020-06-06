@@ -6,9 +6,11 @@ from os import sep, path, mkdir, kill, getpid, environ
 from shortcuts import listener
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
+
+from spotlight.commands.handler import CommandHandler
 from spotlight.ui import Ui
 from time import sleep
-from spotlight.interactions import Interactions
+from spotlight._interactions import Interactions
 from definitions import ASSETS_DIR
 from caching.manager import CacheManager
 from caching.queues import SongQueue, ImageQueue
@@ -52,7 +54,7 @@ def show_ui():
     if not ui.isActiveWindow() or ui.isHidden():
         ui.show()
     sleep(0.1)
-    interactions.refresh_token()
+    # interactions.refresh_token()
     ui.raise_()
     ui.activateWindow()
     focus_ui()
@@ -80,10 +82,11 @@ song_queue = SongQueue()
 image_queue = ImageQueue()
 
 # creates the interactions object
-interactions = Interactions(sp, token_info, sp_oauth, exit_app, song_queue)
+# interactions = Interactions(sp, token_info, sp_oauth, exit_app, song_queue)
 
 # UI
-ui = Ui(interactions, sp)
+command_handler = CommandHandler(sp, song_queue)
+ui = Ui(sp, command_handler)
 
 # Create icon
 icon = QIcon(f"{ASSETS_DIR}img{sep}logo_small.png")
