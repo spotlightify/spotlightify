@@ -1,10 +1,14 @@
 # Spotlightify
+
 Spotlightify is a GUI based application designed to allow users to quickly interact with the Spotify Desktop application across Windows, Linux and macOS.
 
+![alt text](assets/gif/spotlightify_preview.gif "Preview")
+
 ## Prerequisites
-- Spotify Premium Account (We have not yet tested this with a free account so feel free to)
-- Python 3.7 or later
-- A Spotify App must also be created, the instructions follow:
+
+-   Spotify Premium Account (We have not yet tested this with a free account so feel free to)
+-   Python 3.7 or later
+-   A Spotify App must also be created, the instructions follow:
     1. Open the Spotify Developer Dashboard <a href="https://developer.spotify.com/dashboard/login" target="_blank">here</a> and login using your Spotify account credentials.
     2. Click the "CREATE AN APP" button.
     3. Name the application "Spotlightify", write anything for the description and select "Desktop App" from the checkboxes. Click "NEXT".
@@ -17,23 +21,28 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
 ## Installing Dependencies
 
 ### Linking the Spotify App
+
 **Change the name of `_config.py` to `config.py` in the project's root directory.** On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it into the `username` variable. This is the setup complete, you can now run `app.py` to start the application and the shortcut `ctrl + space` to invoke the GUI.
 
 ### Installing Fonts
+
 The fonts found in `assets/fonts` must be installed for this to display correctly.
 
 ### OS Specific Setup
-To setup a virtual environment, perform the following commands. 
+
+To setup a virtual environment, perform the following commands.
 
 #### Windows
+
 ```
 cd path\to\spotlightify-root
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
-``` 
+```
 
 #### MacOS
+
 ```
 cd path/to/spotlightify-root
 python -m venv venv
@@ -42,6 +51,7 @@ pip install -r requirements.txt
 ```
 
 #### Linux
+
 ```
 sudo apt-get install python3-pyqt5
 cd path/to/spotlightify-root
@@ -50,9 +60,10 @@ python3 -m venv venv
 pip3 install -r requirements.txt
 ```
 
-
 ## Usage
+
 Run `app.py` to start the application. The GUI is activated by using the shortcut `ctrl + space`. Here is the current list of available functions:
+
 ```
 | Name     | Description                      | Prefix        | Parameter     |
 |----------|----------------------------------|---------------|---------------|
@@ -70,12 +81,14 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 | Device   | Select device for music playback | device        | None          |
 | Exit     | Exits the application            | exit          | None          |
 ```
+
 **On first start up, Spotlightify will cache all of your liked and playlist songs, caching both song information and album art. So keep the app open for at least 10 minutes so that all your songs can be cached.**
 
-
 ## Built With
-- <a href="https://spotipy.readthedocs.io/en/2.12.0/" target="_blank">Spotipy</a> - A Spotify API wrapper for Python
-- <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">PyQt5</a> - A cross platform GUI framework for Python
+
+-   <a href="https://spotipy.readthedocs.io/en/2.12.0/" target="_blank">Spotipy</a> - A Spotify API wrapper for Python
+-   <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">PyQt5</a> - A cross platform GUI framework for Python
 
 ## Contributing
+
 Join us on <a href="https://discord.gg/7MqXdg" target="_blank">discord</a> to discuss how to contribute to the project.
