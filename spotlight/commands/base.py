@@ -4,7 +4,7 @@ from os import sep
 class BaseCommand:
     def __init__(self, title: str, description: str, icon_name: str, function: classmethod, parameter: str, prefix: str, setting: str):
         self._command_dict = {"title": "str", "description": "str", "icon": "path_str", "function": None,
-                              "parameter": "some_str", "prefix": "str", "setting": "fill/exe"}  # command in dictionary form
+                              "parameter": "traceback._some_str", "prefix": "str", "setting": "fill/exe"}  # command in dictionary form
         self.prefix = prefix
         self._populate_command_dict(title, description, icon_name, function, parameter, prefix, setting)
 
