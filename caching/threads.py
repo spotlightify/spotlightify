@@ -129,6 +129,9 @@ class SongCacheThread(CacheThread):
 
         for song in songs:
             if "track" in song:
+                if song["track"] is None:
+                    continue
+
                 song = song["track"]
 
             if song["is_local"]:
