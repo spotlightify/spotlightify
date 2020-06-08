@@ -12,18 +12,6 @@ class PlayCommand(BaseCommand):
                  setting: str):
         BaseCommand.__init__(self, title, description, icon, function, parameter, prefix, setting)
 
-    def _populate_new_dict(self, title, description, icon_name, parameter, setting) -> dict:
-        new_dict = deepcopy(self._command_dict)
-        new_dict["title"] = title
-        new_dict["description"] = description
-        if not len(icon_name) > 20:
-            new_dict["icon"] = f"{ASSETS_DIR}svg{sep}{icon_name}.svg"
-        else:
-            new_dict["icon"] = f"{CACHE_DIR}art{sep}{icon_name}.jpg"
-        new_dict["parameter"] = parameter
-        new_dict["setting"] = setting
-        return new_dict
-
     def get_dicts(self, parameter: str) -> list:
         command_list = [self._command_dict]
         if parameter != "":

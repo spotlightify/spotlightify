@@ -1,3 +1,6 @@
+from copy import deepcopy
+from typing import overload
+
 from definitions import ASSETS_DIR, CACHE_DIR
 from os import sep
 
@@ -19,6 +22,18 @@ class BaseCommand:
         self._command_dict["parameter"] = parameter
         self._command_dict["prefix"] = prefix
         self._command_dict["setting"] = setting
+
+    def _populate_new_dict(self, title, description, icon_name, parameter, setting) -> dict:
+        new_dict = deepcopy(self._command_dict)
+        new_dict["title"] = title
+        new_dict["description"] = description
+        if not len(icon_name) > 20:
+            new_dict["icon"] = f"{ASSETS_DIR}svg{sep}{icon_name}.svg"
+        else:
+            new_dict["icon"] = f"{CACHE_DIR}art{sep}{icon_name}.jpg"
+        new_dict["parameter"] = parameter
+        new_dict["setting"] = setting
+        return new_dict
 
     def get_dicts(self, parameter: str) -> list:
         return [self._command_dict]

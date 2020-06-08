@@ -182,6 +182,13 @@ class Ui(QWidget):
             self.textbox.setText(command["prefix"])
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
+        elif command["setting"] == "list":
+            self.textbox.setText(command["prefix"])
+            self.suggestion_creation(command["parameter"])
+            self.textbox.setFocus()
+            self.textbox.deselect()  # deselects selected text as a result of focus
+        elif command["setting"] == "none":
+            return
         else:
             self.store_previous_command()
             self.command_handler.perform_command(command)
@@ -191,6 +198,9 @@ class Ui(QWidget):
     def create_suggestion_widgets(self):
         term = self.textbox.text().strip().lower()
         matched_commands = self.command_handler.get_command_suggestions(term)
+        self.suggestion_creation(matched_commands)
+
+    def suggestion_creation(self, matched_commands):
         length = len(matched_commands)
         self.dynamic_resize(length)
         if length != 0:

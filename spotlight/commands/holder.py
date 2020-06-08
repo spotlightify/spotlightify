@@ -14,9 +14,7 @@ class CacheHolder:
     @staticmethod
     def check_reload_time(_type: str):  # will refresh every 5 minutes (300 seconds)
         time_passed = (datetime.now() - CacheHolder.last_refresh).total_seconds()
-        print("checking reload")
         if time_passed > 300:
-            print("reload is a go")
             CacheHolder.last_refresh = datetime.now()
             CacheHolder.reload_holder(_type)
 

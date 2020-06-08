@@ -85,7 +85,7 @@ image_queue = ImageQueue()
 # interactions = Interactions(sp, token_info, sp_oauth, exit_app, song_queue)
 
 # UI
-command_handler = CommandHandler(sp, song_queue)
+command_handler = CommandHandler(sp, song_queue, sp_oauth)
 ui = Ui(sp, command_handler)
 
 # Create icon
