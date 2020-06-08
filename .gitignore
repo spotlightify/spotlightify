@@ -142,7 +142,7 @@ htmlcov/
 .nox/
 .coverage
 .coverage.*
-.cache
+.cache*
 nosetests.xml
 coverage.xml
 *.cover
@@ -285,13 +285,16 @@ pip-selfcheck.json
 
 ### VisualStudioCode ###
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
 
 # End of https://www.toptal.com/developers/gitignore/api/python,virtualenv,pycharm,visualstudiocode,git,qt
+
+config.py
+cache
