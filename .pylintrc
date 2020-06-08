@@ -1,0 +1,6 @@
+[MASTER]
+init-hook='import sys; sys.path.append("")'
+
+[MESSAGES CONTROL]
+# http://pylint-messages.wikidot.com/all-codes
+disable=c0111,w0702,C0103
