@@ -2,7 +2,7 @@
 
 Spotlightify is a GUI based application designed to allow users to quickly interact with the Spotify Desktop application across Windows, Linux and macOS.
 
-![alt text](assets/gif/spotlightify_preview.gif "Preview")
+<img src="assets/gif/spotlightify_preview.gif" alt="Preview" width="100%"/>
 
 ## Prerequisites
 
