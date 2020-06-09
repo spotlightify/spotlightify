@@ -1,5 +1,5 @@
+from copy import deepcopy
 from spotlight.commands.base import BaseCommand
-from spotlight.manager.manager import PlaybackManager
 
 
 class ParameterCommand(BaseCommand):
@@ -10,6 +10,8 @@ class ParameterCommand(BaseCommand):
     def get_dicts(self, parameter: str) -> list:
         command_list = [self._command_dict]
         if parameter != "":
-            command_list = [self._populate_new_dict("Go to", "Seeks a position in the current song, i.e. 1:40",
-                                                    "forward", parameter, "exe")]
+            new_command = deepcopy(self._command_dict)
+            new_command["setting"] = "exe"
+            new_command["parameter"] = parameter
+            command_list = [new_command]
         return command_list

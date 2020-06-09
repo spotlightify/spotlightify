@@ -1,4 +1,4 @@
-import collections
+from collections import Counter
 from copy import deepcopy
 from spotlight.commands.base import BaseCommand
 from definitions import ASSETS_DIR, CACHE_DIR
@@ -46,16 +46,6 @@ class SongCommand(PlayCommand):
         return command_list
 
     def _get_item_suggestions(self, parameter: str) -> list:
-        def check_for_duplicates(suggestion: dict):
-            if len(suggestions) > 1:
-                for item in suggestions:
-                    if item["title"] == item["title"]:
-                        artists1 = suggestion["description"].split(",")
-                        artists2 = item["description"].split(",")
-                        if collections.Counter(artists1) == collections.Counter(artists2):
-                            return True
-            return False
-
         suggestions = []
         for key, values in CacheHolder.song_cache['songs'].items():
             name = values["name"]
@@ -65,7 +55,8 @@ class SongCommand(PlayCommand):
                 if name[:len(parameter)].lower() == parameter:
                     new_suggestion = self._populate_new_dict(name, f"By {values['artist']}", values["image"], key,
                                                              "exe")
-                    if not check_for_duplicates(new_suggestion):
+                    if all([False if Counter(new_suggestion["description"].split(",")) == Counter(
+                            x["description"].split(",")) else True for x in suggestions]):
                         suggestions.append(new_suggestion)
 
         suggestions_sorted = sorted(suggestions, key=lambda k: k["title"])
