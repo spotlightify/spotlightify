@@ -6,6 +6,7 @@ from spotlight.commands.device import DeviceCommand
 from spotlight.commands.holder import CacheHolder
 from spotlight.commands.parameter import ParameterCommand
 from spotlight.commands.play import PlaylistCommand, SongCommand, AlbumCommand, ArtistCommand, QueueCommand
+from spotlight.commands.playing import PlayingCommand
 from spotlight.manager.manager import PlaybackManager
 from os import sep
 from definitions import CACHE_DIR
@@ -18,6 +19,7 @@ class CommandHandler:
                              PlaylistCommand(),
                              AlbumCommand(),
                              ArtistCommand(),
+                             PlayingCommand(sp),
                              ParameterCommand("Go to", "Seeks a position in the current song, i.e. 1:40", "forward",
                                               PlaybackManager.goto, "", "go to ", "fill"),
                              ParameterCommand("Volume", "Sets the volume of your Spotify Player in range 1-10",

@@ -55,6 +55,7 @@ class SongCommand(PlayCommand):
                 if name[:len(parameter)].lower() == parameter:
                     new_suggestion = self._populate_new_dict(name, f"By {values['artist']}", values["image"], key,
                                                              "exe")
+                    # prevents duplicate songs - this may need refined in the future
                     if all([False if Counter(new_suggestion["description"].split(",")) == Counter(
                             x["description"].split(",")) else True for x in suggestions]):
                         suggestions.append(new_suggestion)
