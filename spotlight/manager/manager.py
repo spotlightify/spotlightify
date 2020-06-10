@@ -1,3 +1,4 @@
+from os import kill, getpid
 from queue import Queue
 
 from spotlight.manager import misc, play, playback, toggle, check
@@ -115,5 +116,6 @@ class PlaybackManager:
     def current_song(self) -> dict:
         return self._playback.get_current_song_info()
 
-    def exit(self, exit_function):
-        exit_function()
+    def exit_app(self):
+        kill(getpid(), 9)
+

@@ -67,7 +67,7 @@ class Interactions:
                       "parameter": 0,
                       "match_change": 0, "exe_on_return": 1},
          "Exit": {"title": "Exit", "description": "Exit Spotlightify", "prefix": ["exit ", "quit "],
-                  "function": PlaybackManager.exit,
+                  "function": PlaybackManager.exit_app,
                   "icon": f"{ASSETS_DIR}svg{sep}moon.svg", "visual": 0, "parameter": 1,
                   "match_change": 0, "exe_on_return": 1},
          "Shuffle": {"title": r"Shuffle", "description": "Shuffle is (OFF). Click to change to (ON)", "prefix": ["shuffle "],
