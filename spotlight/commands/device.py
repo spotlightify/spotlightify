@@ -9,11 +9,13 @@ from spotlight.manager.manager import PlaybackManager
 
 class DeviceCommand(BaseCommand):
     def __init__(self, sp: Spotify):
-        BaseCommand.__init__(self, "Device", "Select device", "device", None, "", "device", "list")
+        BaseCommand.__init__(self, "Device", "Click to select a device", "device", None, "", "device", "list")
         self.sp = sp
 
-    def _populate_new_command_dict(self, title: str, description: str, icon_name: str, function: classmethod, parameter: str, prefix: str, setting: str):
-        command_dict = {"title": title, "description": description, "icon": None, "function": function, "parameter": parameter,
+    def _populate_new_command_dict(self, title: str, description: str, icon_name: str, function: classmethod,
+                                   parameter: str, prefix: str, setting: str):
+        command_dict = {"title": title, "description": description, "icon": None, "function": function,
+                        "parameter": parameter,
                         "prefix": prefix, "setting": setting}
         if not len(icon_name) > 20:
             command_dict["icon"] = f"{ASSETS_DIR}svg{sep}{icon_name}.svg"
@@ -30,8 +32,8 @@ class DeviceCommand(BaseCommand):
         else:
             for device in device_list:
                 device_command_list.append(self._populate_new_command_dict(device["name"], device["type"], "device",
-                                                                       PlaybackManager.set_device, device["id"],
-                                                                       "", "exe"))
+                                                                           PlaybackManager.set_device, device["id"],
+                                                                           "", "exe"))
         new_command = deepcopy(self._command_dict)
         new_command["parameter"] = device_command_list
         command_list = [new_command]

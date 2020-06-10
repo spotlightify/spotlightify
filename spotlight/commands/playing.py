@@ -16,6 +16,6 @@ class PlayingCommand(BaseCommand):
     def get_dicts(self, parameter: str) -> list:
         song = PlaybackFunctions(self.sp).get_current_song_info()
         new_command = deepcopy(self._command_dict)
-        new_command["parameter"] = [self._populate_new_dict(f"Playing {song['name']}", f"By {song['artist']}", "play", "", "fill")]
+        new_command["parameter"] = [self._populate_new_dict(f"Playing {song['name']}", f"By {song['artist']}", song["image"], "", "fill")]
         command_list = [new_command]
         return command_list

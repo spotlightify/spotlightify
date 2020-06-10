@@ -35,6 +35,8 @@ class CommandHandler:
                              BaseCommand("Previous", "Plays the previous song", "backward", PlaybackManager.previous,
                                          "", "previous", "exe"),
                              BaseCommand("Liked", "Plays liked music", "heart", PlaybackManager.play_liked, "", "liked",
+                                         "exe"),
+                             BaseCommand("Exit", "Exit the application", "moon", PlaybackManager.exit_app, "", "exit",
                                          "exe")]
         self.sp_oauth = sp_oauth
         self.sp = sp
@@ -50,10 +52,10 @@ class CommandHandler:
         for command in self.command_list:
             prefix = command.prefix
             if len(text) <= len(prefix):
-                if text == prefix[:len(text)]:
+                if prefix.startswith(text):
                     suggestions.extend(command.get_dicts(""))
             else:
-                if prefix == text[:len(prefix)]:
+                if text.startswith(prefix):
                     parameter = text[len(prefix):]
                     suggestions.extend(command.get_dicts(parameter))
         if not suggestions:  # gets song suggestions if no other matches are found

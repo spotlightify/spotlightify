@@ -1,20 +1,20 @@
+from os import sep, environ
 from threading import Thread
-from pynput.mouse import Button, Controller
-from queue import Queue
-from spotipy import Spotify, oauth2
-from os import sep, path, mkdir, kill, getpid, environ
-from shortcuts import listener
+from time import sleep
+
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
+from pynput.mouse import Button, Controller
+from spotipy import Spotify, oauth2
 
-from spotlight.commands.handler import CommandHandler
-from spotlight.ui import Ui
-from time import sleep
-from spotlight._interactions import Interactions
-from definitions import ASSETS_DIR
 from caching.manager import CacheManager
 from caching.queues import SongQueue, ImageQueue
 from colors import colors
+from definitions import ASSETS_DIR
+from shortcuts import listener
+from spotlight.commands.handler import CommandHandler
+from spotlight.manager.manager import PlaybackManager
+from spotlight.ui import Ui
 
 #  Allow users to use the default spotipy env variables
 if not (all(elem in environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
@@ -43,11 +43,6 @@ try:
 except:
     print("User token could not be created")
     exit()
-
-
-def exit_app():
-    ui.close()  # visually removes ui quicker
-    kill(getpid(), 9)
 
 
 def show_ui():
@@ -104,7 +99,7 @@ open_ui.triggered.connect(show_ui)
 menu.addAction(open_ui)
 
 exit_ = QAction("Exit")
-exit_.triggered.connect(exit_app)
+exit_.triggered.connect(lambda: PlaybackManager(sp, song_queue).exit_app())
 menu.addAction(exit_)
 
 listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
