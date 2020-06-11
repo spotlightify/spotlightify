@@ -37,3 +37,24 @@ class LikeCommand(SwitchCommand):
             return self._populate_new_dict("Like", "The current song is not liked. Click to like", "heart-no-fill", "", "exe")
         else:
             return self._populate_new_dict("Like", "The current song is liked. Click to unlike", "heart", "", "exe")
+
+
+class RepeatCommand(SwitchCommand):
+    def __init__(self, sp: Spotify):
+        SwitchCommand.__init__(self, "Repeat", "Change the repeat state of your spotify player", "repeat", PlaybackManager.toggle_repeat, "", "repeat", "exe", sp)
+    
+    def _switch(self):
+        repeat_state = CheckFunctions(self.sp).repeat_state().upper()
+        state_change = ''
+        if repeat_state == 'TRACK':
+            state_change = 'OFF'
+        elif repeat_state == 'CONTEXT':
+            state_change = 'TRACK'
+        else:
+            state_change = 'CONTEXT'
+
+        if repeat_state == '':
+            return self._command_dict
+        else:
+            return self._populate_new_dict("Repeat", f"Repeat state is currently {repeat_state}. Click to change to {state_change}", "repeat", "", "exe")
+ 

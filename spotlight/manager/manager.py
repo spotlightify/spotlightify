@@ -1,8 +1,8 @@
 from os import kill, getpid
 from queue import Queue
-
 from spotlight.manager import misc, play, playback, toggle, check
 import spotipy
+import clipboard
 
 
 class PlaybackManager:
@@ -115,6 +115,9 @@ class PlaybackManager:
 
     def current_song(self) -> dict:
         return self._playback.get_current_song_info()
+    
+    def copy_url_to_clipboard(self):
+        clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
 
     def exit_app(self):
         kill(getpid(), 9)

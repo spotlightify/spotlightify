@@ -7,7 +7,7 @@ from spotlight.commands.holder import CacheHolder
 from spotlight.commands.parameter import ParameterCommand
 from spotlight.commands.play import PlaylistCommand, SongCommand, AlbumCommand, ArtistCommand, QueueCommand
 from spotlight.commands.playing import PlayingCommand
-from spotlight.commands.switch import ShuffleCommand, LikeCommand
+from spotlight.commands.switch import ShuffleCommand, LikeCommand, RepeatCommand
 from spotlight.manager.manager import PlaybackManager
 from os import sep
 from definitions import CACHE_DIR
@@ -22,6 +22,7 @@ class CommandHandler:
                              ArtistCommand(),
                              PlayingCommand(sp),
                              ShuffleCommand(sp),
+                             RepeatCommand(sp),
                              LikeCommand(sp),
                              ParameterCommand("Go to", "Seeks a position in the current song, i.e. 1:40", "forward",
                                               PlaybackManager.goto, "", "go to ", "fill"),
@@ -40,7 +41,8 @@ class CommandHandler:
                              BaseCommand("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
                                          "exe"),
                              BaseCommand("Exit", "Exit the application", "moon", PlaybackManager.exit_app, "", "exit",
-                                         "exe")]
+                                         "exe"),
+                            BaseCommand("Share", "Copy song URL to clipboard", "sun", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")]
         self.sp_oauth = sp_oauth
         self.sp = sp
         self.refresh_token()
