@@ -42,7 +42,7 @@ class CommandHandler:
                                          "exe"),
                              BaseCommand("Exit", "Exit the application", "moon", PlaybackManager.exit_app, "", "exit",
                                          "exe"),
-                            BaseCommand("Share", "Copy song URL to clipboard", "sun", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")]
+                            BaseCommand("Share", "Copy song URL to clipboard", "share2", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")]
         self.sp_oauth = sp_oauth
         self.sp = sp
         self.refresh_token()
