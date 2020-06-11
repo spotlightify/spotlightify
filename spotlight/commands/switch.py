@@ -33,7 +33,7 @@ class LikeCommand(SwitchCommand):
         SwitchCommand.__init__(self, "Like", "Add the current song to your liked songs", "heart", PlaybackManager.toggle_like_song, "", "like", "exe", sp)
     
     def _switch(self):
-        if CheckFunctions(self.sp).is_song_liked():
+        if not CheckFunctions(self.sp).is_song_liked():
             return self._populate_new_dict("Like", "The current song is not liked. Click to like", "heart-no-fill", "", "exe")
         else:
             return self._populate_new_dict("Like", "The current song is liked. Click to unlike", "heart", "", "exe")
