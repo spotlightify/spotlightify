@@ -7,6 +7,7 @@ from spotlight.commands.holder import CacheHolder
 from spotlight.commands.parameter import ParameterCommand
 from spotlight.commands.play import PlaylistCommand, SongCommand, AlbumCommand, ArtistCommand, QueueCommand
 from spotlight.commands.playing import PlayingCommand
+from spotlight.commands.switch import ShuffleCommand, LikeCommand
 from spotlight.manager.manager import PlaybackManager
 from os import sep
 from definitions import CACHE_DIR
@@ -20,6 +21,8 @@ class CommandHandler:
                              AlbumCommand(),
                              ArtistCommand(),
                              PlayingCommand(sp),
+                             ShuffleCommand(sp),
+                             LikeCommand(sp),
                              ParameterCommand("Go to", "Seeks a position in the current song, i.e. 1:40", "forward",
                                               PlaybackManager.goto, "", "go to ", "fill"),
                              ParameterCommand("Volume", "Sets the volume of your Spotify Player in range 1-10",
@@ -34,7 +37,7 @@ class CommandHandler:
                                          "exe"),
                              BaseCommand("Previous", "Plays the previous song", "backward", PlaybackManager.previous,
                                          "", "previous", "exe"),
-                             BaseCommand("Liked", "Plays liked music", "heart", PlaybackManager.play_liked, "", "liked",
+                             BaseCommand("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
                                          "exe"),
                              BaseCommand("Exit", "Exit the application", "moon", PlaybackManager.exit_app, "", "exit",
                                          "exe")]

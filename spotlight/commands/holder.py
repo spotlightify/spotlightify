@@ -5,10 +5,10 @@ from definitions import CACHE_DIR
 
 
 class CacheHolder:
-    playlist_cache = {}
-    song_cache = {}
-    artist_cache = {}
-    album_cache = {}
+    playlist_cache = {"length": 0, "playlists": [] }
+    song_cache = {"length": 0, "songs": [] }
+    artist_cache = {"length": 0, "artist": [] }
+    album_cache = {"length": 0, "playlists": [] }
     last_refresh = datetime.now()
 
     @staticmethod
