@@ -40,9 +40,9 @@ class CommandHandler:
                                          "", "previous", "exe"),
                              BaseCommand("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
                                          "exe"),
-                             BaseCommand("Exit", "Exit the application", "moon", PlaybackManager.exit_app, "", "exit",
+                             BaseCommand("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
                                          "exe"),
-                            BaseCommand("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")]
+                             BaseCommand("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")]
         self.sp_oauth = sp_oauth
         self.sp = sp
         self.refresh_token()
