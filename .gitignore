@@ -1,11 +1,12 @@
+# IDEs
+.idea
+.vscode
+
+# project specific
+cache
 venv
 __pycache__
-
-.idea
-
 .cache-*
-cache
 
+# remove when new auth is used
 config.py
-.vscode
-.pylintrc
