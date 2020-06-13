@@ -18,7 +18,7 @@ class PlayCommand(BaseCommand):
             try:
                 command_list = self._get_item_suggestions(parameter)
                 if len(command_list) == 0:
-                    command_list = [self._populate_new_dict("No Results Found", "Please adjust search term", "cog", "", "fill")]
+                    command_list = [self._populate_new_dict("No Results Found", "Please adjust search term", "exit", "", "fill")]
             except KeyError:
                 command_list = [
                     self._populate_new_dict("Caching in progess...", "Please wait until items have been cached",
