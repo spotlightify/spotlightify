@@ -68,10 +68,13 @@ class CommandHandler:
         return suggestions
 
     def perform_command(self, command: dict):
-        if command["parameter"] == "":
-            command["function"](self.manager)
-        else:
-            command["function"](self.manager, command["parameter"])
+        try:
+            if command["parameter"] == "":
+                command["function"](self.manager)
+            else:
+                command["function"](self.manager, command["parameter"])
+        except:
+            print("[Error] Command failed to execute")
 
     def refresh_token(self):
         try:
