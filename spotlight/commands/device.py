@@ -12,8 +12,8 @@ class DeviceCommand(BaseCommand):
         BaseCommand.__init__(self, "Device", "Click to select a device", "device", None, "", "device", "list")
         self.sp = sp
 
-    def _populate_new_command_dict(self, title: str, description: str, icon_name: str, function: classmethod,
-                                   parameter: str, prefix: str, setting: str):
+    def __add_new_device_command(self, title: str, description: str, icon_name: str, function: classmethod,
+                                   parameter: str, prefix: str, setting: str) -> dict:
         command_dict = {"title": title, "description": description, "icon": None, "function": function,
                         "parameter": parameter,
                         "prefix": prefix, "setting": setting}
@@ -27,11 +27,11 @@ class DeviceCommand(BaseCommand):
         device_list = MiscFunctions(self.sp).get_device_list()
         device_command_list = []
         if not device_list:
-            device_command_list = [self._populate_command_dict("No Devices Available", "Open your Spotify Desktop App",
+            device_command_list = [self.__add_new_device_command("No Devices Available", "Open your Spotify Desktop App",
                                                                "cog", None, "", "", "none")]
         else:
             for device in device_list:
-                device_command_list.append(self._populate_new_command_dict(device["name"], device["type"], "device",
+                device_command_list.append(self.__add_new_device_command(device["name"], device["type"], "device",
                                                                            PlaybackManager.set_device, device["id"],
                                                                            "", "exe"))
         new_command = deepcopy(self._command_dict)
