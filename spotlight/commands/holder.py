@@ -14,7 +14,12 @@ class CacheHolder:
     last_refresh = datetime.now()
 
     @staticmethod
-    def check_reload_time(_type: str):  # will refresh every 5 minutes (300 seconds)
+    def check_reload(_type: str):  # will refresh every 5 minutes (300 seconds)
+        """Reloads cached items if time since last reload has surpassed 5 minutes
+
+        Args:
+            _type (str): Either song, playlist, artist, album or all
+        """
         time_passed = (datetime.now() - CacheHolder.last_refresh).total_seconds()
         if time_passed > 300:
             CacheHolder.last_refresh = datetime.now()
@@ -23,7 +28,7 @@ class CacheHolder:
     @staticmethod
     def reload_holder(_type: str):
         '''
-        Reloads data to static variables inside of this class
+        Reloads data to static variables inside of this class, use the check_reload method if you want the cache to refresh only once every 5 mins
         :param _type: Either song, playlist, artist, album or all
         :return:
         '''
