@@ -53,6 +53,20 @@ def show_ui():
     ui.activateWindow()
     focus_ui()
     ui.function_row.refresh(None)  # refreshes function row buttons
+    refresh_token()
+
+
+def refresh_token():
+    try:
+        global token_info
+        if sp_oauth.is_token_expired(token_info=token_info):
+            token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+            token = token_info['access_token']
+            sp = Spotify(auth=token)
+            token_info = sp_oauth.get_access_token(as_dict=True)
+    except:
+        print("[WARNING] Could not refresh user API token")
+
 
 
 def focus_ui():  # Only way I could think of to properly focus the ui
@@ -76,7 +90,7 @@ song_queue = SongQueue()
 image_queue = ImageQueue()
 
 # Command Handler
-command_handler = CommandHandler(sp, song_queue, sp_oauth)
+command_handler = CommandHandler(sp, song_queue)
 # UI
 ui = Ui(sp, command_handler)
 

@@ -14,7 +14,7 @@ from definitions import CACHE_DIR
 
 
 class CommandHandler:
-    def __init__(self, sp: Spotify, queue: Queue, sp_oauth):
+    def __init__(self, sp: Spotify, queue: Queue):
         self.command_list = [SongCommand(),
                              QueueCommand(),
                              PlaylistCommand(),
@@ -43,16 +43,13 @@ class CommandHandler:
                              BaseCommand("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
                                          "exe"),
                              BaseCommand("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")]
-        self.sp_oauth = sp_oauth
         self.sp = sp
-        self.refresh_token()
         self.manager = PlaybackManager(sp, queue)
         self.manager.set_device("")  # Sets default device
         CacheHolder.reload_holder("all")
 
     def get_command_suggestions(self, text: str) -> list:
-        CacheHolder.check_reload_time("all")  # Reloads cached items
-        self.refresh_token()
+        CacheHolder.check_reload("all")  # Reloads cached items if time since last reload has surpassed 5 minutes
         suggestions = []
         for command in self.command_list:
             prefix = command.prefix
@@ -75,13 +72,3 @@ class CommandHandler:
                 command["function"](self.manager, command["parameter"])
         except:
             print("[Error] Command failed to execute")
-
-    def refresh_token(self):
-        try:
-            token_info = self.sp_oauth.get_access_token(as_dict=True)
-            if self.sp_oauth.is_token_expired(token_info=token_info):
-                token_info = self.sp_oauth.refresh_access_token(token_info['refresh_token'])
-                token = token_info['access_token']
-                self.sp = Spotify(auth=token)
-        except:
-            print("[WARNING] Could not refresh user API token")
