@@ -49,7 +49,6 @@ def show_ui():
     if not ui.isActiveWindow() or ui.isHidden():
         ui.show()
     sleep(0.1)
-    # interactions.refresh_token()
     ui.raise_()
     ui.activateWindow()
     focus_ui()
@@ -76,11 +75,9 @@ def tray_icon_activated(reason):
 song_queue = SongQueue()
 image_queue = ImageQueue()
 
-# creates the interactions object
-# interactions = Interactions(sp, token_info, sp_oauth, exit_app, song_queue)
-
-# UI
+# Command Handler
 command_handler = CommandHandler(sp, song_queue, sp_oauth)
+# UI
 ui = Ui(sp, command_handler)
 
 # Create icon

@@ -1,6 +1,5 @@
 import spotipy
 from spotlight.manager import check
-#from spotlight._interactions import Interactions
 
 
 class ToggleFunctions:
@@ -25,10 +24,8 @@ class ToggleFunctions:
         try:
             if self._check.is_shuffle_on():
                 self.sp.shuffle(False)
-                #Interactions.command_list["Shuffle"]["description"] = "Shuffle is (OFF). Click to change to (ON)"
             else:
                 self.sp.shuffle(True)
-                #Interactions.command_list["Shuffle"]["description"] = "Shuffle is (ON). Click to change to (OFF)"
         except:
             print("[Error] Shuffle could not be toggled")
 
