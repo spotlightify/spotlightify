@@ -5,6 +5,8 @@ from definitions import CACHE_DIR
 
 
 class CacheHolder:
+    """Holds cached data
+    """
     playlist_cache = {"length": 0, "playlists": [] }
     song_cache = {"length": 0, "songs": [] }
     artist_cache = {"length": 0, "artist": [] }

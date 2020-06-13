@@ -22,8 +22,20 @@ class BaseCommand:
         self._command_dict["parameter"] = parameter
         self._command_dict["prefix"] = prefix
         self._command_dict["setting"] = setting
+    
+    def _populate_new_dict(self, title: str, description: str, icon_name: str, parameter: str, setting: str) -> dict:
+        """Populates and returns a command dictionary with custom attributes
 
-    def _populate_new_dict(self, title, description, icon_name, parameter, setting) -> dict:
+        Args:
+            title (str): Title of command
+            description (str): [description]
+            icon_name (str): icon name or name of album art in cache (this is a 20+ char ID)
+            parameter (str): parameter associated with the command, usually left as  ""
+            setting (str): setting of the command either: fill, exe or list
+
+        Returns:
+            dict: a custom command dictionary based on the _command_dict of the current object
+        """
         new_dict = deepcopy(self._command_dict)
         new_dict["title"] = title
         new_dict["description"] = description
@@ -36,4 +48,12 @@ class BaseCommand:
         return new_dict
 
     def get_dicts(self, parameter: str) -> list:
+        """
+
+        Args:
+            parameter (str): parameter is used on other child classes to add more command dictionaries to the list
+
+        Returns:
+            list: returns the commands dictionaries associated with the current class
+        """
         return [self._command_dict]
