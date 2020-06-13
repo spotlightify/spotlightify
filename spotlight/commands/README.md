@@ -1,2 +1,2 @@
 # UML Class Diagram of Command and Command Execution Classes
-![alt text](../../assets/img/CommandsUMLDiagram "Logo Title Text 1")
+![UML Class Diagram](../../assets/img/CommandsUMLDiagram.jpg "Logo Title Text 1")
