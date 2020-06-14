@@ -26,6 +26,17 @@ class CheckFunctions:
                 return False
         except:
             return False
+    
+    def repeat_state(self) -> str:
+        """Returns a string describing the current state of repeat
+
+        Returns:
+            str: Can either be '' (No music playing) 'off', 'context' or 'all'
+        """
+        try:
+            return self.sp.current_playback()['repeat_state']
+        except:
+            return ''
 
     def item_link_type(self, id_: str, item_type: str) -> str:
         '''

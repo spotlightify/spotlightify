@@ -2,3 +2,4 @@ PyQt5
 pynput
 spotipy
 requests
+clipboard

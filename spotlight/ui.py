@@ -1,6 +1,7 @@
 from os import sep
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
+from spotlight.commands.handler import CommandHandler
 from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
 from spotipy import Spotify
@@ -10,10 +11,10 @@ class Ui(QWidget):
     QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icon-base
 
-    def __init__(self, interactions, sp: Spotify, parent=None):
+    def __init__(self, sp: Spotify, command_handler, parent=None):
         QWidget.__init__(self, parent)
         # for spotify interaction
-        self.interactions = interactions
+        self.command_handler = command_handler
         self.sp = sp
         # row positioning
         center = position_app()
@@ -177,19 +178,29 @@ class Ui(QWidget):
         self.current_num_of_rows = row_num + 1
 
     def suggest_row_handler(self, command):
-        if command["exe_on_return"] == 0:
-            self.textbox.setText(command["prefix"][0])
+        if command["setting"] == "fill":
+            self.textbox.setText(command["prefix"])
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
+        elif command["setting"] == "list":
+            self.textbox.setText(command["prefix"])
+            self.suggestion_creation(command["parameter"])
+            self.textbox.setFocus()
+            self.textbox.deselect()  # deselects selected text as a result of focus
+        elif command["setting"] == "none":
+            return
         else:
             self.store_previous_command()
-            self.interactions.perform_command(command, self)
+            self.command_handler.perform_command(command)
             self.textbox.clear()
             self.hide()
 
     def create_suggestion_widgets(self):
         term = self.textbox.text().strip().lower()
-        matched_commands = self.interactions.command_match(term)
+        matched_commands = self.command_handler.get_command_suggestions(term)
+        self.suggestion_creation(matched_commands)
+
+    def suggestion_creation(self, matched_commands):
         length = len(matched_commands)
         self.dynamic_resize(length)
         if length != 0:

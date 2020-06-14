@@ -1,6 +1,5 @@
 import spotipy
 from spotlight.manager import check
-from spotlight.interactions import Interactions
 
 
 class ToggleFunctions:
@@ -25,10 +24,8 @@ class ToggleFunctions:
         try:
             if self._check.is_shuffle_on():
                 self.sp.shuffle(False)
-                Interactions.command_list["Shuffle"]["description"] = "Shuffle is (OFF). Click to change to (ON)"
             else:
                 self.sp.shuffle(True)
-                Interactions.command_list["Shuffle"]["description"] = "Shuffle is (ON). Click to change to (OFF)"
         except:
             print("[Error] Shuffle could not be toggled")
 
@@ -43,32 +40,12 @@ class ToggleFunctions:
 
     def repeat(self):
         try:
-            if self._is_repeat_track():
+            repeat_state = self._check.repeat_state()
+            if repeat_state == 'track':
                 self.sp.repeat('off')
-                Interactions.command_list["Repeat"]["description"] = "Repeat is (OFF). Click to change to (ALL)"
-            elif self._is_repeat_context():
+            elif repeat_state == 'context':
                 self.sp.repeat('track')
-                Interactions.command_list["Repeat"]["description"] = "Repeat is (TRACK). Click to change to (OFF)"
             else:
                 self.sp.repeat('context')
-                Interactions.command_list["Repeat"]["description"] = "Repeat is (ALL). Click to change to (TRACK)"
         except:
             print("[Error] Could not toggle repeat type")
-
-    def _is_repeat_context(self) -> bool:
-        try:
-            if self.sp.current_playback()['repeat_state'] == 'context':
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def _is_repeat_track(self) -> bool:
-        try:
-            if self.sp.current_playback()['repeat_state'] == 'track':
-                return True
-            else:
-                return False
-        except:
-            return False

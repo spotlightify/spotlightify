@@ -1,18 +1,20 @@
+from os import sep, environ
 from threading import Thread
-from pynput.mouse import Button, Controller
-from queue import Queue
-from spotipy import Spotify, oauth2
-from os import sep, path, mkdir, kill, getpid, environ
-from shortcuts import listener
+from time import sleep
+
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
-from spotlight.ui import Ui
-from time import sleep
-from spotlight.interactions import Interactions
-from definitions import ASSETS_DIR
+from pynput.mouse import Button, Controller
+from spotipy import Spotify, oauth2
+
 from caching.manager import CacheManager
 from caching.queues import SongQueue, ImageQueue
 from colors import colors
+from definitions import ASSETS_DIR
+from shortcuts import listener
+from spotlight.commands.handler import CommandHandler
+from spotlight.manager.manager import PlaybackManager
+from spotlight.ui import Ui
 
 #  Allow users to use the default spotipy env variables
 if not (all(elem in environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
@@ -43,20 +45,28 @@ except:
     exit()
 
 
-def exit_app():
-    ui.close()  # visually removes ui quicker
-    kill(getpid(), 9)
-
-
 def show_ui():
     if not ui.isActiveWindow() or ui.isHidden():
         ui.show()
     sleep(0.1)
-    interactions.refresh_token()
     ui.raise_()
     ui.activateWindow()
     focus_ui()
     ui.function_row.refresh(None)  # refreshes function row buttons
+    refresh_token()
+
+
+def refresh_token():
+    try:
+        global token_info
+        if sp_oauth.is_token_expired(token_info=token_info):
+            token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+            token = token_info['access_token']
+            sp = Spotify(auth=token)
+            token_info = sp_oauth.get_access_token(as_dict=True)
+    except:
+        print("[WARNING] Could not refresh user API token")
+
 
 
 def focus_ui():  # Only way I could think of to properly focus the ui
@@ -79,11 +89,10 @@ def tray_icon_activated(reason):
 song_queue = SongQueue()
 image_queue = ImageQueue()
 
-# creates the interactions object
-interactions = Interactions(sp, token_info, sp_oauth, exit_app, song_queue)
-
+# Command Handler
+command_handler = CommandHandler(sp, song_queue)
 # UI
-ui = Ui(interactions, sp)
+ui = Ui(sp, command_handler)
 
 # Create icon
 icon = QIcon(f"{ASSETS_DIR}img{sep}logo_small.png")
@@ -101,7 +110,7 @@ open_ui.triggered.connect(show_ui)
 menu.addAction(open_ui)
 
 exit_ = QAction("Exit")
-exit_.triggered.connect(exit_app)
+exit_.triggered.connect(lambda: PlaybackManager(sp, song_queue).exit_app())
 menu.addAction(exit_)
 
 listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
