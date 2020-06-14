@@ -31,7 +31,7 @@ class BaseCommand:
             description (str): [description]
             icon_name (str): icon name or name of album art in cache (this is a 20+ char ID)
             parameter (str): parameter associated with the command, usually left as  ""
-            setting (str): setting of the command either: fill, exe or list
+            setting (str): setting of the command either: fill, exe, list or none
 
         Returns:
             dict: a custom command dictionary based on the _command_dict of the current object
