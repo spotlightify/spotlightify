@@ -6,15 +6,17 @@ from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
 from spotipy import Spotify
 
+from caching import SongQueue
 
-class Ui(QWidget):
+
+class SpotlightUI(QWidget):
     QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icon-base
 
-    def __init__(self, sp: Spotify, command_handler, parent=None):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, parent=None):
         QWidget.__init__(self, parent)
         # for spotify interaction
-        self.command_handler = command_handler
+        self.command_handler = CommandHandler(sp, song_queue)
         self.sp = sp
         # row positioning
         center = position_app()
@@ -85,12 +87,12 @@ class Ui(QWidget):
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
                 self.suggest_row_handler(source.command_dict)
         if (event.type() == QtCore.QEvent.FocusOut and
-                source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
+            source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
             self.textbox.clear()
             self.hide()
             return True
             # return true here to bypass default behaviour
-        return super(Ui, self).eventFilter(source, event)
+        return super(SpotlightUI, self).eventFilter(source, event)
 
     def suggestion_has_focus(self):
         for row in self.rows:

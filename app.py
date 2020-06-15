@@ -1,125 +1,117 @@
-from os import sep, environ
+from os import sep, kill, getpid
 from threading import Thread
 from time import sleep
+from sys import exit
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
-from pynput.mouse import Button, Controller
-from spotipy import Spotify, oauth2
+from spotipy import Spotify
 
-from caching.manager import CacheManager
-from caching.queues import SongQueue, ImageQueue
+from shortcuts import listener
+from spotlight import SpotlightUI
 from colors import colors
 from definitions import ASSETS_DIR
-from shortcuts import listener
-from spotlight.commands.handler import CommandHandler
-from spotlight.manager.manager import PlaybackManager
-from spotlight.ui import Ui
-
-#  Allow users to use the default spotipy env variables
-if not (all(elem in environ for elem in ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"])):
-    from config import USERNAME, CLIENT_ID, CLIENT_SECRET
-
-    redirect_uri = "http://localhost:8080"
-else:
-    CLIENT_ID, CLIENT_SECRET, redirect_uri, USERNAME, = [environ[item] for item in
-                                                         ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET",
-                                                          "SPOTIPY_REDIRECT_URI", "USERNAME"]]
-
-app = QApplication([])
-app.setQuitOnLastWindowClosed(False)
-scope = "streaming user-library-read user-modify-playback-state user-read-playback-state user-library-modify " \
-        "playlist-read-private playlist-read-private playlist-read-collaborative user-follow-read"
-
-sp_oauth = oauth2.SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=redirect_uri,
-                               scope=scope, username=USERNAME)
-
-token_info = sp_oauth.get_access_token(as_dict=True)
-token = token_info["access_token"]
-
-try:
-    sp = Spotify(auth=token)
-    print(f"{colors.PINK}{colors.BOLD}Welcome to Spotlightify{colors.RESET}\n\n")
-except:
-    print("User token could not be created")
-    exit()
+from caching import CacheManager, SongQueue, ImageQueue
+from auth import Config
 
 
-def show_ui():
-    if not ui.isActiveWindow() or ui.isHidden():
-        ui.show()
-    sleep(0.1)
-    ui.raise_()
-    ui.activateWindow()
-    focus_ui()
-    ui.function_row.refresh(None)  # refreshes function row buttons
-    refresh_token()
+class App:
+    def __init__(self):
+        print(f"{colors.PINK}{colors.BOLD}Welcome to Spotlightify{colors.RESET}\n\n")
+
+        self.app = QApplication([])
+        self.app.setQuitOnLastWindowClosed(False)
+
+        self.tray = None
+        self.spotlight = None
+
+        self.config = Config()
+
+        self.spotify = None
+        self.oauth = None
+
+        self.listener_thread = Thread(target=listener, daemon=True, args=(self.show_spotlight,))
+        self.song_queue = None
+        self.image_queue = None
+        self.cache_manager = None
+
+        self.run()
+
+    def run(self):
+        while not self.config.is_valid():
+            print("invalid cfg")
+            sleep(1)
+
+        try:
+            self.oauth = self.config.get_oauth()
+            token = self.oauth.get_access_token(as_dict=True)["access_token"]
+            self.spotify = Spotify(auth=token)
+
+            self.init_tray()
+            self.listener_thread.start()
+            self.song_queue = SongQueue()
+            self.image_queue = ImageQueue()
+            self.cache_manager = CacheManager(self.spotify, self.song_queue, self.image_queue)
+            self.spotlight = SpotlightUI(self.spotify, self.song_queue)
+
+            self.app.exec_()
+
+        except Exception as ex:
+            print(ex)
+            self.exit()
+
+    def init_tray(self):
+        def init_context_menu():
+            menu = QMenu()
+
+            action_open = QAction("Open")
+            action_open.triggered.connect(self.show_spotlight)
+            menu.addAction(action_open)
+
+            action_exit = QAction("Exit")
+            action_exit.triggered.connect(self.exit)
+            menu.addAction(action_exit)
+
+            return menu
+
+        self.tray = QSystemTrayIcon()
+        self.tray.setIcon(QIcon(f"{ASSETS_DIR}img{sep}logo_small.png"))
+        self.tray.setVisible(True)
+        self.tray.setToolTip("Spotlightify")
+        self.tray.setContextMenu(init_context_menu())
+        self.tray.activated.connect(lambda reason: self.show_spotlight(reason=reason))
+
+    def refresh_token(self):
+        try:
+            current_token = self.oauth.get_access_token()
+            if self.oauth.is_token_expired(token_info=current_token):
+                token = self.oauth.refresh_access_token(current_token["refresh_token"])
+                self.spotify = Spotify(auth=token["access_token"])
+        except:
+            print("[WARNING] Could not refresh user API token")
+
+    def show_spotlight(self, **kwargs):
+        if kwargs and kwargs["reason"] != 3:
+            # if kwargs contains "reason" this has been invoked by the tray icon being clicked
+            # reason = 3 means the icon has been left-clicked, so anything other than a left click
+            # should open the context menu
+            return
+
+        # self.refresh_token()
+
+        if not self.spotlight.isActiveWindow() or self.spotlight.isHidden():
+            self.spotlight.show()
+
+        sleep(0.1)
+        self.spotlight.raise_()
+        self.spotlight.activateWindow()
+
+    @staticmethod
+    def exit():
+        print(f"\n{colors.PINK}{colors.BOLD}Exiting{colors.RESET}")
+        kill(getpid(), 9)
+        exit(0)
 
 
-def refresh_token():
-    try:
-        global token_info
-        if sp_oauth.is_token_expired(token_info=token_info):
-            token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
-            token = token_info['access_token']
-            sp = Spotify(auth=token)
-            token_info = sp_oauth.get_access_token(as_dict=True)
-    except:
-        print("[WARNING] Could not refresh user API token")
-
-
-
-def focus_ui():  # Only way I could think of to properly focus the ui
-    mouse = Controller()
-    # mouse position before focus
-    mouse_pos_before = mouse.position
-    # changing the mouse position for click
-    target_pos_x = ui.pos().x() + ui.textbox.pos().x()
-    target_pos_y = ui.pos().y() + ui.textbox.pos().y()
-    mouse.position = (target_pos_x, target_pos_y)
-    mouse.click(Button.left)
-    mouse.position = mouse_pos_before
-
-
-def tray_icon_activated(reason):
-    if reason == tray.Trigger:  # tray.Trigger is left click
-        show_ui()
-
-
-song_queue = SongQueue()
-image_queue = ImageQueue()
-
-# Command Handler
-command_handler = CommandHandler(sp, song_queue)
-# UI
-ui = Ui(sp, command_handler)
-
-# Create icon
-icon = QIcon(f"{ASSETS_DIR}img{sep}logo_small.png")
-
-# Create tray
-tray = QSystemTrayIcon()
-tray.setIcon(icon)
-tray.setVisible(True)
-tray.setToolTip("Spotlightify")
-
-# Create menu
-menu = QMenu()
-open_ui = QAction("Open")
-open_ui.triggered.connect(show_ui)
-menu.addAction(open_ui)
-
-exit_ = QAction("Exit")
-exit_.triggered.connect(lambda: PlaybackManager(sp, song_queue).exit_app())
-menu.addAction(exit_)
-
-listener_thread = Thread(target=listener, daemon=True, args=(open_ui,))
-listener_thread.start()
-
-cache_manager = CacheManager(sp, song_queue, image_queue)
-
-# Add the menu to the tray
-tray.setContextMenu(menu)
-tray.activated.connect(tray_icon_activated)
-
-app.exec_()
+if __name__ == "__main__":
+    App()
