@@ -70,8 +70,10 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 | Play     | Plays a song                               | play              | song name     |
 | Queue    | Queues a song                              | queue             | song name     |
 | Playlist | Plays a saved/followed playlist            | playlist          | playlist name |
+| Album    | Plays a saved album                        | album             | album name    |
+| Artist   | Plays songs from a saved/followed artist   | artist            | artist name   |
 | Liked    | Plays saved/liked music                    | liked             | None          |
-| Volume   | Changes music volume                       | volume            | 1 - 100       |
+| Volume   | Changes music volume                       | volume            | 1 - 10        |
 | Go to    | Seeks a position in a song                 | goto              | e.g. 1:24     |
 | Resume   | Resumes music playback                     | resume, start     | None          |
 | Skip     | Skips the current song                     | skip, next        | None          |
