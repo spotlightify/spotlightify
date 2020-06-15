@@ -69,16 +69,17 @@ def refresh_token():
 
 
 
-def focus_ui():  # Only way I could think of to properly focus the ui
+def focus_ui():
+    """
+    Moves mouse, clicks and then unclicks.
+    """
     mouse = Controller()
-    # mouse position before focus
     mouse_pos_before = mouse.position
-    # changing the mouse position for click
-    target_pos_x = ui.pos().x() + ui.textbox.pos().x()
-    target_pos_y = ui.pos().y() + ui.textbox.pos().y()
-    mouse.position = (target_pos_x, target_pos_y)
+    pos_x = ui.pos().x() + ui.textbox.pos().x()
+    pos_y = ui.pos().y() + ui.textbox.pos().y()
+    mouse.move(pos_x, pos_y)
     mouse.click(Button.left)
-    mouse.position = mouse_pos_before
+    mouse.release(Button.left)
 
 
 def tray_icon_activated(reason):
