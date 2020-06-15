@@ -23,6 +23,9 @@ class App:
         self.app.setQuitOnLastWindowClosed(False)
 
         self.tray = None
+        self.tray_menu = None
+        self.action_open = None
+        self.action_exit = None
         self.spotlight = None
 
         self.config = Config()
@@ -48,11 +51,12 @@ class App:
             self.spotify = Spotify(auth=token)
 
             self.init_tray()
+            self.spotlight = SpotlightUI(self.spotify, self.song_queue)
+
             self.listener_thread.start()
             self.song_queue = SongQueue()
             self.image_queue = ImageQueue()
             self.cache_manager = CacheManager(self.spotify, self.song_queue, self.image_queue)
-            self.spotlight = SpotlightUI(self.spotify, self.song_queue)
 
             self.app.exec_()
 
@@ -61,24 +65,21 @@ class App:
             self.exit()
 
     def init_tray(self):
-        def init_context_menu():
-            menu = QMenu()
+        self.tray_menu = QMenu()
 
-            action_open = QAction("Open")
-            action_open.triggered.connect(self.show_spotlight)
-            menu.addAction(action_open)
+        self.action_open = QAction("Open")
+        self.action_open.triggered.connect(self.show_spotlight)
+        self.tray_menu.addAction(self.action_open)
 
-            action_exit = QAction("Exit")
-            action_exit.triggered.connect(self.exit)
-            menu.addAction(action_exit)
-
-            return menu
+        self.action_exit = QAction("Exit")
+        self.action_exit.triggered.connect(App.exit)
+        self.tray_menu.addAction(self.action_exit)
 
         self.tray = QSystemTrayIcon()
         self.tray.setIcon(QIcon(f"{ASSETS_DIR}img{sep}logo_small.png"))
         self.tray.setVisible(True)
         self.tray.setToolTip("Spotlightify")
-        self.tray.setContextMenu(init_context_menu())
+        self.tray.setContextMenu(self.tray_menu)
         self.tray.activated.connect(lambda reason: self.show_spotlight(reason=reason))
 
     def refresh_token(self):
