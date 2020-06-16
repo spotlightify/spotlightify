@@ -31,7 +31,7 @@ class SpotlightUI(QWidget):
         self.setWindowTitle('Spotlightify')
         self.setWindowOpacity(0.9)
         # global styling
-        self.custom_font = QtGui.QFont("SF Pro Display light")
+        self.custom_font = QtGui.QFont("SF Pro Display Light")
         # For cycling through previous commands
         self.previous_commands = [""]
         self.command_position = 0
