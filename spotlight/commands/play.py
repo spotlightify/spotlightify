@@ -41,7 +41,7 @@ class SongCommand(PlayCommand):
                 command_list = [
                     self._populate_new_dict(f'Play "{parameter}"', "Plays a song", "play", parameter, "exe")]
                 command_list.extend(self._get_item_suggestions(parameter))
-            except KeyError:
+            except:
                 command_list = [
                     self._populate_new_dict("Caching in progess...", "Please wait until items have been cached",
                                             "cog", "", "fill")]
