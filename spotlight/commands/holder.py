@@ -1,6 +1,6 @@
 import json
 from os import sep
-from datetime import datetime, timedelta
+from datetime import datetime
 from definitions import CACHE_DIR
 
 

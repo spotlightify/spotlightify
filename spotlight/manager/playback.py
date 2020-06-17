@@ -1,4 +1,5 @@
 import spotipy
+from spotlight.manager.limiter import Limiter
 
 
 class PlaybackFunctions:
@@ -41,6 +42,7 @@ class PlaybackFunctions:
         except:
             print("[ERROR] Invalid time give. Valid command example: go to 1:40")
 
+    @Limiter.rate_limiter(seconds=10)
     def get_current_song_info(self) -> dict:
         try:
             song = self.sp.current_playback()["item"]
