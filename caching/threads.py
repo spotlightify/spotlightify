@@ -130,6 +130,8 @@ class SongCacheThread(CacheThread):
         for song in songs:
             if "track" in song:
                 song = song["track"]
+                if song is None:
+                    continue
 
             if song["is_local"]:
                 print(f"{self.title} Skipping local track {colors.BOLD}{song['name']}{colors.RESET}")
