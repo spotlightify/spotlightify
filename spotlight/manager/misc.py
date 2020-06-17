@@ -1,10 +1,14 @@
+from datetime import datetime
+
 import spotipy
+from spotlight.manager.limiter import Limiter
 
 
 class MiscFunctions:
     def __init__(self, sp: spotipy.Spotify):
         self.sp = sp
 
+    @Limiter.rate_limiter(seconds=10)
     def get_device_list(self) -> list:
         try:
             return self.sp.devices()["devices"]

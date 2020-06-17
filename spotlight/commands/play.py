@@ -21,7 +21,7 @@ class PlayCommand(BaseCommand):
                     command_list = [self._populate_new_dict("No Results Found", "Please adjust search term", "exit", "", "fill")]
             except KeyError:
                 command_list = [
-                    self._populate_new_dict("Caching in progess...", "Please wait until items have been cached",
+                    self._populate_new_dict("Caching in progress...", "Please wait until items have been cached",
                                             "sun", "", "fill")]
         return command_list
 

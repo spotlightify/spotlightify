@@ -46,6 +46,7 @@ except:
 
 
 def show_ui():
+    refresh_token()
     if not ui.isActiveWindow() or ui.isHidden():
         ui.show()
     sleep(0.1)
@@ -53,7 +54,6 @@ def show_ui():
     ui.activateWindow()
     focus_ui()
     ui.function_row.refresh(None)  # refreshes function row buttons
-    refresh_token()
 
 
 def refresh_token():
