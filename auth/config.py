@@ -23,7 +23,7 @@ class Config:
         self._redirect_uri = ""
 
         self._scope = " ".join(scopes)
-        self.config_path = f"{CACHE_DIR}config.json"
+        self.config_path = f"{CACHE_DIR}xconfig.json"
 
         self.open_env()
         if not self.is_valid():
@@ -50,7 +50,7 @@ class Config:
                     self._redirect_uri = params["redirect_uri"]
 
         except FileNotFoundError:
-            print("config.json does not exist.")
+            print("xconfig.json does not exist.")
 
     def save_json(self):
         data = {
@@ -62,7 +62,6 @@ class Config:
 
         with open(self.config_path, "w") as file:
             dump(data, file, separators=(',', ':'))
-            print("Config updated")
 
     def get_oauth(self):
         return SpotifyOAuth(
@@ -89,8 +88,8 @@ class Config:
         return self._username
 
     @username.setter
-    def username(self, val):
-        self._username = val
+    def username(self, value):
+        self._username = value
         self.save_json()
 
     @property
@@ -98,8 +97,8 @@ class Config:
         return self._client_id
 
     @client_id.setter
-    def client_id(self, val):
-        self._client_id = val
+    def client_id(self, value):
+        self._client_id = value
         self.save_json()
 
     @property
@@ -107,8 +106,8 @@ class Config:
         return self._client_secret
 
     @client_secret.setter
-    def client_secret(self, val):
-        self._client_secret = val
+    def client_secret(self, value):
+        self._client_secret = value
         self.save_json()
 
     @property
@@ -116,6 +115,6 @@ class Config:
         return self._redirect_uri
 
     @redirect_uri.setter
-    def redirect_uri(self, val):
-        self._redirect_uri = val
+    def redirect_uri(self, value):
+        self._redirect_uri = value
         self.save_json()

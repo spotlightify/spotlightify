@@ -12,7 +12,8 @@ from spotlight import SpotlightUI
 from colors import colors
 from definitions import ASSETS_DIR
 from caching import CacheManager, SongQueue, ImageQueue
-from auth import Config
+from auth import Config, AuthUI
+from settings import Theme, default_themes
 
 
 class App:
@@ -22,13 +23,17 @@ class App:
         self.app = QApplication([])
         self.app.setQuitOnLastWindowClosed(False)
 
+        self.theme = default_themes["dark"]
+
         self.tray = None
         self.tray_menu = None
         self.action_open = None
         self.action_exit = None
-        self.spotlight = None
 
         self.config = Config()
+
+        self.spotlight = None
+        self.auth_ui = AuthUI(self.config)
 
         self.spotify = None
         self.oauth = None
@@ -43,7 +48,9 @@ class App:
     def run(self):
         while not self.config.is_valid():
             print("invalid cfg")
-            sleep(1)
+            self.auth_ui.show()
+            while self.auth_ui.isVisible():
+                sleep(1)
 
         try:
             self.oauth = self.config.get_oauth()
