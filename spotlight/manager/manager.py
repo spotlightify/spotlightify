@@ -84,6 +84,7 @@ class PlaybackManager:
         if format_ == "uri":
             self._play.uri(id_)
         else:
+            print("this ran")
             self._play.id(id_, item_type)
 
     def play_liked(self):
@@ -115,7 +116,7 @@ class PlaybackManager:
 
     def current_song(self) -> dict:
         return self._playback.get_current_song_info()
-    
+
     def copy_url_to_clipboard(self):
         clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
 

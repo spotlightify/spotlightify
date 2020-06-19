@@ -9,17 +9,23 @@ from os import sep
 
 class PlayCommand(BaseCommand):
     def __init__(self, title: str, description: str, icon: str, function: classmethod, parameter: str, prefix: str,
-                 setting: str):
+                 setting: str, type: str):
         BaseCommand.__init__(self, title, description, icon, function, parameter, prefix, setting)
+        self._type = type
 
     def get_dicts(self, parameter: str) -> list:
         command_list = [self._command_dict]
         if parameter != "":
             try:
-                command_list = self._get_item_suggestions(parameter)
+                command_list = [
+                    BaseCommand(f'Online Search "{parameter}"',
+                                f'Searches online for a {"song" if self._type=="queue" else self._type}', 'play', None, "",
+                                f"🔎{self._type} {parameter}", "fill").get_dicts("")[0]
+                ]
+                command_list.extend(self._get_item_suggestions(parameter))
                 if len(command_list) == 0:
                     command_list = [self._populate_new_dict("No Results Found", "Please adjust search term", "exit", "", "fill")]
-            except KeyError:
+            except:
                 command_list = [
                     self._populate_new_dict("Caching in progress...", "Please wait until items have been cached",
                                             "sun", "", "fill")]
@@ -32,20 +38,7 @@ class PlayCommand(BaseCommand):
 class SongCommand(PlayCommand):
     def __init__(self):
         PlayCommand.__init__(self, "Play", "Plays a song", "play", PlaybackManager.play_song,
-                             "", "play ", "fill")
-
-    def get_dicts(self, parameter: str) -> list:
-        command_list = [self._command_dict]
-        if parameter != "":
-            try:
-                command_list = [
-                    self._populate_new_dict(f'Play "{parameter}"', "Plays a song", "play", parameter, "exe")]
-                command_list.extend(self._get_item_suggestions(parameter))
-            except:
-                command_list = [
-                    self._populate_new_dict("Caching in progess...", "Please wait until items have been cached",
-                                            "cog", "", "fill")]
-        return command_list
+                             "", "play ", "fill", "song")
 
     def _get_item_suggestions(self, parameter: str) -> list:
         suggestions = []
@@ -71,23 +64,13 @@ class QueueCommand(SongCommand):
         SongCommand.__init__(self)
         self.prefix = "queue "
         self._populate_command_dict("Queue", "Queues a song", "list", PlaybackManager.queue_song, "", "queue ", "fill")
-
-    def get_dicts(self, parameter: str) -> list:
-        command_list = [self._command_dict]
-        if parameter != "":
-            try:
-                command_list = [self._populate_new_dict(f'Queue "{parameter}"', "Queues a song", "list", parameter, "exe")]
-                command_list.extend(self._get_item_suggestions(parameter))
-            except KeyError:
-                command_list = [self._populate_new_dict("Caching in progess...", "Please wait until items have been cached",
-                                                       "cog", "", "fill")]
-        return command_list
+        self._type = "queue"
 
 
 class PlaylistCommand(PlayCommand):
     def __init__(self):
         PlayCommand.__init__(self, "Playlist", "Plays a playlist", "playlist", PlaybackManager.play_playlist,
-                             "", "playlist ", "fill")
+                             "", "playlist ", "fill", "playlist")
 
     def _get_item_suggestions(self, parameter: str) -> list:
         suggestions = []
@@ -106,7 +89,7 @@ class PlaylistCommand(PlayCommand):
 class AlbumCommand(PlayCommand):
     def __init__(self):
         PlayCommand.__init__(self, "Album", "Plays an album", "album", PlaybackManager.play_album,
-                             "", "album ", "fill")
+                             "", "album ", "fill", "album")
 
     def _get_item_suggestions(self, parameter: str) -> list:
         suggestions = []
@@ -126,7 +109,7 @@ class AlbumCommand(PlayCommand):
 class ArtistCommand(PlayCommand):
     def __init__(self):
         PlayCommand.__init__(self, "Artist", "Plays an artist", "artist", PlaybackManager.play_artist,
-                             "", "artist ", "fill")
+                             "", "artist ", "fill", "artist")
 
     def _get_item_suggestions(self, parameter: str) -> list:
         suggestions = []

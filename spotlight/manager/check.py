@@ -50,7 +50,7 @@ class CheckFunctions:
         :return:
         '''
         if item_type == "song":
-            if "spotify:song:" in id_:
+            if "spotify:track:" in id_:
                 return "uri"
             elif len(id_) == 22 and " " not in id_:
                 return "id"

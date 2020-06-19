@@ -6,20 +6,25 @@ import spotipy
 class PlayFunctions:
     def __init__(self, sp: spotipy.Spotify, queue: Queue):
         self.sp = sp
-        self._queue = queue
+        self.__queue = queue
 
     def term(self, term: str):
         try:
             track = self.sp.search(term, limit=1, market="GB", type="track")["tracks"]["items"][0]
             uri = track["uri"]
             self.sp.start_playback(uris=[uri])
-            self._queue.put(track)
+            self.__queue.put(track)
         except:
             print("[Error] Could not play song from term inputted")
 
     def uri(self, uri: str):
         try:
-            self.sp.start_playback(uris=[uri])
+            if "track" not in uri:
+                self.sp.start_playback(context_uri=uri)
+            else:
+                self.sp.start_playback(uris=[uri])
+                track = self.sp.track(uri)
+                self.__queue.put(track)
         except:
             print(f"[Error] Could not play {uri.split(':')[1]} from URI")
 
@@ -28,6 +33,8 @@ class PlayFunctions:
             uri = f"spotify:{type_}:{id_}"
             if type_ == "track":
                 self.sp.start_playback(uris=[uri])
+                track = self.sp.track(uri)
+                self.__queue.put(track)
             else:
                 self.sp.start_playback(context_uri=uri)
         except:
@@ -49,7 +56,9 @@ class PlayFunctions:
 
     def queue_uri(self, uri: str):
         try:
-            self.sp.start_playback(uri=[uri])
+            self.sp.add_to_queue(uri)
+            track = self.sp.track(uri)
+            self.__queue.put(track)
         except:
             print(f"[Error] Could not queue song from URI")
 
@@ -57,6 +66,8 @@ class PlayFunctions:
         try:
             uri = f"spotify:track:{id_}"
             self.sp.add_to_queue(uri=uri)
+            track = self.sp.track(uri)
+            self.__queue.put(track)
         except:
             print(f"[Error] Could not queue song from ID")
 
@@ -65,6 +76,6 @@ class PlayFunctions:
             track = self.sp.search(term, limit=1, market="GB", type="track")["tracks"]["items"][0]
             uri = track["uri"]
             self.sp.add_to_queue(uri=uri)
-            self._queue.put(track)
+            self.__queue.put(track)
         except:
             print("[Error] Could not queue song from term inputted")
