@@ -35,10 +35,12 @@ class PlayFunctions:
             print(f"[Error] Could not play {type_} from ID")
 
     def liked_songs(self):
-        songs_to_queue = 5
+        songs_to_queue = 100
         try:
             liked_data = CacheHolder.liked_cache
             liked_length = len(liked_data["songs"])
+            if liked_length == 0:
+                return
             if liked_length < songs_to_queue:
                 songs_to_queue = liked_length
 
