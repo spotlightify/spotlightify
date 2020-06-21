@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QWidget, QLabel, QLineEdit, QApplication
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QWidget, QLabel, QLineEdit
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QFont
 
@@ -25,9 +25,12 @@ class AuthUI(QDialog):
         self.layout_widget.setGeometry(QRect(10, 10, 300, 160))
 
         self.layout_widget.add(InputField(label="Username", store=self.cfg, field="username", set_=self.field_changed))
-        self.layout_widget.add(InputField(label="Client ID", store=self.cfg, field="client_id", set_=self.field_changed))
-        self.layout_widget.add(InputField(label="Client Secret", store=self.cfg, field="client_secret", set_=self.field_changed))
-        self.layout_widget.add(InputField(label="Redirect URI", store=self.cfg, field="redirect_uri", set_=self.field_changed))
+        self.layout_widget.add(
+            InputField(label="Client ID", store=self.cfg, field="client_id", set_=self.field_changed))
+        self.layout_widget.add(
+            InputField(label="Client Secret", store=self.cfg, field="client_secret", set_=self.field_changed))
+        self.layout_widget.add(
+            InputField(label="Redirect URI", store=self.cfg, field="redirect_uri", set_=self.field_changed))
 
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setGeometry(QRect(10, 190, 300, 23))
@@ -39,10 +42,8 @@ class AuthUI(QDialog):
         self.cfg[field] = value
 
     def save_changes(self):
-        self.config.username = self.cfg["username"]
-        self.config.client_id = self.cfg["client_id"]
-        self.config.client_secret = self.cfg["client_secret"]
-        self.config.redirect_uri = self.cfg["redirect_uri"]
+        self.config.set_all(self.cfg["username"], self.cfg["client_id"], self.cfg["client_secret"],
+                            self.cfg["redirect_uri"])
 
 
 class VerticalLayout(QWidget):
@@ -55,7 +56,7 @@ class VerticalLayout(QWidget):
 
 
 class InputField(QWidget):
-    def __init__(self, label: str, store: dict, field: str, set_: classmethod):  #
+    def __init__(self, label: str, store: dict, field: str, set_: classmethod):
         QWidget.__init__(self)
         self.setFixedSize(300, 40)
 
@@ -75,8 +76,7 @@ class InputField(QWidget):
         self.textbox.setFrame(False)
         self.textbox.textChanged.connect(lambda val: set_(field, val))
 
-
-app = QApplication([])
-ui = AuthUI(Config())
-ui.show()
-app.exec_()
+# app = QApplication([])
+# ui = AuthUI(Config())
+# ui.show()
+# app.exec_()

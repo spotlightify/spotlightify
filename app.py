@@ -46,13 +46,19 @@ class App:
         self.run()
 
     def run(self):
-        while not self.config.is_valid():
+
+        valid = self.config.is_valid()
+        print(valid)
+        print(self.config.username)
+        if not valid:
             print("invalid cfg")
-            self.auth_ui.show()
-            while self.auth_ui.isVisible():
-                sleep(1)
+            while not valid:
+                if not self.auth_ui.isVisible():
+                    self.auth_ui.show()
+                # sleep(1)
 
         try:
+            print("Starting auth process")
             self.oauth = self.config.get_oauth()
             token = self.oauth.get_access_token(as_dict=True)["access_token"]
             self.spotify = Spotify(auth=token)
