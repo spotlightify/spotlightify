@@ -13,6 +13,7 @@ songs_path = f"{CACHE_DIR}songs.json"
 playlists_path = f"{CACHE_DIR}playlists.json"
 artists_path = f"{CACHE_DIR}artists.json"
 albums_path = f"{CACHE_DIR}albums.json"
+liked_path = f"{CACHE_DIR}liked.json"
 
 
 class CacheThread(Thread):
@@ -115,17 +116,12 @@ class CacheThread(Thread):
         name = self.__class__.__name__.replace("CacheThread", "").upper()
         return f"[{colors.BLUE}CACHE{colors.RESET}] [{colors.YELLOW}{name}{colors.RESET}]"
 
-
-class SongCacheThread(CacheThread):
-    def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
-        CacheThread.__init__(self, sp, song_queue, image_queue)
-
-    def cache_songs(self, songs):
+    def process_songs(self, songs, file_path):
         self.is_working = True
 
         default_data = self.default_data_template("songs")
 
-        data = self.open_if_exists(songs_path, default_data)
+        data = self.open_if_exists(file_path, default_data)
 
         for song in songs:
             if "track" in song:
@@ -148,8 +144,13 @@ class SongCacheThread(CacheThread):
         data["length"] = len(data["songs"])
         data["last_updated"] = str(datetime.now())
 
-        self.save_data(songs_path, data)
+        self.save_data(file_path, data)
         self.is_working = False
+
+
+class SongCacheThread(CacheThread):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, image_queue: ImageQueue):
+        CacheThread.__init__(self, sp, song_queue, image_queue)
 
     def run(self):
         print(f"{self.title} Starting")
@@ -166,7 +167,7 @@ class SongCacheThread(CacheThread):
                 song_data.extend(data)
 
             if len(song_data) > 0:
-                self.cache_songs(song_data)
+                self.process_songs(song_data, songs_path)
             else:
                 self.is_working = False
                 sleep(30)
@@ -246,10 +247,10 @@ class LikedCacheThread(CacheThread):
 
     def run(self):
         print(f"{self.title} Starting")
-
         self.is_working = True
         liked_data = self.get_all(self.sp.current_user_saved_tracks())
         self.song_queue.put(liked_data)
+        self.process_songs(liked_data, liked_path)
         self.is_working = False
 
 

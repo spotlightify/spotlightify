@@ -1,6 +1,7 @@
 from queue import Queue
-
+from random import sample
 import spotipy
+from spotlight.commands.holder import CacheHolder
 
 
 class PlayFunctions:
@@ -34,15 +35,19 @@ class PlayFunctions:
             print(f"[Error] Could not play {type_} from ID")
 
     def liked_songs(self):
+        songs_to_queue = 5
         try:
-            results = self.sp.current_user_saved_tracks()
-            tracks = results["items"]
+            liked_data = CacheHolder.liked_cache
+            liked_length = len(liked_data["songs"])
+            if liked_length < songs_to_queue:
+                songs_to_queue = liked_length
+
             uris = []
-            while results["next"]:
-                results = self.sp.next(results)
-                tracks.extend(results["items"])
-            for track in tracks:
-                uris.append(track["track"]["uri"])
+            values = sample(liked_data["songs"].items(), songs_to_queue)
+
+            for track in values:
+                uris.append(f"spotify:track:{track[0]}")
+
             self.sp.start_playback(uris=uris)
         except:
             print("[ERROR] Could not play liked music")
