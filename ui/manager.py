@@ -39,18 +39,13 @@ class UIEventQueue:
 
 
 class UIThread(Process):
-    def __init__(self, name: str, ui: QWidget, queue: Queue):
+    def __init__(self, ui: QWidget, queue: Queue):
         Process.__init__(self)
 
-        self._name = name
         self._ui = ui
         self._queue = queue
 
         self.start()
-
-    @property
-    def name(self):
-        return self._name
 
     def run(self) -> None:
         while True:
