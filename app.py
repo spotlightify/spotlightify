@@ -14,6 +14,7 @@ from definitions import ASSETS_DIR
 from caching import CacheManager, SongQueue, ImageQueue
 from auth import Config, AuthUI
 from settings import Theme, default_themes
+from ui import UIEventQueue, UIManager
 
 
 class App:
@@ -32,6 +33,9 @@ class App:
 
         self.config = Config()
 
+        self.ui_event_queue = UIEventQueue()
+        self.ui_manager = UIManager(self.ui_event_queue)
+
         self.spotlight = None
         self.auth_ui = AuthUI(self.config)
 
@@ -42,11 +46,12 @@ class App:
         self.song_queue = None
         self.image_queue = None
         self.cache_manager = None
+        a = AuthUI(self.config)
+        self.ui_manager.add("auth", a)
 
         self.run()
 
     def run(self):
-
         valid = self.config.is_valid()
         print(valid)
         print(self.config.username)
@@ -63,8 +68,9 @@ class App:
             token = self.oauth.get_access_token(as_dict=True)["access_token"]
             self.spotify = Spotify(auth=token)
 
+            self.ui_manager.add("spotlight", SpotlightUI(self.spotify, self.song_queue))
+
             self.init_tray()
-            self.spotlight = SpotlightUI(self.spotify, self.song_queue)
 
             self.listener_thread.start()
             self.song_queue = SongQueue()
@@ -111,14 +117,14 @@ class App:
             # should open the context menu
             return
 
-        # self.refresh_token()
+        self.ui_manager.show_ui("spotlight")
 
-        if not self.spotlight.isActiveWindow() or self.spotlight.isHidden():
-            self.spotlight.show()
-
-        sleep(0.1)
-        self.spotlight.raise_()
-        self.spotlight.activateWindow()
+        # if not self.spotlight.isActiveWindow() or self.spotlight.isHidden():
+        #     self.spotlight.show()
+        #
+        # sleep(0.1)
+        # self.spotlight.raise_()
+        # self.spotlight.activateWindow()
 
     @staticmethod
     def exit():
