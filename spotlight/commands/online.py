@@ -6,6 +6,12 @@ from spotlight.manager.manager import PlaybackManager
 
 class OnlineCommand(BaseCommand):
     def __init__(self, sp: Spotify, type="song"):
+        """
+        Allows user to search online for songs/albums/artists/playlists/queue-songs
+        :param sp: Spotify object from the spotipy library
+        :param type: str of value 'song', 'queue', 'artist', 'playlist' or 'album'
+        """
+        # creates command and class variables
         func = PlaybackManager.play_song
         icon = "play"
         prefix = "🔎song "
@@ -37,6 +43,11 @@ class OnlineCommand(BaseCommand):
         self.sp = sp
 
     def get_dicts(self, parameter: str) -> list:
+        """
+        Overrides BaseCommand get_dicts method
+        :param parameter: This is the str that comes after the prefix
+        :return: Returns a list of command dictionaries of items from the online search
+        """
         command_list = [self._command_dict]
         if parameter != "":
             try:

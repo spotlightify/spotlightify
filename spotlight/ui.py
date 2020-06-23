@@ -59,10 +59,10 @@ class Ui(QWidget):
         self.textbox.resize(481, 41)
         self.textbox.installEventFilter(self)
         self.textbox.setStyleSheet(f'''
-                        QLineEdit 
+                        QLineEdit
                         {{
                             border: 0;
-                            background: {self.active_theme["bg"]}; 
+                            background: {self.active_theme["bg"]};
                             color: {self.active_theme["text"]};
                             font-size: 25px;
                             border-radius: 2px;

@@ -145,11 +145,11 @@ class SuggestRow(QPushButton):
         self.description_lbl.setFont(self.custom_font)
         # style for widget
         self.setStyleSheet('''
-        QPushButton {      
+        QPushButton {
             border: none;
         }
         QPushButton:hover {
-            background-color: #251e1e;     
+            background-color: #251e1e;
         }
         QPushButton:hover:focus {
             background-color: #322828;

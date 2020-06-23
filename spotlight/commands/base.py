@@ -5,55 +5,55 @@ from definitions import ASSETS_DIR, CACHE_DIR
 from os import sep
 
 class BaseCommand:
+    """
+    All commands and items inherit from this class
+    """
     def __init__(self, title: str, description: str, icon_name: str, function: classmethod, parameter: str, prefix: str, setting: str):
-        self._command_dict = {"title": "str", "description": "str", "icon": "path_str", "function": classmethod,
-                              "parameter": "traceback._some_str", "prefix": "str", "setting": "fill/exe/fill"}  # command in dictionary form
+        """
+        :param title: title of the suggestion (displayed visually)
+        :param description: description of the suggestion (displayed visually)
+        :param icon_name: name of svg icon (svg displayed visually)
+        :param function: the function that is called if the command is executed
+        :param parameter: additional text used by the command
+        :param prefix: text which is entered to find the command
+        :param setting: what happens when the command is clicked, this can be "exe" - calls the function,
+                        "fill" - fills the prefix to the textbox, "list" - brings up a list of suggestions,
+                        "none" - does nothing when clicked
+        """
+        self.title = title
+        self.description = description
+        if len(icon_name) == 22:  # checks to see if icon is album art jpg or icon svg by looking at the icon_name's string length
+            self.icon_name = f"{CACHE_DIR}art{sep}{icon_name}.jpg"
+        else:
+            self.icon_name = f"{ASSETS_DIR}svg{sep}{icon_name}.svg"
+        self.function = function
+        self.parameter = parameter
         self.prefix = prefix
-        self._populate_command_dict(title, description, icon_name, function, parameter, prefix, setting)
+        self.setting = setting
 
-    def _populate_command_dict(self, title: str, description: str, icon_name: str, function: classmethod, parameter: str, prefix: str, setting: str):
-        self._command_dict["title"] = title
-        self._command_dict["description"] = description
-        if not len(icon_name) > 20:
-            self._command_dict["icon"] = f"{ASSETS_DIR}svg{sep}{icon_name}.svg"
-        else:
-            self._command_dict["icon"] = f"{CACHE_DIR}art{sep}{icon_name}.jpg"
-        self._command_dict["function"] = function
-        self._command_dict["parameter"] = parameter
-        self._command_dict["prefix"] = prefix
-        self._command_dict["setting"] = setting
-    
-    def _populate_new_dict(self, title: str, description: str, icon_name: str, parameter: str, setting: str) -> dict:
-        """Populates and returns a command dictionary with custom attributes
-
-        Args:
-            title (str): Title of command
-            description (str): [description]
-            icon_name (str): icon name or name of album art in cache (this is a 20+ char ID)
-            parameter (str): parameter associated with the command, usually left as  ""
-            setting (str): setting of the command either: fill, exe, list or none
-
-        Returns:
-            dict: a custom command dictionary based on the _command_dict of the current object
+    def _get_command_dict(self) -> dict:
         """
-        new_dict = deepcopy(self._command_dict)
-        new_dict["title"] = title
-        new_dict["description"] = description
-        if not len(icon_name) > 20:
-            new_dict["icon"] = f"{ASSETS_DIR}svg{sep}{icon_name}.svg"
-        else:
-            new_dict["icon"] = f"{CACHE_DIR}art{sep}{icon_name}.jpg"
-        new_dict["parameter"] = parameter
-        new_dict["setting"] = setting
-        return new_dict
-
-    def get_dicts(self, parameter: str) -> list:
+        Populates a dictionary which can be used to show the command graphically
+        :return: a command dictionary made from the class attributes
         """
+        dictionary = {}
+        dictionary["title"] = self.title
+        dictionary["description"] = self.description
+        dictionary["icon"] = self.icon_name
+        dictionary["function"] = self.function
+        dictionary["parameter"] = self.parameter
+        dictionary["prefix"] = self.prefix
+        dictionary["setting"] = self.setting
+        return dictionary
 
-        Args:
-            parameter (str): parameter is used on other child classes to add more command dictionaries to the list
+    def get_items(self, parameter="") -> list:
+        pass
 
-        Returns:
-            list: returns the commands dictionaries associated with the current class
+    def get_dict(self) -> list:
         """
-        return [self._command_dict]
+        This method is overridden in child classes
+        :param parameter: parameter is used on other child classes to add more command dictionaries to the list
+        :return: returns the commands dictionaries associated with the current class
+        """
+        dictionary = self._get_command_dict()
+        return dictionary
