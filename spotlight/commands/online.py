@@ -1,6 +1,7 @@
 from spotipy import Spotify
 
 from spotlight.commands.base import BaseCommand
+from spotlight.commands.item import SongItem, QueueItem, AlbumItem, PlaylistItem, ArtistItem, WarningItem
 from spotlight.manager.manager import PlaybackManager
 
 
@@ -42,13 +43,13 @@ class OnlineCommand(BaseCommand):
         self.prefix = prefix
         self.sp = sp
 
-    def get_dicts(self, parameter: str) -> list:
+    def get_items(self, parameter="") -> list:
         """
         Overrides BaseCommand get_dicts method
         :param parameter: This is the str that comes after the prefix
         :return: Returns a list of command dictionaries of items from the online search
         """
-        command_list = [self._command_dict]
+        command_list = [self]
         if parameter != "":
             try:
                 command_list = []
@@ -58,23 +59,29 @@ class OnlineCommand(BaseCommand):
                     results = self.sp.search(q=parameter, limit=6, type=self.type)[f"{self.type}s"]["items"]
 
                 for item in results:
-                    if self.type == "song" or self.type == "queue" or self.type == "album":
-                        command_list.append(self._populate_new_dict(item["name"],
-                                                                    f"By {', '.join([a['name'] for a in item['artists']])}",
-                                                self.icon, item["uri"], "exe"))
+                    if self.type == "song":
+                        command_list.append(
+                            SongItem(item["name"], f"By {', '.join([a['name'] for a in item['artists']])}",
+                                     self.icon, item["uri"]))
+                    elif self.type == "queue":
+                        command_list.append(QueueItem(item["name"],
+                                                      f"By {', '.join([a['name'] for a in item['artists']])}",
+                                                      self.icon, item["uri"]))
+                    elif self.type == "album":
+                        command_list.append(AlbumItem(item["name"],
+                                                      f"By {', '.join([a['name'] for a in item['artists']])}",
+                                                      self.icon, item["uri"]))
                     elif self.type == "playlist":
-                        command_list.append(self._populate_new_dict(item["name"],
-                                                                    f"By {item['owner']['display_name']}",
-                                                                    self.icon, item["uri"], "exe"))
+                        command_list.append(PlaylistItem(item["name"], f"By {item['owner']['display_name']}",
+                                                         self.icon, item["uri"]))
                     elif self.type == "artist":
-                        command_list.append(self._populate_new_dict(item["name"],
-                                                                    'music' if len(item['genres'])==0 else item['genres'][0],
-                                                                    self.icon, item["uri"], "exe"))
+                        command_list.append(ArtistItem(item["name"],
+                                                       'music' if len(item['genres']) == 0 else
+                                                       item['genres'][0],
+                                                       self.icon, item["uri"]))
 
                 if len(command_list) == 0:
-                    command_list = [self._populate_new_dict("No Results Found", "Please adjust search term", "cog", "", "fill")]
+                    command_list = [WarningItem("No Results Found", "Please adjust search term")]
             except:
-                command_list = [
-                    self._populate_new_dict("No Suggestions Found", "Please adjust search term",
-                                            "cog", "", "fill")]
+                command_list = [WarningItem("No Results Found", "Please adjust search term")]
         return command_list

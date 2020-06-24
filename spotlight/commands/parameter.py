@@ -3,15 +3,14 @@ from spotlight.commands.base import BaseCommand
 
 
 class ParameterCommand(BaseCommand):
-    def __init__(self, title: str, description: str, icon: str, function: classmethod, parameter: str, prefix: str,
-                 setting: str):
-        BaseCommand.__init__(self, title, description, icon, function, parameter, prefix, setting)
+    def __init__(self, title: str, description: str, icon: str, function: classmethod, parameter: str, prefix: str):
+        BaseCommand.__init__(self, title, description, icon, function, parameter, prefix, "fill")
 
-    def get_dicts(self, parameter: str) -> list:
-        command_list = [self._command_dict]
+    def get_items(self, parameter="") -> list:
+        self.parameter = parameter
         if parameter != "":
-            new_command = deepcopy(self._command_dict)
-            new_command["setting"] = "exe"
-            new_command["parameter"] = parameter
-            command_list = [new_command]
-        return command_list
+            self.setting = "exe"
+        else:
+            self.setting = "fill"
+        command = [self]
+        return command

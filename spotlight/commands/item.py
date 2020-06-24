@@ -39,7 +39,7 @@ class PlaylistItem(BaseCommand):
         :param image_name: This is the PLAYLIST ID of a playlist, use "" if the song is not cached
         :param id_: id/uri for playlist
         """
-        BaseCommand.__init__(self, name, f"By {owner}", image_name if len(image_name) == 22 else "list",
+        BaseCommand.__init__(self, name, f"By {owner}", image_name if len(image_name) == 22 else "playlist",
                              PlaybackManager.play_playlist, id_,
                              "", "exe")
 
@@ -80,3 +80,4 @@ class FillItem(BaseCommand):
 class WarningItem(BaseCommand):
     def __init__(self, title, description):
         BaseCommand.__init__(self, title, description, "cog", None, "", "", "none")
+

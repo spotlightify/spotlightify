@@ -4,6 +4,8 @@ from spotipy import Spotify
 from spotlight.commands.base import BaseCommand
 from spotlight.commands.device import DeviceCommand
 from spotlight.commands.holder import CacheHolder
+from spotlight.commands.item import FillItem
+from spotlight.commands.menu import Menu
 from spotlight.commands.online import OnlineCommand
 from spotlight.commands.parameter import ParameterCommand
 from spotlight.commands.play import PlaylistCommand, SongCommand, AlbumCommand, ArtistCommand, QueueCommand
@@ -20,20 +22,20 @@ class CommandHandler:
                              AlbumCommand(),
                              ArtistCommand(),
                              PlayingCommand(sp),
-                             # ShuffleCommand(sp),
+                             ShuffleCommand(sp),
                              # RepeatCommand(sp),
                              # LikeCommand(sp),
-                             # OnlineCommand(sp, type="song"),
-                             # OnlineCommand(sp, type="queue"),
-                             # OnlineCommand(sp, type="artist"),
-                             # OnlineCommand(sp, type="playlist"),
-                             # OnlineCommand(sp, type="album"),
-                             # ParameterCommand("Go to", "Seeks a position in the current song, i.e. 1:40", "forward",
-                             #                  PlaybackManager.goto, "", "go to ", "fill"),
-                             # ParameterCommand("Volume", "Sets the volume of your Spotify Player in range 1-10",
-                             #                  "volume",
-                             #                  PlaybackManager.set_volume, "", "volume ", "fill"),
-                             # #DeviceCommand(sp),
+                             OnlineCommand(sp, type="song"),
+                             OnlineCommand(sp, type="queue"),
+                             OnlineCommand(sp, type="artist"),
+                             OnlineCommand(sp, type="playlist"),
+                             OnlineCommand(sp, type="album"),
+                             ParameterCommand("Go to", "Seeks a position in the current song, i.e. 1:40", "forward",
+                                              PlaybackManager.goto, "", "go to "),
+                             ParameterCommand("Volume", "Sets the volume of your Spotify Player in range 1-10",
+                                              "volume",
+                                              PlaybackManager.set_volume, "", "volume "),
+                             DeviceCommand(sp),
                              # BaseCommand("Pause", "Pauses playback", "pause", PlaybackManager.pause, "", "pause",
                              #             "exe"),
                              # BaseCommand("Resume", "Resumes playback", "play", PlaybackManager.resume, "", "resume",
@@ -67,14 +69,7 @@ class CommandHandler:
                     suggestions.extend(command.get_items(parameter))
         if not suggestions:  # gets song suggestions if no other matches are found
             suggestions = self.command_list[0].get_items(text)
-        suggestions = self.get_dicts(suggestions)
         return suggestions
-
-    def get_dicts(self, suggestions: list) -> list:
-        temp = []
-        for item in suggestions:
-            temp.append(item.get_dict())
-        return temp
 
     def perform_command(self, command: dict):
         try:

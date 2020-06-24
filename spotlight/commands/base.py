@@ -36,18 +36,13 @@ class BaseCommand:
         Populates a dictionary which can be used to show the command graphically
         :return: a command dictionary made from the class attributes
         """
-        dictionary = {}
-        dictionary["title"] = self.title
-        dictionary["description"] = self.description
-        dictionary["icon"] = self.icon_name
-        dictionary["function"] = self.function
-        dictionary["parameter"] = self.parameter
-        dictionary["prefix"] = self.prefix
-        dictionary["setting"] = self.setting
+        dictionary = {"title": self.title, "description": self.description, "icon": self.icon_name,
+                      "function": self.function, "parameter": self.parameter, "prefix": self.prefix,
+                      "setting": self.setting}
         return dictionary
 
     def get_items(self, parameter="") -> list:
-        pass
+        return [self]
 
     def get_dict(self) -> list:
         """

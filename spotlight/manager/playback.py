@@ -45,6 +45,7 @@ class PlaybackFunctions:
     @Limiter.rate_limiter(seconds=10)
     def get_current_song_info(self) -> dict:
         try:
+            print("this ran")
             song = self.sp.current_playback()["item"]
             return {"name": song["name"], "artist": ", ".join([artist["name"] for artist in song["artists"]]),
                     "image": song["album"]["id"]}

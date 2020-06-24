@@ -1,6 +1,8 @@
 from os import sep
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
+
+from spotlight.commands.base import BaseCommand
 from spotlight.commands.handler import CommandHandler
 from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
@@ -182,8 +184,8 @@ class Ui(QWidget):
             self.textbox.setText(command["prefix"])
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif command["setting"] == "list":
-            self.textbox.setText(command["prefix"])
+        elif command["setting"] == "menu" or command["setting"] == "menu_fill":
+            self.textbox.setText(command["prefix"]) if command["setting"] == "menu_fill" else None
             self.suggestion_creation(command["parameter"])
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
@@ -200,12 +202,12 @@ class Ui(QWidget):
         matched_commands = self.command_handler.get_command_suggestions(term)
         self.suggestion_creation(matched_commands)
 
-    def suggestion_creation(self, matched_commands):
+    def suggestion_creation(self, matched_commands: BaseCommand):
         length = len(matched_commands)
         self.dynamic_resize(length)
         if length != 0:
             for row in range(0, length):
-                command = matched_commands[row]
+                command = matched_commands[row].get_dict()  # changes to dictionary form
                 self.add_row(row, command)
         else:
             self.current_num_of_rows = 0

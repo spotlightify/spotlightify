@@ -2,39 +2,31 @@ from copy import deepcopy
 from definitions import ASSETS_DIR, CACHE_DIR
 from os import sep
 from spotipy import Spotify
+
+from spotlight.commands.item import WarningItem
+from spotlight.commands.menu import Menu
 from spotlight.manager.misc import MiscFunctions
 from spotlight.commands.base import BaseCommand
 from spotlight.manager.manager import PlaybackManager
 
 
-class DeviceCommand(BaseCommand):
+class DeviceCommand(Menu):
     def __init__(self, sp: Spotify):
-        BaseCommand.__init__(self, "Device", "Click to select a device", "device", None, "", "device", "list")
+        Menu.__init__(self, "Device", "Click to select a device", "device", "device", [])
         self.sp = sp
 
-    def __add_new_device_command(self, title: str, description: str, icon_name: str, function: classmethod,
-                                   parameter: str, prefix: str, setting: str) -> dict:
-        command_dict = {"title": title, "description": description, "icon": None, "function": function,
-                        "parameter": parameter,
-                        "prefix": prefix, "setting": setting}
-        if not len(icon_name) > 20:
-            command_dict["icon"] = f"{ASSETS_DIR}svg{sep}{icon_name}.svg"
+    def _get_command_dict(self) -> dict:
+        dictionary = super(DeviceCommand, self)._get_command_dict()
+        devices = MiscFunctions(self.sp).get_device_list()
+        self.clear_menu_items()
+        if not devices:
+            self.add_menu_item(WarningItem("No devices currently available", "Make sure the Spotify desktop app is open"))
         else:
-            command_dict["icon"] = f"{CACHE_DIR}art{sep}{icon_name}.jpg"
-        return command_dict
+            for device in devices:
+                self.add_menu_item(DeviceItem(device["name"], device["type"], device["id"]))
+        return dictionary
 
-    def get_dicts(self, parameter: str) -> list:
-        device_list = MiscFunctions(self.sp).get_device_list()
-        device_command_list = []
-        if not device_list:
-            device_command_list = [self.__add_new_device_command("No Devices Available", "Open your Spotify Desktop App",
-                                                               "cog", None, "", "", "none")]
-        else:
-            for device in device_list:
-                device_command_list.append(self.__add_new_device_command(device["name"], device["type"], "device",
-                                                                           PlaybackManager.set_device, device["id"],
-                                                                           "", "exe"))
-        new_command = deepcopy(self._command_dict)
-        new_command["parameter"] = device_command_list
-        command_list = [new_command]
-        return command_list
+
+class DeviceItem(BaseCommand):
+    def __init__(self, name, type, id_):
+        BaseCommand.__init__(self, name, type, "device", PlaybackManager.set_device, id_, "", "exe")

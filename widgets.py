@@ -1,5 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
+
+from spotlight.commands.base import BaseCommand
 from spotlight.manager import check, toggle, playback
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap
@@ -94,7 +96,7 @@ class SvgButton(QPushButton):
 
 
 class SuggestRow(QPushButton):
-    def __init__(self, parent, command_dict):
+    def __init__(self, parent, command: dict):
         QWidget.__init__(self, parent)
         # gets the current theme
         self.active_theme = parent.active_theme
@@ -104,10 +106,10 @@ class SuggestRow(QPushButton):
         height, width = [parent.width(), 114]
         self.resize(height, width)
         # makes command dictionary a class variable
-        self.command_dict = command_dict  # Stores information about the command the row will hold
+        self.command_dict = command # Stores information about the command the row will hold
         # widget creation
         self.icon = None  # This can either be an svg or jpg file
-        icon_path = command_dict["icon"]  # gets the icon path
+        icon_path = self.command_dict["icon"]  # gets the icon path
         if "svg" in icon_path:
             self.icon = QSvgWidget(self)
             self.icon.load(icon_path)
@@ -116,8 +118,8 @@ class SuggestRow(QPushButton):
             icon = QLabel(self)
             icon.setPixmap(pixmap)
             self.icon = icon
-        self.title_lbl = QLabel(command_dict["title"], self)
-        self.description_lbl = QLabel(command_dict["description"], self)
+        self.title_lbl = QLabel(self.command_dict["title"], self)
+        self.description_lbl = QLabel(self.command_dict["description"], self)
         self.set_style()
 
     def set_style(self):
