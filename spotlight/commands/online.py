@@ -61,11 +61,11 @@ class OnlineCommand(BaseCommand):
                 for item in results:
                     if self.type == "song":
                         command_list.append(
-                            SongItem(item["name"], f"By {', '.join([a['name'] for a in item['artists']])}",
+                            SongItem(item["name"], f"{', '.join([a['name'] for a in item['artists']])}",
                                      self.icon, item["uri"]))
                     elif self.type == "queue":
                         command_list.append(QueueItem(item["name"],
-                                                      f"By {', '.join([a['name'] for a in item['artists']])}",
+                                                      f"{', '.join([a['name'] for a in item['artists']])}",
                                                       self.icon, item["uri"]))
                     elif self.type == "album":
                         command_list.append(AlbumItem(item["name"],
