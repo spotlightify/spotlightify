@@ -38,14 +38,18 @@ class ToggleFunctions:
         except:
             print("[Error] Playback could not be toggled")
 
-    def repeat(self):
+    def repeat(self, state="cycle"):
         try:
-            repeat_state = self._check.repeat_state()
-            if repeat_state == 'track':
-                self.sp.repeat('off')
-            elif repeat_state == 'context':
-                self.sp.repeat('track')
+            state = state.lower()
+            if state == "cycle":
+                repeat_state = self._check.repeat_state()
+                if repeat_state == 'track':
+                    self.sp.repeat('off')
+                elif repeat_state == 'context':
+                    self.sp.repeat('track')
+                else:
+                    self.sp.repeat('context')
             else:
-                self.sp.repeat('context')
+                self.sp.repeat(state)
         except:
-            print("[Error] Could not toggle repeat type")
+            print("[Error] Could not change repeat type")

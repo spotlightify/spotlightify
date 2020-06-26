@@ -35,8 +35,8 @@ class PlaybackManager:
     def toggle_shuffle(self):
         self._toggle.shuffle()
 
-    def toggle_repeat(self):
-        self._toggle.repeat()
+    def toggle_repeat(self, state="cycle"):
+        self._toggle.repeat(state)
 
     def queue_song(self, id_: str):
         """

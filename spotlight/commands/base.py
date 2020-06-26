@@ -22,10 +22,7 @@ class BaseCommand:
         """
         self.title = title
         self.description = description
-        if len(icon_name) == 22:  # checks to see if icon is album art jpg or icon svg by looking at the icon_name's string length
-            self.icon_name = f"{CACHE_DIR}art{sep}{icon_name}.jpg"
-        else:
-            self.icon_name = f"{ASSETS_DIR}svg{sep}{icon_name}.svg"
+        self.icon_name = icon_name
         self.function = function
         self.parameter = parameter
         self.prefix = prefix
@@ -36,7 +33,9 @@ class BaseCommand:
         Populates a dictionary which can be used to show the command graphically
         :return: a command dictionary made from the class attributes
         """
-        dictionary = {"title": self.title, "description": self.description, "icon": self.icon_name,
+        # checks to see if icon is album art jpg or icon svg by looking at the icon_name's string length
+        icon_path = f"{CACHE_DIR}art{sep}{self.icon_name}.jpg" if len(self.icon_name) == 22 else f"{ASSETS_DIR}svg{sep}{self.icon_name}.svg"
+        dictionary = {"title": self.title, "description": self.description, "icon": icon_path,
                       "function": self.function, "parameter": self.parameter, "prefix": self.prefix,
                       "setting": self.setting}
         return dictionary

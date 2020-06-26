@@ -15,8 +15,7 @@ class DeviceCommand(Menu):
         Menu.__init__(self, "Device", "Click to select a device", "device", "device", [])
         self.sp = sp
 
-    def _get_command_dict(self) -> dict:
-        dictionary = super(DeviceCommand, self)._get_command_dict()
+    def get_items(self, parameter="") -> list:
         devices = MiscFunctions(self.sp).get_device_list()
         self.clear_menu_items()
         if not devices:
@@ -24,7 +23,7 @@ class DeviceCommand(Menu):
         else:
             for device in devices:
                 self.add_menu_item(DeviceItem(device["name"], device["type"], device["id"]))
-        return dictionary
+        return super(DeviceCommand, self).get_items(parameter)
 
 
 class DeviceItem(BaseCommand):
