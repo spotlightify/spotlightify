@@ -21,7 +21,7 @@ class PlayCommand(BaseCommand):
             try:
                 suggestions = [FillItem(f'Search Online "{parameter}"',
                                         f"Searches for {self._type if self._type != 'queue' else 'song'} online",
-                                        "sun",
+                                        "search",
                                         f"🔎{self._type} {parameter}")]
                 suggestions.extend(self._get_item_suggestions(parameter))
             except:
