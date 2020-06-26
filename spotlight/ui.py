@@ -167,7 +167,7 @@ class Ui(QWidget):
     def add_row(self, row_num, command):
         if self.rows[row_num] != 0 and self.current_num_of_rows != 0:
             self.rows[row_num].setFocusPolicy(QtCore.Qt.NoFocus)
-            self.rows[row_num].hide()
+            self.rows[row_num].deleteLater()
         self.rows[row_num] = SuggestRow(self, command)
         self.rows[row_num].clicked.connect(lambda: self.suggest_row_handler(command))
         self.rows[row_num].setFocusPolicy(QtCore.Qt.TabFocus)
