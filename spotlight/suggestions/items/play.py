@@ -13,8 +13,7 @@ class SongItem(Suggestion):
         :param id_: id/uri/term for song
         """
         Suggestion.__init__(self, name, f"By {artists}", image_name if len(image_name) == 22 else "play",
-                            PlaybackManager.play_song, id_,
-                             "", "exe")
+                            PlaybackManager.play_song, id_, "exe")
 
 
 class QueueItem(Suggestion):
@@ -27,8 +26,7 @@ class QueueItem(Suggestion):
         :param id_: id/uri/term for song
         """
         Suggestion.__init__(self, name, f"By {artists}", image_name if len(image_name) == 22 else "list",
-                            PlaybackManager.queue_song, id_,
-                             "", "exe")
+                            PlaybackManager.queue_song, id_, "exe")
 
 
 class PlaylistItem(Suggestion):
@@ -41,8 +39,7 @@ class PlaylistItem(Suggestion):
         :param id_: id/uri for playlist
         """
         Suggestion.__init__(self, name, f"By {owner}", image_name if len(image_name) == 22 else "playlist",
-                            PlaybackManager.play_playlist, id_,
-                             "", "exe")
+                            PlaybackManager.play_playlist, id_, "exe")
 
 
 class ArtistItem(Suggestion):
@@ -55,8 +52,7 @@ class ArtistItem(Suggestion):
         :param id_: id/uri for artist
         """
         Suggestion.__init__(self, name, genre, image_name if len(image_name) == 22 else "artist",
-                            PlaybackManager.play_artist, id_,
-                             "", "exe")
+                            PlaybackManager.play_artist, id_, "exe")
 
 
 class AlbumItem(Suggestion):
@@ -69,5 +65,4 @@ class AlbumItem(Suggestion):
         :param id_: id/uri for album
         """
         Suggestion.__init__(self, name, f"By {artists}", image_name if len(image_name) == 22 else "album",
-                            PlaybackManager.play_album, id_,
-                             "", "exe")
+                            PlaybackManager.play_album, id_, "exe")

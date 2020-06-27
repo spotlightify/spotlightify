@@ -1,5 +1,7 @@
 from queue import Queue
 from spotipy import Spotify
+
+from spotlight.suggestions.commands.base import BaseCommand
 from spotlight.suggestions.suggestion import Suggestion
 from spotlight.suggestions.commands.device import DeviceCommand
 from caching.holder import CacheHolder
@@ -32,20 +34,20 @@ class CommandHandler:
                                               "volume",
                                               PlaybackManager.set_volume, "", "volume "),
                              DeviceCommand(sp),
-                             Suggestion("Pause", "Pauses playback", "pause", PlaybackManager.pause, "", "pause",
+                             BaseCommand("Pause", "Pauses playback", "pause", PlaybackManager.pause, "", "pause",
                                          "exe"),
-                             Suggestion("Resume", "Resumes playback", "play", PlaybackManager.resume, "", "resume",
+                             BaseCommand("Resume", "Resumes playback", "play", PlaybackManager.resume, "", "resume",
                                          "exe"),
                              RepeatCommand(),
-                             Suggestion("Skip", "Skips to the next song", "forward", PlaybackManager.skip, "", "skip",
+                             BaseCommand("Skip", "Skips to the next song", "forward", PlaybackManager.skip, "", "skip",
                                          "exe"),
-                             Suggestion("Previous", "Plays the previous song", "backward", PlaybackManager.previous,
+                             BaseCommand("Previous", "Plays the previous song", "backward", PlaybackManager.previous,
                                          "", "previous", "exe"),
-                             Suggestion("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
+                             BaseCommand("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
                                          "exe"),
-                             Suggestion("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
+                             BaseCommand("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
                                          "exe"),
-                             Suggestion("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")
+                             BaseCommand("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")
                              ]
         self.sp = sp
         self.manager = PlaybackManager(sp, queue)
@@ -53,12 +55,19 @@ class CommandHandler:
         CacheHolder.reload_holder("all")
 
     def get_command_suggestions(self, text: str) -> list:
+        """
+        Used to return a list of Suggestion objects to be displayed
+        :param text: Text from textbox widget on GUI
+        :return: list of Suggestion objects corresponding to the text parameter
+        """
         CacheHolder.check_reload("all")  # Reloads cached items if time since last reload has surpassed 5 minutes
         suggestions = []
         for command in self.command_list:
             prefix = command.prefix
             if len(text) <= len(prefix):
-                if prefix.startswith(text):
+                if prefix == text and type(command).__name__ == "Menu":
+                    suggestions.extend(command.get_items(text))
+                elif prefix.startswith(text):
                     suggestions.extend(command.get_items())
             else:
                 if text.startswith(prefix):
@@ -68,11 +77,16 @@ class CommandHandler:
             suggestions = self.command_list[0].get_items(text)
         return suggestions
 
-    def perform_command(self, command: dict):
+    def perform_command(self, command: Suggestion):
+        """
+        Executes a command
+        :param command: Suggestion object
+        :return:
+        """
         try:
-            if command["parameter"] == "":
-                command["function"](self.manager)
+            if command.parameter == "":
+                command.function(self.manager)
             else:
-                command["function"](self.manager, command["parameter"])
+                command.function(self.manager, command.parameter)
         except:
             print("[Error] Command failed to execute")

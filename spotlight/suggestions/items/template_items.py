@@ -5,14 +5,14 @@ from spotlight.manager.manager import PlaybackManager
 
 class FillItem(Suggestion):
     def __init__(self, title, description, icon, fill_str):
-        Suggestion.__init__(self, title, description, icon, None, "", fill_str, "fill")
+        Suggestion.__init__(self, title, description, icon, lambda: None, fill_str, "fill")
 
 
 class WarningItem(Suggestion):
     def __init__(self, title, description):
-        Suggestion.__init__(self, title, description, "cog", None, "", "", "none")
+        Suggestion.__init__(self, title, description, "cog", lambda: None, "", "none")
 
 
 class PassiveItem(Suggestion):
     def __init__(self, title, description):
-        Suggestion.__init__(self, title, description, "cog", None, "", "", "none")
+        Suggestion.__init__(self, title, description, "cog", lambda: None, "", "none")

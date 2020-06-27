@@ -85,7 +85,7 @@ class Ui(QWidget):
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
-                self.suggest_row_handler(source.command_dict)
+                self.suggest_row_handler(source.command)
         if (event.type() == QtCore.QEvent.FocusOut and
                 source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
             self.textbox.clear()
@@ -136,7 +136,7 @@ class Ui(QWidget):
     def textbox_return_pressed_handler(self):
         self.store_previous_command()
         if self.current_num_of_rows != 0:
-            self.suggest_row_handler(self.rows[0].command_dict)
+            self.suggest_row_handler(self.rows[0].command)
         elif self.exit == 1:
             exit()
         else:
@@ -179,17 +179,17 @@ class Ui(QWidget):
         self.rows[row_num].show()
         self.current_num_of_rows = row_num + 1
 
-    def suggest_row_handler(self, command):
-        if command["setting"] == "fill":
-            self.textbox.setText(command["prefix"])
+    def suggest_row_handler(self, command: Suggestion):
+        if command.setting == "fill":
+            self.textbox.setText(command.prefix)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif command["setting"] == "menu" or command["setting"] == "menu_fill":
-            self.textbox.setText(command["prefix"]) if command["setting"] == "menu_fill" else None
-            self.suggestion_creation(command["parameter"])
+        elif command.setting == "menu" or command.setting == "menu_fill":
+            self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
+            self.suggestion_creation(command.parameter)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif command["setting"] == "none":
+        elif command.setting == "none":
             return
         else:
             self.store_previous_command()
@@ -207,7 +207,7 @@ class Ui(QWidget):
         self.dynamic_resize(length)
         if length != 0:
             for row in range(0, length):
-                command = matched_commands[row].get_dict()  # changes to dictionary form
+                command = matched_commands[row] # changes to dictionary form
                 self.add_row(row, command)
         else:
             self.current_num_of_rows = 0

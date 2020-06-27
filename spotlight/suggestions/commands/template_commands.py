@@ -1,9 +1,10 @@
+from spotlight.suggestions.commands.base import BaseCommand
 from spotlight.suggestions.suggestion import Suggestion
 
 
-class ParameterCommand(Suggestion):
+class ParameterCommand(BaseCommand):
     def __init__(self, title: str, description: str, icon: str, function: classmethod, parameter: str, prefix: str):
-        Suggestion.__init__(self, title, description, icon, function, parameter, prefix, "fill")
+        BaseCommand.__init__(self, title, description, icon, function, parameter, prefix, "fill")
 
     def get_items(self, parameter="") -> list:
         self.parameter = parameter
