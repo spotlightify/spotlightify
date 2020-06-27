@@ -12,7 +12,7 @@ from caching.queues import SongQueue, ImageQueue
 from colors import colors
 from definitions import ASSETS_DIR
 from shortcuts import listener
-from spotlight.commands.handler import CommandHandler
+from spotlight.suggestions.handler import CommandHandler
 from spotlight.manager.manager import PlaybackManager
 from spotlight.ui import Ui
 

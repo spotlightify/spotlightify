@@ -1,12 +1,9 @@
-from copy import deepcopy
-from definitions import ASSETS_DIR, CACHE_DIR
-from os import sep
 from spotipy import Spotify
 
-from spotlight.commands.item import WarningItem
-from spotlight.commands.menu import Menu
+from spotlight.suggestions.items.template_items import WarningItem
+from spotlight.suggestions.commands.menu import Menu
 from spotlight.manager.misc import MiscFunctions
-from spotlight.commands.base import BaseCommand
+from spotlight.suggestions.suggestion import Suggestion
 from spotlight.manager.manager import PlaybackManager
 
 
@@ -26,6 +23,6 @@ class DeviceCommand(Menu):
         return super(DeviceCommand, self).get_items(parameter)
 
 
-class DeviceItem(BaseCommand):
+class DeviceItem(Suggestion):
     def __init__(self, name, type, id_):
-        BaseCommand.__init__(self, name, type, "device", PlaybackManager.set_device, id_, "", "exe")
+        Suggestion.__init__(self, name, type, "device", PlaybackManager.set_device, id_, "", "exe")

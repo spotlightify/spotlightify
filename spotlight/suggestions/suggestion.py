@@ -1,14 +1,14 @@
-from copy import deepcopy
-from typing import overload
-
 from definitions import ASSETS_DIR, CACHE_DIR
 from os import sep
 
-class BaseCommand:
+
+class Suggestion:
     """
-    All commands and items inherit from this class
+    All suggestions and items inherit from this class
     """
-    def __init__(self, title: str, description: str, icon_name: str, function: classmethod, parameter: str, prefix: str, setting: str):
+
+    def __init__(self, title: str, description: str, icon_name: str, function: classmethod, parameter: str,
+                 prefix: str, setting: str):
         """
         :param title: title of the suggestion (displayed visually)
         :param description: description of the suggestion (displayed visually)
@@ -34,7 +34,8 @@ class BaseCommand:
         :return: a command dictionary made from the class attributes
         """
         # checks to see if icon is album art jpg or icon svg by looking at the icon_name's string length
-        icon_path = f"{CACHE_DIR}art{sep}{self.icon_name}.jpg" if len(self.icon_name) == 22 else f"{ASSETS_DIR}svg{sep}{self.icon_name}.svg"
+        icon_path = f"{CACHE_DIR}art{sep}{self.icon_name}.jpg" if len(
+            self.icon_name) == 22 else f"{ASSETS_DIR}svg{sep}{self.icon_name}.svg"
         dictionary = {"title": self.title, "description": self.description, "icon": icon_path,
                       "function": self.function, "parameter": self.parameter, "prefix": self.prefix,
                       "setting": self.setting}
@@ -47,7 +48,7 @@ class BaseCommand:
         """
         This method is overridden in child classes
         :param parameter: parameter is used on other child classes to add more command dictionaries to the list
-        :return: returns the commands dictionaries associated with the current class
+        :return: returns the suggestions dictionaries associated with the current class
         """
         dictionary = self._get_command_dict()
         return dictionary

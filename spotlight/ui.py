@@ -2,8 +2,8 @@ from os import sep
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
 
-from spotlight.commands.base import BaseCommand
-from spotlight.commands.handler import CommandHandler
+from spotlight.suggestions.suggestion import Suggestion
+from spotlight.suggestions.handler import CommandHandler
 from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
 from spotipy import Spotify
@@ -32,7 +32,7 @@ class Ui(QWidget):
         self.setWindowOpacity(0.9)
         # global styling
         self.custom_font = QtGui.QFont("SF Pro Display light")
-        # For cycling through previous commands
+        # For cycling through previous suggestions
         self.previous_commands = [""]
         self.command_position = 0
         # needed for adding suggestion rows
@@ -148,7 +148,7 @@ class Ui(QWidget):
         self.command_position = len(self.previous_commands) - 1
 
     def keyPressEvent(self, event):
-        # code for going back through recently executed commands
+        # code for going back through recently executed suggestions
         if event.key() == QtCore.Qt.Key_Up:
             length = len(self.previous_commands)
             if length - 1 >= self.command_position != 0:
@@ -202,7 +202,7 @@ class Ui(QWidget):
         matched_commands = self.command_handler.get_command_suggestions(term)
         self.suggestion_creation(matched_commands)
 
-    def suggestion_creation(self, matched_commands: BaseCommand):
+    def suggestion_creation(self, matched_commands: Suggestion):
         length = len(matched_commands)
         self.dynamic_resize(length)
         if length != 0:

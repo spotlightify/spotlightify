@@ -1,16 +1,13 @@
-import json
 from queue import Queue
 from spotipy import Spotify
-from spotlight.commands.base import BaseCommand
-from spotlight.commands.device import DeviceCommand
-from spotlight.commands.holder import CacheHolder
-from spotlight.commands.item import FillItem
-from spotlight.commands.menu import Menu
-from spotlight.commands.online import OnlineCommand
-from spotlight.commands.parameter import ParameterCommand
-from spotlight.commands.play import PlaylistCommand, SongCommand, AlbumCommand, ArtistCommand, QueueCommand
-from spotlight.commands.playing import PlayingCommand
-from spotlight.commands.change import ShuffleCommand, LikeCommand, RepeatCommand
+from spotlight.suggestions.suggestion import Suggestion
+from spotlight.suggestions.commands.device import DeviceCommand
+from caching.holder import CacheHolder
+from spotlight.suggestions.commands.online import OnlineCommand
+from spotlight.suggestions.commands.template_commands import ParameterCommand
+from spotlight.suggestions.commands.play import PlaylistCommand, SongCommand, AlbumCommand, ArtistCommand, QueueCommand
+from spotlight.suggestions.commands.playing import PlayingCommand
+from spotlight.suggestions.commands.change import ShuffleCommand, LikeCommand, RepeatCommand
 from spotlight.manager.manager import PlaybackManager
 
 
@@ -35,20 +32,20 @@ class CommandHandler:
                                               "volume",
                                               PlaybackManager.set_volume, "", "volume "),
                              DeviceCommand(sp),
-                             BaseCommand("Pause", "Pauses playback", "pause", PlaybackManager.pause, "", "pause",
+                             Suggestion("Pause", "Pauses playback", "pause", PlaybackManager.pause, "", "pause",
                                          "exe"),
-                             BaseCommand("Resume", "Resumes playback", "play", PlaybackManager.resume, "", "resume",
+                             Suggestion("Resume", "Resumes playback", "play", PlaybackManager.resume, "", "resume",
                                          "exe"),
                              RepeatCommand(),
-                             BaseCommand("Skip", "Skips to the next song", "forward", PlaybackManager.skip, "", "skip",
+                             Suggestion("Skip", "Skips to the next song", "forward", PlaybackManager.skip, "", "skip",
                                          "exe"),
-                             BaseCommand("Previous", "Plays the previous song", "backward", PlaybackManager.previous,
+                             Suggestion("Previous", "Plays the previous song", "backward", PlaybackManager.previous,
                                          "", "previous", "exe"),
-                             BaseCommand("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
+                             Suggestion("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
                                          "exe"),
-                             BaseCommand("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
+                             Suggestion("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
                                          "exe"),
-                             BaseCommand("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")
+                             Suggestion("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")
                              ]
         self.sp = sp
         self.manager = PlaybackManager(sp, queue)

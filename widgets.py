@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
 
-from spotlight.commands.base import BaseCommand
+from spotlight.suggestions.suggestion import Suggestion
 from spotlight.manager import check, toggle, playback
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap

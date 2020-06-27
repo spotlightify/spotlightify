@@ -1,14 +1,8 @@
-from copy import deepcopy
-from definitions import ASSETS_DIR, CACHE_DIR
-from os import sep
-
-from spotlight.commands.item import FillItem, WarningItem
-from spotlight.commands.menu import Menu
+from spotlight.suggestions.items.template_items import FillItem, WarningItem
+from spotlight.suggestions.commands.menu import Menu
 from spotlight.manager.playback import PlaybackFunctions
 from spotipy import Spotify
-from spotlight.manager.misc import MiscFunctions
-from spotlight.commands.base import BaseCommand
-from spotlight.manager.manager import PlaybackManager
+from spotlight.suggestions.suggestion import Suggestion
 
 
 class PlayingCommand(Menu):
@@ -18,9 +12,9 @@ class PlayingCommand(Menu):
         self.sp = sp
 
 
-class PlayingItem(BaseCommand):
+class PlayingItem(Suggestion):
     def __init__(self, sp: Spotify):
-        BaseCommand.__init__(self, "", "", "", None, "", "", "none")
+        Suggestion.__init__(self, "", "", "", None, "", "", "none")
         self.sp = sp
 
     def _get_command_dict(self) -> dict:
