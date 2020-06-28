@@ -25,7 +25,7 @@ class Suggestion:
         self.__function = None
         self.__parameter = None
         self.__setting = None
-        self.__prefix = None
+        self.__prefix = "None"
         self.title = title
         self.description = description
         self.icon_name = icon_name
@@ -100,6 +100,9 @@ class Suggestion:
     def prefix(self, value):
         if type(value).__name__ != "str": raise Exception("Suggestion.prefix must be of type str")
         self.__prefix = value
+
+    def refresh(self):
+        pass
 
     def _get_command_dict(self) -> dict:
         """

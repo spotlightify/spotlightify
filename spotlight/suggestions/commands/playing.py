@@ -1,4 +1,4 @@
-from spotlight.suggestions.items.template_items import FillItem, WarningItem
+from spotlight.suggestions.items.template_items import FillItem, WarningItem, WarningFillItem
 from spotlight.suggestions.menu import Menu
 from spotlight.manager.playback import PlaybackFunctions
 from spotipy import Spotify
@@ -7,9 +7,12 @@ from spotlight.suggestions.suggestion import Suggestion
 
 class PlayingCommand(Menu):
     def __init__(self, sp: Spotify):
-        item = PlayingItem(sp)
-        Menu.__init__(self, "Currently Playing", "Displays the song which is currently playing", "play", "currently playing", [item])
+        Menu.__init__(self, "Currently Playing", "Displays the song which is currently playing", "play", "currently playing", [])
         self.sp = sp
+
+    def refresh(self):
+        item = PlayingItem(self.sp)
+        self.parameter = item.get_items()
 
 
 class PlayingItem(Suggestion):
@@ -23,5 +26,5 @@ class PlayingItem(Suggestion):
             item = FillItem(f"Playing {song['name']}", f"By {song['artist']}", song["image"], "currently playing")
             item.prefix = song['name']
         except KeyError:
-            item = WarningItem("No song currently playing", "")
+            item = WarningFillItem("No song currently playing", "Click here to search for music", "play ")
         return [item]

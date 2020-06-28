@@ -42,7 +42,6 @@ class OnlineCommand(BaseCommand):
         BaseCommand.__init__(self, "Search", f"Searches for {noun} online", icon, func, "", prefix, "fill")
         self.type = type
         self.icon = icon
-        self.prefix = prefix
         self.sp = sp
 
     def get_items(self, parameter="") -> list:

@@ -180,6 +180,7 @@ class Ui(QWidget):
         self.current_num_of_rows = row_num + 1
 
     def suggest_row_handler(self, command: Suggestion):
+        command.refresh()
         if command.setting == "fill":
             self.textbox.setText(command.prefix)
             self.textbox.setFocus()

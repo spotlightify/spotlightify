@@ -6,6 +6,7 @@ from spotlight.manager.manager import PlaybackManager
 class FillItem(Suggestion):
     def __init__(self, title, description, icon, fill_str):
         Suggestion.__init__(self, title, description, icon, lambda: None, fill_str, "fill")
+        self.prefix = fill_str  # TODO Change this by creating a base class for ITEM
 
 
 class WarningItem(Suggestion):
@@ -13,6 +14,12 @@ class WarningItem(Suggestion):
         Suggestion.__init__(self, title, description, "cog", lambda: None, "", "none")
 
 
+class WarningFillItem(Suggestion):
+    def __init__(self, title, description, fill_str):
+        Suggestion.__init__(self, title, description, "cog", lambda: None, "", "fill")
+        self.prefix = fill_str  # TODO Change this by creating a base class for ITEM
+
+
 class PassiveItem(Suggestion):
-    def __init__(self, title, description):
-        Suggestion.__init__(self, title, description, "cog", lambda: None, "", "none")
+    def __init__(self, title, description, icon):
+        Suggestion.__init__(self, title, description, icon, lambda: None, "", "none")
