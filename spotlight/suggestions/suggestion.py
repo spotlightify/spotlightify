@@ -25,7 +25,7 @@ class Suggestion:
         self.__function = None
         self.__parameter = None
         self.__setting = None
-        self.__prefix = "None"
+        self.__prefix = None
         self.title = title
         self.description = description
         self.icon_name = icon_name
@@ -57,7 +57,7 @@ class Suggestion:
 
     @icon_name.setter
     def icon_name(self, value):
-        if type(value).__name__ != "str": raise Exception("Suggestion.icon_name must be of type str and (the name of an icon or albumID of cached album art)")
+        if type(value).__name__ != "str": raise Exception("Suggestion.icon_name must be of type str and (the name of an icon or album ID of cached album art)")
         if len(value) == 22:
             self.__icon_name = f"{CACHE_DIR}art{sep}{value}.jpg"
         else:
@@ -119,12 +119,3 @@ class Suggestion:
 
     def get_items(self, parameter="") -> list:
         return [self]
-
-    def get_dict(self) -> list:
-        """
-        This method is overridden in child classes
-        :param parameter: parameter is used on other child classes to add more command dictionaries to the list
-        :return: returns the suggestions dictionaries associated with the current class
-        """
-        dictionary = self._get_command_dict()
-        return dictionary
