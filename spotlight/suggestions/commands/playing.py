@@ -10,21 +10,16 @@ class PlayingCommand(Menu):
         Menu.__init__(self, "Currently Playing", "Displays the song which is currently playing", "play", "currently playing", [])
         self.sp = sp
 
-    def refresh(self):
-        item = PlayingItem(self.sp)
-        self.parameter = item.get_items()
+    def refresh_items(self):
+        song = PlaybackFunctions(self.sp).get_current_song_info()
+        try:
+            item = FillItem(f"Playing {song['name']}", f"By {song['artist']}", song["image"], song["name"])
+        except KeyError:
+            item = WarningFillItem("No Device Selected", "Click here select a device", "device")
+        self.menu_items = [item]
+
 
 
 class PlayingItem(Suggestion):
-    def __init__(self, sp: Spotify):
+    def __init__(self, song_name, artists, image):
         Suggestion.__init__(self, "", "", "", lambda: None, "", "none")
-        self.sp = sp
-
-    def get_items(self, parameter="") -> list:
-        song = PlaybackFunctions(self.sp).get_current_song_info()
-        try:
-            item = FillItem(f"Playing {song['name']}", f"By {song['artist']}", song["image"], "currently playing")
-            item.prefix = song['name']
-        except KeyError:
-            item = WarningFillItem("No song currently playing", "Click here to search for music", "play ")
-        return [item]

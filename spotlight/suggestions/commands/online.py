@@ -1,13 +1,13 @@
 from spotipy import Spotify
 
-from spotlight.suggestions.commands.base import BaseCommand
+from spotlight.suggestions.commands.command import Command
 from spotlight.suggestions.suggestion import Suggestion
 from spotlight.suggestions.items.play import SongItem, QueueItem, AlbumItem, PlaylistItem, ArtistItem
 from spotlight.suggestions.items.template_items import WarningItem
 from spotlight.manager.manager import PlaybackManager
 
 
-class OnlineCommand(BaseCommand):
+class OnlineCommand(Command):
     def __init__(self, sp: Spotify, type="song"):
         """
         Allows user to search online for songs/albums/artists/playlists/queue-songs
@@ -39,7 +39,7 @@ class OnlineCommand(BaseCommand):
             icon = type
             prefix = "🔎artist "
             noun = type
-        BaseCommand.__init__(self, "Search", f"Searches for {noun} online", icon, func, "", prefix, "fill")
+        Command.__init__(self, "Search", f"Searches for {noun} online", icon, func, "", prefix, "fill")
         self.type = type
         self.icon = icon
         self.sp = sp

@@ -21,7 +21,7 @@ class CacheHolder:
             _type (str): Either song, playlist, artist, album or all
         """
         time_passed = (datetime.now() - CacheHolder.last_refresh).total_seconds()
-        if time_passed > 300:
+        if time_passed > 150:
             CacheHolder.last_refresh = datetime.now()
             CacheHolder.reload_holder(_type)
 

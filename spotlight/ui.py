@@ -2,6 +2,7 @@ from os import sep
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
 
+from spotlight.suggestions.menu import Menu
 from spotlight.suggestions.suggestion import Suggestion
 from spotlight.suggestions.handler import CommandHandler
 from widgets import FunctionButtonsRow, SuggestRow, SvgButton
@@ -147,7 +148,7 @@ class Ui(QWidget):
         self.previous_commands.append("")
         self.command_position = len(self.previous_commands) - 1
 
-    def keyPressEvent(self, event):
+    def keyPresskeyPressEvent(self, event):
         # code for going back through recently executed suggestions
         if event.key() == QtCore.Qt.Key_Up:
             length = len(self.previous_commands)
@@ -179,15 +180,15 @@ class Ui(QWidget):
         self.rows[row_num].show()
         self.current_num_of_rows = row_num + 1
 
-    def suggest_row_handler(self, command: Suggestion):
-        command.refresh()
+    def suggest_row_handler(self, command):
         if command.setting == "fill":
             self.textbox.setText(command.prefix)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif command.setting == "menu" or command.setting == "menu_fill":
+        elif isinstance(command, Menu):
             self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
-            self.suggestion_creation(command.parameter)
+            command.refresh_items()
+            self.suggestion_creation(command.menu_items)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
         elif command.setting == "none":
@@ -203,17 +204,17 @@ class Ui(QWidget):
         matched_commands = self.command_handler.get_command_suggestions(term)
         self.suggestion_creation(matched_commands)
 
-    def suggestion_creation(self, matched_commands: Suggestion):
-        length = len(matched_commands)
+    def suggestion_creation(self, command_list: list):
+        length = len(command_list)
         self.dynamic_resize(length)
         if length != 0:
             for row in range(0, length):
-                command = matched_commands[row] # changes to dictionary form
+                command = command_list[row] # changes to dictionary form
                 self.add_row(row, command)
         else:
             self.current_num_of_rows = 0
 
-    def dynamic_resize(self, size):  # size is int between 1 and 6
+    def dynamic_resize(self, size):  # size is int between 0 and 6
         height = 57
         if 0 <= size <= 6:
             if self.function_row.isHidden():
@@ -230,7 +231,3 @@ def position_app():
     to_sub = QtCore.QPoint(270, height / 3)
     center = coord.__sub__(to_sub)
     return center
-
-
-def exit_app(parent):
-    parent.exit = 1

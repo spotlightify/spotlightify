@@ -1,7 +1,8 @@
 from queue import Queue
 from spotipy import Spotify
 
-from spotlight.suggestions.commands.base import BaseCommand
+from spotlight.suggestions.commands.command import Command
+from spotlight.suggestions.menu import Menu
 from spotlight.suggestions.suggestion import Suggestion
 from spotlight.suggestions.commands.device import DeviceCommand
 from caching.holder import CacheHolder
@@ -15,6 +16,7 @@ from spotlight.manager.manager import PlaybackManager
 
 class CommandHandler:
     def __init__(self, sp: Spotify, queue: Queue):
+        self.sp = sp
         self.command_list = [SongCommand(),
                              QueueCommand(),
                              PlaylistCommand(),
@@ -34,22 +36,22 @@ class CommandHandler:
                                               "volume",
                                               PlaybackManager.set_volume, "", "volume "),
                              DeviceCommand(sp),
-                             BaseCommand("Pause", "Pauses playback", "pause", PlaybackManager.pause, "", "pause",
+                             Command("Pause", "Pauses playback", "pause", PlaybackManager.pause, "", "pause",
                                          "exe"),
-                             BaseCommand("Resume", "Resumes playback", "play", PlaybackManager.resume, "", "resume",
+                             Command("Resume", "Resumes playback", "play", PlaybackManager.resume, "", "resume",
                                          "exe"),
                              RepeatCommand(),
-                             BaseCommand("Skip", "Skips to the next song", "forward", PlaybackManager.skip, "", "skip",
+                             Command("Skip", "Skips to the next song", "forward", PlaybackManager.skip, "", "skip",
                                          "exe"),
-                             BaseCommand("Previous", "Plays the previous song", "backward", PlaybackManager.previous,
+                             Command("Previous", "Plays the previous song", "backward", PlaybackManager.previous,
                                          "", "previous", "exe"),
-                             BaseCommand("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
+                             Command("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
                                          "exe"),
-                             BaseCommand("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
+                             Command("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
                                          "exe"),
-                             BaseCommand("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")
+                             Command("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe"),
+                             Command("Title", "Description", "", lambda: None, "", "example", "none")
                              ]
-        self.sp = sp
         self.manager = PlaybackManager(sp, queue)
         self.manager.set_device("")  # Sets default device
         CacheHolder.reload_holder("all")
@@ -65,13 +67,15 @@ class CommandHandler:
         for command in self.command_list:
             prefix = command.prefix
             if len(text) <= len(prefix):
-                if prefix == text and type(command).__name__ == "Menu":
+                if prefix == text and issubclass(command.__class__, Menu):
+                    print("this went through here")
                     suggestions.extend(command.get_items(text))
                 elif prefix.startswith(text):
                     suggestions.extend(command.get_items())
             else:
                 if text.startswith(prefix):
                     parameter = text[len(prefix):]
+                    print(command.title)
                     suggestions.extend(command.get_items(parameter))
         if not suggestions:  # gets song suggestions if no other matches are found
             suggestions = self.command_list[0].get_items(text)

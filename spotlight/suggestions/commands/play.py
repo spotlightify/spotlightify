@@ -1,4 +1,4 @@
-from spotlight.suggestions.commands.base import BaseCommand
+from spotlight.suggestions.commands.command import Command
 from spotlight.suggestions.suggestion import Suggestion
 from caching.holder import CacheHolder
 from spotlight.suggestions.items.play import SongItem, QueueItem, PlaylistItem, AlbumItem, ArtistItem
@@ -6,10 +6,10 @@ from spotlight.suggestions.items.template_items import FillItem, WarningItem
 from spotlight.manager.manager import PlaybackManager
 
 
-class PlayCommand(BaseCommand):
+class PlayCommand(Command):
     def __init__(self, title: str, description: str, icon: str, function: classmethod, parameter: str, prefix: str,
                  setting: str, _type: str):
-        BaseCommand.__init__(self, title, description, icon, function, parameter, prefix, setting)
+        Command.__init__(self, title, description, icon, function, parameter, prefix, setting)
         self._type = _type
 
     def get_items(self, parameter=""):

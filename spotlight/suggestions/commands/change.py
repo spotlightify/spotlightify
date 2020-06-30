@@ -1,4 +1,4 @@
-from spotlight.suggestions.commands.base import BaseCommand
+from spotlight.suggestions.commands.command import Command
 from spotlight.suggestions.suggestion import Suggestion
 from spotlight.suggestions.menu import Menu
 from spotlight.manager.manager import PlaybackManager
@@ -7,9 +7,9 @@ from spotipy import Spotify
 
 # Dedicated to suggestions which change
 
-class ShuffleCommand(BaseCommand):
+class ShuffleCommand(Command):
     def __init__(self, sp: Spotify):
-        BaseCommand.__init__(self, "Shuffle", "Change Shuffle State", "shuffle", PlaybackManager.toggle_shuffle, "",
+        Command.__init__(self, "Shuffle", "Change Shuffle State", "shuffle", PlaybackManager.toggle_shuffle, "",
                                "shuffle", "exe")
         self.sp = sp
         # The rate limiter requires the same is_song_liked method to run for it to properly limit API requests
@@ -21,10 +21,10 @@ class ShuffleCommand(BaseCommand):
         return super(ShuffleCommand, self).get_items(parameter)
 
 
-class LikeCommand(BaseCommand):
+class LikeCommand(Command):
     def __init__(self, sp: Spotify):
-        BaseCommand.__init__(self, "Like", "Add the current song to your liked songs", "heart",
-                            PlaybackManager.toggle_like_song, "", "like", "exe")
+        Command.__init__(self, "Like", "Add the current song to your liked songs", "heart",
+                         PlaybackManager.toggle_like_song, "", "like", "exe")
         self.sp = sp
         # The rate limiter requires the same is_song_liked method to run for it to properly limit API requests
         self.liked = CheckFunctions(self.sp).is_song_liked
@@ -46,4 +46,4 @@ class RepeatItem(Suggestion):
     def __init__(self, state: str):
         title = f"{state[0].upper()}{state[1:]}"
         description = f"Set repeat state to {state}"
-        Suggestion.__init__(self, title, description, "repeat", PlaybackManager.toggle_repeat, state, "exe")
+        Suggestion.__init__(self, title, description, "repeat", PlaybackManager.toggle_repeat, "", state, "exe")
