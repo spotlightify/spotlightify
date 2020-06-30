@@ -68,7 +68,6 @@ class CommandHandler:
             prefix = command.prefix
             if len(text) <= len(prefix):
                 if prefix == text and issubclass(command.__class__, Menu):
-                    print("this went through here")
                     suggestions.extend(command.get_items(text))
                 elif prefix.startswith(text):
                     suggestions.extend(command.get_items())
