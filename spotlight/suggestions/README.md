@@ -16,7 +16,7 @@ The following image shows a **Command Suggestion** as it is invoked via typing i
 
 To understand how the suggestion is formed, it is important to understand the variables used inside of a base suggestion.
 
-####Suggestion Object
+#### Suggestion Object
 ![example suggestion](../../assets/img/SuggestionClassDiagram.jpg)
 
 - `title`: The larger string displayed on the visual Suggestion example shown above
