@@ -1,5 +1,6 @@
 from spotipy import Spotify
 
+from spotlight.suggestions.items.item import Item
 from spotlight.suggestions.items.template_items import WarningItem, WarningFillItem
 from spotlight.suggestions.menu import Menu
 from spotlight.manager.misc import MiscFunctions
@@ -24,6 +25,6 @@ class DeviceCommand(Menu):
                 self.add_menu_item(DeviceItem(device["name"], device["type"], device["id"]))
 
 
-class DeviceItem(Suggestion):
+class DeviceItem(Item):
     def __init__(self, name, type, id_):
-        Suggestion.__init__(self, name, type, "device", PlaybackManager.set_device, "", id_, "exe")
+        Item.__init__(self, name, type, "device", PlaybackManager.set_device, "", id_, "exe")

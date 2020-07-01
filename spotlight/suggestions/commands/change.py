@@ -1,4 +1,5 @@
 from spotlight.suggestions.commands.command import Command
+from spotlight.suggestions.items.item import Item
 from spotlight.suggestions.suggestion import Suggestion
 from spotlight.suggestions.menu import Menu
 from spotlight.manager.manager import PlaybackManager
@@ -42,8 +43,8 @@ class RepeatCommand(Menu):
         Menu.__init__(self, "Repeat", "Change the repeat state of your spotify player", "repeat", "repeat", items)
 
 
-class RepeatItem(Suggestion):
+class RepeatItem(Item):
     def __init__(self, state: str):
         title = f"{state[0].upper()}{state[1:]}"
         description = f"Set repeat state to {state}"
-        Suggestion.__init__(self, title, description, "repeat", PlaybackManager.toggle_repeat, "", state, "exe")
+        Item.__init__(self, title, description, "repeat", PlaybackManager.toggle_repeat, "", state, "exe")
