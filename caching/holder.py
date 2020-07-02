@@ -52,17 +52,17 @@ class CacheHolder:
             if _type == "artist" or _type == "all":
                 with open(artist_cache_file_path, 'r') as f:
                     CacheHolder.artist_cache = json.load(f)
-                    sort(CacheHolder.song_cache, "artists")
+                    sort(CacheHolder.artist_cache, "artists")
             # load cached albums
             if _type == "album" or _type == "all":
                 with open(album_cache_file_path, 'r') as f:
                     CacheHolder.album_cache = json.load(f)
-                    sort(CacheHolder.song_cache, "albums")
+                    sort(CacheHolder.album_cache, "albums")
             # load cached playlists
             if _type == "playlist" or _type == "all":
                 with open(playlist_cache_file_path, 'r') as f:
                     CacheHolder.playlist_cache = json.load(f)
-                    sort(CacheHolder.song_cache, "playlists")
+                    sort(CacheHolder.playlist_cache, "playlists")
         except:
             None  # First time startup with no cache, TODO make the except more precise
 
