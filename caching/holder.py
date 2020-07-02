@@ -7,10 +7,10 @@ from definitions import CACHE_DIR
 class CacheHolder:
     """Holds cached data
     """
-    playlist_cache = {"length": 0, "playlists": [] }
-    song_cache = {"length": 0, "songs": [] }
-    artist_cache = {"length": 0, "artist": [] }
-    album_cache = {"length": 0, "playlists": [] }
+    playlist_cache = {"length": 0, "playlists": {} }
+    song_cache = {"length": 0, "songs": {} }
+    artist_cache = {"length": 0, "artist": {} }
+    album_cache = {"length": 0, "playlists": {} }
     last_refresh = datetime.now()
 
     @staticmethod
@@ -33,24 +33,38 @@ class CacheHolder:
         :return:
         '''
         # load cached songs
+        def sort(cache: dict, type: str):
+            """
+            Sorts dictionary items into alphabetical order
+            :param cache:
+            :param type:
+            :return:
+            """
+            items = cache[type]
+            cache[type] = dict(sorted(items.items(), key=lambda x: x[1]['name']))
+
         try:
             if _type == "song" or _type == "all":
                 with open(song_cache_file_path, 'r') as f:
                     CacheHolder.song_cache = json.load(f)
-            # load cached artists
+                    sort(CacheHolder.song_cache, "songs")
+                    # load cached artists
             if _type == "artist" or _type == "all":
                 with open(artist_cache_file_path, 'r') as f:
                     CacheHolder.artist_cache = json.load(f)
+                    sort(CacheHolder.song_cache, "artists")
             # load cached albums
             if _type == "album" or _type == "all":
                 with open(album_cache_file_path, 'r') as f:
                     CacheHolder.album_cache = json.load(f)
+                    sort(CacheHolder.song_cache, "albums")
             # load cached playlists
             if _type == "playlist" or _type == "all":
                 with open(playlist_cache_file_path, 'r') as f:
                     CacheHolder.playlist_cache = json.load(f)
+                    sort(CacheHolder.song_cache, "playlists")
         except:
-            None  # First time startup with no cache
+            None  # First time startup with no cache, TODO make the except more precise
 
 
 # Cached file paths
