@@ -52,7 +52,7 @@ class PlayFunctions:
                 uris.append(track["track"]["uri"])
             self.sp.start_playback(uris=uris)
         except:
-            print("[ERROR] Could not play liked music")
+            print("[Error] Could not play liked music")
 
     def queue_uri(self, uri: str):
         try:

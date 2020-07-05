@@ -84,7 +84,6 @@ class PlaybackManager:
         if format_ == "uri":
             self._play.uri(id_)
         else:
-            print("this ran")
             self._play.id(id_, item_type)
 
     def play_liked(self):

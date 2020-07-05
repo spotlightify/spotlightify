@@ -78,7 +78,6 @@ class CommandHandler:
         if not suggestions:  # gets song suggestions if no other matches are found
             self.command_list[0].parameter = text
             suggestions = self.command_list[0].get_items()
-        print(text + "- - -" + str(suggestions))
         return suggestions
 
     def perform_command(self, command: Suggestion):

@@ -14,7 +14,6 @@ class PlayCommand(Command):
 
     def get_items(self):
         parameter = self.parameter
-        print(parameter)
         suggestions = [self]
         if parameter != "":
             try:

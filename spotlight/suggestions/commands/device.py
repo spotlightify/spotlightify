@@ -16,7 +16,6 @@ class DeviceCommand(Menu):
     def refresh_items(self):
         devices = MiscFunctions(self.sp).get_device_list()
         self.clear_menu_items()
-        print("this ran")
         if not devices:
             self.add_menu_item(
                 WarningItem("No devices currently available", "Make sure the Spotify desktop app is open"))
