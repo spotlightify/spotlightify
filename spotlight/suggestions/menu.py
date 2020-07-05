@@ -22,14 +22,14 @@ class Menu(Command):
     def clear_menu_items(self):
         self.menu_items = []
 
-    def get_items(self, prompt_text="") -> list:
+    def get_items(self, match: bool) -> list:
         """
 
         :param prompt_text: This is the whole text that has been typed into the prompt. NOT just what comes after the prefix
         :return:
         """
-        if self.prefix != prompt_text:
-            return super(Menu, self).get_items("")
+        if not match:
+            return super(Menu, self).get_items()
         else:
             self.refresh_items()
             return self.menu_items

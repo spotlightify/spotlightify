@@ -16,10 +16,10 @@ class ShuffleCommand(Command):
         # The rate limiter requires the same is_song_liked method to run for it to properly limit API requests
         self.check_shuffle = CheckFunctions(self.sp).is_shuffle_on
 
-    def get_items(self, parameter="") -> list:
+    def get_items(self) -> list:
         shuffle = self.check_shuffle()
         self.description = "Shuffle is ON. Click to turn OFF" if shuffle else "Shuffle is OFF. Click to turn ON"
-        return super(ShuffleCommand, self).get_items(parameter)
+        return super(ShuffleCommand, self).get_items()
 
 
 class LikeCommand(Command):
@@ -30,11 +30,11 @@ class LikeCommand(Command):
         # The rate limiter requires the same is_song_liked method to run for it to properly limit API requests
         self.liked = CheckFunctions(self.sp).is_song_liked
 
-    def get_items(self, parameter="") -> list:
+    def get_items(self) -> list:
         liked = self.liked()
         self.description = "Remove the current song from your Liked Songs" if liked else "Save the current song to your Liked Songs"
         self.icon_name = "heart" if liked else "heart-no-fill"
-        return super(LikeCommand, self).get_items(parameter)
+        return super(LikeCommand, self).get_items()
 
 
 class RepeatCommand(Menu):

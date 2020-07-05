@@ -6,5 +6,5 @@ class Command(Suggestion):
                  prefix: str, setting: str):
         Suggestion.__init__(self, title, description, icon_name, function, prefix, parameter, setting)
 
-    def get_items(self, parameter="") -> list:
+    def get_items(self) -> list:
         return [self]

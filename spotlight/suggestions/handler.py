@@ -66,18 +66,19 @@ class CommandHandler:
         suggestions = []
         for command in self.command_list:
             prefix = command.prefix
-            if len(text) <= len(prefix):
-                if prefix == text and issubclass(command.__class__, Menu):
-                    suggestions.extend(command.get_items(text))
-                elif prefix.startswith(text):
+            if prefix.startswith(text) or text.startswith(prefix): #and prefix <= text:
+                if issubclass(command.__class__, Menu):
+                    suggestions.extend(command.get_items(True if command.prefix == text else False))
+                else:
+                    if text > prefix:
+                        command.parameter = text[len(prefix):]
+                    else:
+                        command.parameter = ""
                     suggestions.extend(command.get_items())
-            else:
-                if text.startswith(prefix):
-                    parameter = text[len(prefix):]
-                    print(command.title)
-                    suggestions.extend(command.get_items(parameter))
         if not suggestions:  # gets song suggestions if no other matches are found
-            suggestions = self.command_list[0].get_items(text)
+            self.command_list[0].parameter = text
+            suggestions = self.command_list[0].get_items()
+        print(text + "- - -" + str(suggestions))
         return suggestions
 
     def perform_command(self, command: Suggestion):

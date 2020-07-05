@@ -44,12 +44,13 @@ class OnlineCommand(Command):
         self.icon = icon
         self.sp = sp
 
-    def get_items(self, parameter="") -> list:
+    def get_items(self) -> list:
         """
         Overrides BaseCommand get_dicts method
         :param parameter: This is the str that comes after the prefix
         :return: Returns a list of command dictionaries of items from the online search
         """
+        parameter = self.parameter
         command_list = [self]
         if parameter != "":
             try:

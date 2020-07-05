@@ -12,7 +12,9 @@ class PlayCommand(Command):
         Command.__init__(self, title, description, icon, function, parameter, prefix, setting)
         self._type = _type
 
-    def get_items(self, parameter=""):
+    def get_items(self):
+        parameter = self.parameter
+        print(parameter)
         suggestions = [self]
         if parameter != "":
             try:
