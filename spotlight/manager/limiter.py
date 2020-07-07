@@ -21,9 +21,9 @@ class Limiter:
                     prev_obj = items["prev_return_obj"]
                     time_passed = (datetime.now() - last_check).total_seconds()
                     if time_passed > time:
-                        prev_obj = func(*args, **kwargs)
+                        items["prev_return_obj"] = func(*args, **kwargs)
                         items["last_check"] = datetime.now()
-                        return prev_obj
+                        return items["prev_return_obj"]
                     else:
                         return prev_obj
                 except:

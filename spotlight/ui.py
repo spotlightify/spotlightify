@@ -1,7 +1,10 @@
 from os import sep
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
-from spotlight.commands.handler import CommandHandler
+
+from spotlight.suggestions.menu import Menu
+from spotlight.suggestions.suggestion import Suggestion
+from spotlight.suggestions.handler import CommandHandler
 from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
 from spotipy import Spotify
@@ -30,7 +33,7 @@ class Ui(QWidget):
         self.setWindowOpacity(0.9)
         # global styling
         self.custom_font = QtGui.QFont("SF Pro Display light")
-        # For cycling through previous commands
+        # For cycling through previous suggestions
         self.previous_commands = [""]
         self.command_position = 0
         # needed for adding suggestion rows
@@ -59,10 +62,10 @@ class Ui(QWidget):
         self.textbox.resize(481, 41)
         self.textbox.installEventFilter(self)
         self.textbox.setStyleSheet(f'''
-                        QLineEdit 
+                        QLineEdit
                         {{
                             border: 0;
-                            background: {self.active_theme["bg"]}; 
+                            background: {self.active_theme["bg"]};
                             color: {self.active_theme["text"]};
                             font-size: 25px;
                             border-radius: 2px;
@@ -83,7 +86,7 @@ class Ui(QWidget):
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
-                self.suggest_row_handler(source.command_dict)
+                self.suggest_row_handler(source.command)
         if (event.type() == QtCore.QEvent.FocusOut and
                 source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
             self.textbox.clear()
@@ -134,7 +137,7 @@ class Ui(QWidget):
     def textbox_return_pressed_handler(self):
         self.store_previous_command()
         if self.current_num_of_rows != 0:
-            self.suggest_row_handler(self.rows[0].command_dict)
+            self.suggest_row_handler(self.rows[0].command)
         elif self.exit == 1:
             exit()
         else:
@@ -145,8 +148,8 @@ class Ui(QWidget):
         self.previous_commands.append("")
         self.command_position = len(self.previous_commands) - 1
 
-    def keyPressEvent(self, event):
-        # code for going back through recently executed commands
+    def keyPresskeyPressEvent(self, event):
+        # code for going back through recently executed suggestions
         if event.key() == QtCore.Qt.Key_Up:
             length = len(self.previous_commands)
             if length - 1 >= self.command_position != 0:
@@ -165,7 +168,7 @@ class Ui(QWidget):
     def add_row(self, row_num, command):
         if self.rows[row_num] != 0 and self.current_num_of_rows != 0:
             self.rows[row_num].setFocusPolicy(QtCore.Qt.NoFocus)
-            self.rows[row_num].hide()
+            self.rows[row_num].deleteLater()
         self.rows[row_num] = SuggestRow(self, command)
         self.rows[row_num].clicked.connect(lambda: self.suggest_row_handler(command))
         self.rows[row_num].setFocusPolicy(QtCore.Qt.TabFocus)
@@ -178,16 +181,17 @@ class Ui(QWidget):
         self.current_num_of_rows = row_num + 1
 
     def suggest_row_handler(self, command):
-        if command["setting"] == "fill":
-            self.textbox.setText(command["prefix"])
+        if command.setting == "fill":
+            self.textbox.setText(command.prefix)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif command["setting"] == "list":
-            self.textbox.setText(command["prefix"])
-            self.suggestion_creation(command["parameter"])
+        elif isinstance(command, Menu):
+            self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
+            command.refresh_items()
+            self.suggestion_creation(command.menu_items)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif command["setting"] == "none":
+        elif command.setting == "none":
             return
         else:
             self.store_previous_command()
@@ -200,17 +204,17 @@ class Ui(QWidget):
         matched_commands = self.command_handler.get_command_suggestions(term)
         self.suggestion_creation(matched_commands)
 
-    def suggestion_creation(self, matched_commands):
-        length = len(matched_commands)
+    def suggestion_creation(self, command_list: list):
+        length = len(command_list)
         self.dynamic_resize(length)
         if length != 0:
             for row in range(0, length):
-                command = matched_commands[row]
+                command = command_list[row] # changes to dictionary form
                 self.add_row(row, command)
         else:
             self.current_num_of_rows = 0
 
-    def dynamic_resize(self, size):  # size is int between 1 and 6
+    def dynamic_resize(self, size):  # size is int between 0 and 6
         height = 57
         if 0 <= size <= 6:
             if self.function_row.isHidden():
@@ -227,7 +231,3 @@ def position_app():
     to_sub = QtCore.QPoint(270, height / 3)
     center = coord.__sub__(to_sub)
     return center
-
-
-def exit_app(parent):
-    parent.exit = 1

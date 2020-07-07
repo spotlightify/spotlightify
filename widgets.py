@@ -1,5 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
+
+from spotlight.suggestions.suggestion import Suggestion
 from spotlight.manager import check, toggle, playback
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap
@@ -94,7 +96,7 @@ class SvgButton(QPushButton):
 
 
 class SuggestRow(QPushButton):
-    def __init__(self, parent, command_dict):
+    def __init__(self, parent, command: Suggestion):
         QWidget.__init__(self, parent)
         # gets the current theme
         self.active_theme = parent.active_theme
@@ -104,10 +106,10 @@ class SuggestRow(QPushButton):
         height, width = [parent.width(), 114]
         self.resize(height, width)
         # makes command dictionary a class variable
-        self.command_dict = command_dict  # Stores information about the command the row will hold
+        self.command = command # Stores information about the command the row will hold
         # widget creation
         self.icon = None  # This can either be an svg or jpg file
-        icon_path = command_dict["icon"]  # gets the icon path
+        icon_path = self.command.icon_name  # gets the icon path
         if "svg" in icon_path:
             self.icon = QSvgWidget(self)
             self.icon.load(icon_path)
@@ -116,14 +118,14 @@ class SuggestRow(QPushButton):
             icon = QLabel(self)
             icon.setPixmap(pixmap)
             self.icon = icon
-        self.title_lbl = QLabel(command_dict["title"], self)
-        self.description_lbl = QLabel(command_dict["description"], self)
+        self.title_lbl = QLabel(self.command.title, self)
+        self.description_lbl = QLabel(self.command.description, self)
         self.set_style()
 
     def set_style(self):
         # TODO: Add support for theming for icon and layout scalability components
         # set style and location of icon
-        if "svg" in self.command_dict["icon"]:  # different location and sizes depending on icon type
+        if "svg" in self.command.icon_name:  # different location and sizes depending on icon type
             self.icon.move(18, 18)
             self.icon.resize(20, 20)
             self.icon.setStyleSheet("background-color: rgba(0,0,0,0%);")
@@ -145,11 +147,11 @@ class SuggestRow(QPushButton):
         self.description_lbl.setFont(self.custom_font)
         # style for widget
         self.setStyleSheet('''
-        QPushButton {      
+        QPushButton {
             border: none;
         }
         QPushButton:hover {
-            background-color: #251e1e;     
+            background-color: #251e1e;
         }
         QPushButton:hover:focus {
             background-color: #322828;
@@ -159,7 +161,3 @@ class SuggestRow(QPushButton):
             outline: 0px
         }
         ''')
-
-
-def set_theme(active_theme, row_input, row_function_buttons):
-    pass
