@@ -66,7 +66,7 @@ class CommandHandler:
         suggestions = []
         for command in self.command_list:
             prefix = command.prefix
-            if prefix.startswith(text) or text.startswith(prefix): #and prefix <= text:
+            if prefix.startswith(text) or text.startswith(prefix):
                 if issubclass(command.__class__, Menu):
                     if len(prefix) >= len(text):
                         suggestions.extend(command.get_items(True if command.prefix == text else False))
