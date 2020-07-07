@@ -63,6 +63,10 @@ class CacheHolder:
                 with open(playlist_cache_file_path, 'r') as f:
                     CacheHolder.playlist_cache = json.load(f)
                     sort(CacheHolder.playlist_cache, "playlists")
+            # load cache liked tracks
+            if _type == "liked" or _type == "all":
+                with open(liked_cache_file_path, 'r') as f:
+                    CacheHolder.liked_cache = json.load(f)
         except:
             None  # First time startup with no cache, TODO make the except more precise
 
@@ -72,4 +76,5 @@ song_cache_file_path = f"{CACHE_DIR}songs.json"
 playlist_cache_file_path = f"{CACHE_DIR}playlists.json"
 album_cache_file_path = f"{CACHE_DIR}albums.json"
 artist_cache_file_path = f"{CACHE_DIR}artists.json"
+liked_cache_file_path = f"{CACHE_DIR}liked.json"
 album_art_path = f"{CACHE_DIR}art{sep}"
