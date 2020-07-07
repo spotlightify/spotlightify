@@ -1,7 +1,7 @@
 from queue import Queue
 from random import sample
 import spotipy
-from spotlight.commands.holder import CacheHolder
+from caching.holder import CacheHolder
 
 
 class PlayFunctions:
