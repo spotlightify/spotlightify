@@ -53,10 +53,10 @@ pip install -r requirements.txt
 #### Linux
 
 ```
-sudo apt-get install python3-pyqt5
 cd path/to/spotlightify-root
 python3 -m venv venv
 . venv/bin/activate
+sudo apt-get install python3-pyqt5
 pip3 install -r requirements.txt
 ```
 
