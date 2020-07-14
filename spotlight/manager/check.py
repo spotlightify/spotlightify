@@ -1,4 +1,5 @@
 import spotipy
+from spotlight.manager.limiter import Limiter
 
 
 class CheckFunctions:
@@ -11,12 +12,14 @@ class CheckFunctions:
         except:
             return False
 
+    @Limiter.rate_limiter(seconds=2)
     def is_shuffle_on(self) -> bool:
         try:
             return self.sp.current_playback()["shuffle_state"]
         except:
             return False
 
+    @Limiter.rate_limiter(seconds=2)
     def is_song_liked(self) -> bool:
         try:
             current_song = self.sp.currently_playing()["item"]
@@ -26,7 +29,8 @@ class CheckFunctions:
                 return False
         except:
             return False
-    
+
+    @Limiter.rate_limiter(seconds=2)
     def repeat_state(self) -> str:
         """Returns a string describing the current state of repeat
 
@@ -46,7 +50,7 @@ class CheckFunctions:
         :return:
         '''
         if item_type == "song":
-            if "spotify:song:" in id_:
+            if "spotify:track:" in id_:
                 return "uri"
             elif len(id_) == 22 and " " not in id_:
                 return "id"

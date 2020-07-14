@@ -53,10 +53,10 @@ pip install -r requirements.txt
 #### Linux
 
 ```
-sudo apt-get install python3-pyqt5
 cd path/to/spotlightify-root
 python3 -m venv venv
 . venv/bin/activate
+sudo apt-get install python3-pyqt5
 pip3 install -r requirements.txt
 ```
 
@@ -65,22 +65,26 @@ pip3 install -r requirements.txt
 Run `app.py` to start the application. The GUI is activated by using the shortcut `ctrl + space`. Here is the current list of available functions:
 
 ```
-| Name     | Description                      | Prefix        | Parameter     |
-|----------|----------------------------------|---------------|---------------|
-| Play     | Plays a song                     | play          | song name     |
-| Queue    | Queues a song                    | queue         | song name     |
-| Playlist | Plays a saved/followed playlist  | playlist      | playlist name |
-| Liked    | Plays saved/liked music          | liked         | None          |
-| Volume   | Changes music volume             | volume        | 1 - 100       |
-| Go to    | Seeks a position in a song       | goto          | e.g. 1:24     |
-| Resume   | Resumes music playback           | resume, start | None          |
-| Skip     | Skips the current song           | skip, next    | None          |
-| Previous | Plays pervious song              | previous      | None          |
-| Pause    | Pauses music playback            | pause         | None          |
-| Shuffle  | Toggles shuffle playback         | shuffle       | None          |
-| Device   | Select device for music playback | device        | None          |
-| Repeat   | Toggles repeating modes          | repeat        | None          |
-| Exit     | Exits the application            | exit          | None          |
+| Name     | Description                                | Prefix            | Parameter     |
+|----------|--------------------------------------------|-------------------|---------------|
+| Play     | Plays a song                               | play              | song name     |
+| Queue    | Queues a song                              | queue             | song name     |
+| Playlist | Plays a saved/followed playlist            | playlist          | playlist name |
+| Album    | Plays a saved album                        | album             | album name    |
+| Artist   | Plays songs from a saved/followed artist   | artist            | artist name   |
+| Liked    | Plays saved/liked music                    | liked             | None          |
+| Volume   | Changes music volume                       | volume            | 1 - 10        |
+| Go to    | Seeks a position in a song                 | goto              | e.g. 1:24     |
+| Resume   | Resumes music playback                     | resume, start     | None          |
+| Skip     | Skips the current song                     | skip, next        | None          |
+| Previous | Plays pervious song                        | previous          | None          |
+| Pause    | Pauses music playback                      | pause             | None          |
+| Shuffle  | Toggles shuffle playback                   | shuffle           | None          |
+| Device   | Select device for music playback           | device            | None          |
+| Repeat   | Toggles repeating modes                    | repeat            | None          |
+| Current  | Provides currently playing song info       | currently playing | None          |
+| Share    | Copies the current song's URL to clipboard | share             | None          |
+| Exit     | Exits the application                      | exit              | None          |
 ```
 
 **On first start up, Spotlightify will cache all of your liked and playlist songs, caching both song information and album art. So keep the app open for at least 10 minutes so that all your songs can be cached.**

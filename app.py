@@ -13,6 +13,7 @@ from shortcuts import listener
 from spotlight import SpotlightUI
 from colors import colors
 from definitions import ASSETS_DIR
+
 from caching import CacheManager, SongQueue, ImageQueue
 from auth import Config, AuthUI
 from settings import Theme, default_themes
@@ -137,6 +138,7 @@ class App:
         ui.raise_()
         ui.activateWindow()
         ui.function_row.refresh(None)  # refreshes function row button icons
+
 
         if "Windows" in platform():
             focus_windows()

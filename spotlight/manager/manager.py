@@ -35,8 +35,8 @@ class PlaybackManager:
     def toggle_shuffle(self):
         self._toggle.shuffle()
 
-    def toggle_repeat(self):
-        self._toggle.repeat()
+    def toggle_repeat(self, state="cycle"):
+        self._toggle.repeat(state)
 
     def queue_song(self, id_: str):
         """
@@ -115,7 +115,7 @@ class PlaybackManager:
 
     def current_song(self) -> dict:
         return self._playback.get_current_song_info()
-    
+
     def copy_url_to_clipboard(self):
         clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
 
