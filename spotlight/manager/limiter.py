@@ -31,5 +31,4 @@ class Limiter:
                     limited_methods[func_name] = {"prev_return_obj": new_obj, "last_check": datetime.now()}
                     return new_obj
             return wrapped
-
         return inner_decorator

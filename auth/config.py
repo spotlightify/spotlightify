@@ -14,7 +14,6 @@ scopes = [
     "user-follow-read"
 ]
 
-
 class Config:
     def __init__(self):
         self._username = ""
@@ -123,3 +122,6 @@ class Config:
         self._client_secret = client_secret
         self._redirect_uri = redirect_uri
         self.save_json()
+
+
+config = Config()

@@ -15,7 +15,7 @@ from colors import colors
 from definitions import ASSETS_DIR
 
 from caching import CacheManager, SongQueue, ImageQueue
-from auth import Config, AuthUI
+from auth import Config, AuthUI, config
 from settings import Theme, default_themes
 from ui import UIEventQueue, UIManager
 
@@ -34,14 +34,12 @@ class App:
         self.action_open = None
         self.action_exit = None
 
-        self.config = Config()
+        self.config = config
 
         self.ui_event_queue = UIEventQueue()
         self.ui_manager = UIManager(self.ui_event_queue)
 
         self.spotlight = None
-        self.auth_ui = AuthUI(self.config)
-
         self.spotify = None
         self.oauth = None
 
@@ -60,9 +58,10 @@ class App:
         print(self.config.username)
         if not valid:
             print("invalid cfg")
+            auth_ui = AuthUI()
             while not valid:
-                if not self.auth_ui.isVisible():
-                    self.auth_ui.show()
+                if not auth_ui.isVisible():
+                    auth_ui.show()
                 # sleep(1)
 
         try:
@@ -105,15 +104,6 @@ class App:
         self.tray.setContextMenu(self.tray_menu)
         self.tray.activated.connect(lambda reason: self.show_spotlight(reason=reason))
 
-    def refresh_token(self):
-        try:
-            current_token = self.oauth.get_access_token()
-            if self.oauth.is_token_expired(token_info=current_token):
-                token = self.oauth.refresh_access_token(current_token["refresh_token"])
-                self.spotify = Spotify(auth=token["access_token"])
-        except:
-            print("[WARNING] Could not refresh user API token")
-
     def show_spotlight(self, **kwargs):
         def focus_windows(): # Only way to focus UI on Windows
             mouse = Controller()
@@ -138,10 +128,21 @@ class App:
         ui.raise_()
         ui.activateWindow()
         ui.function_row.refresh(None)  # refreshes function row button icons
+        self.refresh_token()
 
 
         if "Windows" in platform():
             focus_windows()
+
+
+    def refresh_token(self):
+        try:
+            current_token = self.oauth.get_access_token()
+            if self.oauth.is_token_expired(token_info=current_token):
+                token = self.oauth.refresh_access_token(current_token["refresh_token"])
+                self.spotify = Spotify(auth=token["access_token"])
+        except:
+            print("[WARNING] Could not refresh user API token")
 
     @staticmethod
     def exit():

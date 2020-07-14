@@ -1,6 +1,7 @@
 from queue import Queue
 from spotipy import Spotify
 
+from auth import AuthUI
 from spotlight.suggestions.commands.command import Command
 from spotlight.suggestions.menu import Menu
 from spotlight.suggestions.suggestion import Suggestion
@@ -17,6 +18,7 @@ from spotlight.manager.manager import PlaybackManager
 class CommandHandler:
     def __init__(self, sp: Spotify, queue: Queue):
         self.sp = sp
+        self.auth_ui = AuthUI()
         self.command_list = [SongCommand(),
                              QueueCommand(),
                              PlaylistCommand(),
@@ -25,6 +27,8 @@ class CommandHandler:
                              PlayingCommand(sp),
                              ShuffleCommand(sp),
                              LikeCommand(sp),
+                             Command("Authentication", "Enter Spotify API details", "cog", lambda: None,
+                                     "", "authentication", "exe"),
                              OnlineCommand(sp, type="song"),
                              OnlineCommand(sp, type="queue"),
                              OnlineCommand(sp, type="artist"),
@@ -88,7 +92,9 @@ class CommandHandler:
         :return:
         """
         try:
-            if command.parameter == "":
+            if command.title == "Authentication":
+                self.auth_ui.show()
+            elif command.parameter == "":
                 command.function(self.manager)
             else:
                 command.function(self.manager, command.parameter)

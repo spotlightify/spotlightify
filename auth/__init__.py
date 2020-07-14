@@ -1,2 +1,2 @@
-from auth.config import Config
+from auth.config import Config, config
 from auth.ui import AuthUI

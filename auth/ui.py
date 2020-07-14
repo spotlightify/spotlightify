@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QWidget, QLa
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QFont, QIcon
 
+from auth.config import config
 from settings.themes import default_themes
 from definitions import ASSETS_DIR
 from os import sep
@@ -10,16 +11,16 @@ from auth import Config
 
 
 class AuthUI(QDialog):
-    def __init__(self, config: Config):
+    def __init__(self):
         QDialog.__init__(self, None, Qt.WindowTitleHint)
 
         self.config = config
 
         self.cfg = {
-            "username": config.username,
-            "client_id": config.client_id,
-            "client_secret": config.client_secret,
-            "redirect_uri": config.redirect_uri
+            "username": self.config.username,
+            "client_id": self.config.client_id,
+            "client_secret": self.config.client_secret,
+            "redirect_uri": self.config.redirect_uri
         }
 
         self.setWindowModality(Qt.ApplicationModal)
