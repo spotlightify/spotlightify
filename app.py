@@ -2,9 +2,11 @@ from os import sep, kill, getpid
 from threading import Thread
 from time import sleep
 from sys import exit
+from platform import platform
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
+from pynput.mouse import Controller, Button
 from spotipy import Spotify
 
 from shortcuts import listener
@@ -46,8 +48,8 @@ class App:
         self.song_queue = None
         self.image_queue = None
         self.cache_manager = None
-        a = AuthUI(self.config)
-        self.ui_manager.add("auth", a)
+        # a = AuthUI(self.config)
+        # self.ui_manager.add("auth", self.auth_ui)
 
         self.run()
 
@@ -67,8 +69,9 @@ class App:
             self.oauth = self.config.get_oauth()
             token = self.oauth.get_access_token(as_dict=True)["access_token"]
             self.spotify = Spotify(auth=token)
+            self.spotlight = SpotlightUI(self.spotify, self.song_queue)
 
-            self.ui_manager.add("spotlight", SpotlightUI(self.spotify, self.song_queue))
+            # self.ui_manager.add("spotlight", SpotlightUI(self.spotify, self.song_queue))
 
             self.init_tray()
 
@@ -76,7 +79,7 @@ class App:
             self.song_queue = SongQueue()
             self.image_queue = ImageQueue()
             self.cache_manager = CacheManager(self.spotify, self.song_queue, self.image_queue)
-
+            self.show_spotlight()
             self.app.exec_()
 
         except Exception as ex:
@@ -111,20 +114,32 @@ class App:
             print("[WARNING] Could not refresh user API token")
 
     def show_spotlight(self, **kwargs):
+        def focus_windows(): # Only way to focus UI on Windows
+            mouse = Controller()
+            # mouse position before focus
+            mouse_pos_before = mouse.position
+            # changing the mouse position for click
+            target_pos_x = ui.pos().x() + ui.textbox.pos().x()
+            target_pos_y = ui.pos().y() + ui.textbox.pos().y()
+            mouse.position = (target_pos_x, target_pos_y)
+            mouse.click(Button.left)
+            mouse.position = mouse_pos_before
+
+
         if kwargs and kwargs["reason"] != 3:
             # if kwargs contains "reason" this has been invoked by the tray icon being clicked
             # reason = 3 means the icon has been left-clicked, so anything other than a left click
             # should open the context menu
             return
 
-        self.ui_manager.show_ui("spotlight")
+        ui = self.spotlight
+        ui.show()
+        ui.raise_()
+        ui.activateWindow()
+        ui.function_row.refresh(None)  # refreshes function row button icons
 
-        # if not self.spotlight.isActiveWindow() or self.spotlight.isHidden():
-        #     self.spotlight.show()
-        #
-        # sleep(0.1)
-        # self.spotlight.raise_()
-        # self.spotlight.activateWindow()
+        if "Windows" in platform():
+            focus_windows()
 
     @staticmethod
     def exit():
