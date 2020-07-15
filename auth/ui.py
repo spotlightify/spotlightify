@@ -16,6 +16,8 @@ class AuthUI(QDialog):
 
         self.config = config
 
+        self.isCanceled = True
+
         self.cfg = {
             "username": self.config.username,
             "client_id": self.config.client_id,
@@ -45,14 +47,15 @@ class AuthUI(QDialog):
         self.buttonBox.setGeometry(QRect(10, 190, 300, 23))
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Save)
         self.buttonBox.accepted.connect(self.save_changes)
-        self.buttonBox.rejected.connect(self.hide)
+        self.buttonBox.rejected.connect(self.close)
 
     def save_changes(self):
         widgets = self.layout_widget.children()
         if all([w.text_complete for w in widgets]):
             self.config.set_all(self.cfg["username"], self.cfg["client_id"], self.cfg["client_secret"],
                                 self.cfg["redirect_uri"])
-            self.hide()
+            self.isCanceled = False
+            self.close()
         else:
             QMessageBox.warning(self, "Error", "The fields below have not been filled in correctly:\n" +
                                  '\n'.join([w.label.text() for w in widgets if not w.text_complete]), QMessageBox.Ok)

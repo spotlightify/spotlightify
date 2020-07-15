@@ -1,3 +1,4 @@
+import sys
 from os import sep, kill, getpid
 from threading import Thread
 from time import sleep
@@ -53,16 +54,16 @@ class App:
         self.run()
 
     def run(self):
-        valid = self.config.is_valid()
-        print(valid)
         print(self.config.username)
-        if not valid:
-            print("invalid cfg")
-            auth_ui = AuthUI()
-            while not valid:
-                if not auth_ui.isVisible():
-                    auth_ui.show()
-                # sleep(1)
+
+        app = QApplication([])
+        app.setQuitOnLastWindowClosed(True)
+        auth = AuthUI()
+        while not self.config.is_valid():
+            auth.show()
+            app.exec_()
+            if auth.isCanceled:
+                sys.exit()
 
         try:
             print("Starting auth process")
@@ -80,11 +81,11 @@ class App:
             self.image_queue = ImageQueue()
             self.cache_manager = CacheManager(self.spotify, self.song_queue, self.image_queue)
             self.show_spotlight()
-            self.app.exec_()
+            while True:
+                self.app.exec_()
 
         except Exception as ex:
             print(ex)
-            self.exit()
 
     def init_tray(self):
         self.tray_menu = QMenu()
