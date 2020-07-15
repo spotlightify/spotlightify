@@ -1,24 +1,21 @@
 import sys
 from os import sep, kill, getpid
-from threading import Thread
-from time import sleep
-from sys import exit
 from platform import platform
+from sys import exit
+from threading import Thread
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from pynput.mouse import Controller, Button
 from spotipy import Spotify
 
-from shortcuts import listener
-from spotlight import SpotlightUI
+from auth import AuthUI, config
+from caching import CacheManager, SongQueue, ImageQueue
 from colors import colors
 from definitions import ASSETS_DIR
-
-from caching import CacheManager, SongQueue, ImageQueue
-from auth import Config, AuthUI, config
-from settings import Theme, default_themes
-from ui import UIEventQueue, UIManager
+from settings import default_themes
+from shortcuts import listener
+from spotlight import SpotlightUI
 
 
 class App:
@@ -37,9 +34,6 @@ class App:
 
         self.config = config
 
-        self.ui_event_queue = UIEventQueue()
-        self.ui_manager = UIManager(self.ui_event_queue)
-
         self.spotlight = None
         self.spotify = None
         self.oauth = None
@@ -48,8 +42,6 @@ class App:
         self.song_queue = None
         self.image_queue = None
         self.cache_manager = None
-        # a = AuthUI(self.config)
-        # self.ui_manager.add("auth", self.auth_ui)
 
         self.run()
 
@@ -70,7 +62,6 @@ class App:
             self.oauth = self.config.get_oauth()
             token = self.oauth.get_access_token(as_dict=True)["access_token"]
             self.spotify = Spotify(auth=token)
-            self.spotlight = SpotlightUI(self.spotify, self.song_queue)
 
             # self.ui_manager.add("spotlight", SpotlightUI(self.spotify, self.song_queue))
 
@@ -80,6 +71,9 @@ class App:
             self.song_queue = SongQueue()
             self.image_queue = ImageQueue()
             self.cache_manager = CacheManager(self.spotify, self.song_queue, self.image_queue)
+
+            self.spotlight = SpotlightUI(self.spotify, self.song_queue)
+
             self.show_spotlight()
             while True:
                 self.app.exec_()

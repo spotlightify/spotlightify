@@ -1,9 +1,8 @@
-from spotlight.suggestions.commands.command import Command
-from spotlight.suggestions.suggestion import Suggestion
 from caching.holder import CacheHolder
+from spotlight.manager.manager import PlaybackManager
+from spotlight.suggestions.commands.command import Command
 from spotlight.suggestions.items.play import SongItem, QueueItem, PlaylistItem, AlbumItem, ArtistItem
 from spotlight.suggestions.items.template_items import FillItem, WarningItem
-from spotlight.manager.manager import PlaybackManager
 
 
 class PlayCommand(Command):
@@ -27,7 +26,7 @@ class PlayCommand(Command):
         return suggestions
 
     def _get_item_suggestions(self, parameter: str) -> list:
-        suggestions, title, image, item, cache = [], "name", "image", None, None
+        suggestions, title, image, item, cache, description = [], "name", "image", None, None, "description"
 
         if self._type == "song" or self._type == "queue":
             description = "artist"
