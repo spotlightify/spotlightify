@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QWidget, QLa
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QFont, QIcon
 
+from caching.manager import CacheManager
 from auth.config import config
 from settings.themes import default_themes
 from definitions import ASSETS_DIR
@@ -52,6 +53,7 @@ class AuthUI(QDialog):
     def save_changes(self):
         widgets = self.layout_widget.children()
         if all([w.text_complete for w in widgets]):
+            CacheManager.create_cache()  # Creates cache if it is missing (e.g. First time start up)
             self.config.set_all(self.cfg["username"], self.cfg["client_id"], self.cfg["client_secret"],
                                 self.cfg["redirect_uri"])
             self.isCanceled = False
