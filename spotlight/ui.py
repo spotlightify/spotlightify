@@ -86,14 +86,15 @@ class SpotlightUI(QWidget):
         self.textbox.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
 
     def eventFilter(self, source, event):
-        if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
-            if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
-                self.suggest_row_handler(source.command)
-        if (event.type() == QtCore.QEvent.FocusOut and
-            source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
+        def hide():
             self.textbox.clear()
             self.hide()
             return True
+        if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
+            if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
+                self.suggest_row_handler(source.command)
+        if (event.type() == QtCore.QEvent.FocusOut and not any(w.hasFocus() for w in self.children())):  # hides if not focused
+            hide()
             # return true here to bypass default behaviour
         return super(SpotlightUI, self).eventFilter(source, event)
 
@@ -102,6 +103,7 @@ class SpotlightUI(QWidget):
             if row != 0:
                 if row.hasFocus():
                     return True
+        return False
 
     def toggle_function_buttons(self):
         if not self.function_row.isHidden():
