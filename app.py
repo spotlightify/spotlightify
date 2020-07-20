@@ -1,4 +1,5 @@
 import sys
+import webbrowser
 from os import sep, kill, getpid
 from platform import platform
 from sys import exit
@@ -37,6 +38,7 @@ class App:
         self.spotlight = None
         self.spotify = None
         self.oauth = None
+        self.token_info = None
 
         self.listener_thread = Thread(target=listener, daemon=True, args=(self.show_spotlight,))
         self.song_queue = None
@@ -47,23 +49,22 @@ class App:
 
     def run(self):
         print(self.config.username)
-
-        app = QApplication([])
-        app.setQuitOnLastWindowClosed(True)
-        auth = AuthUI()
-        while not self.config.is_valid():
-            auth.show()
-            app.exec_()
-            if auth.isCanceled:
-                sys.exit()
+        if not self.config.is_valid():
+            app = QApplication([])
+            app.setQuitOnLastWindowClosed(True)
+            auth = AuthUI()
+            webbrowser.open("https://alfred-spotify-mini-player.com/setup/", 2)
+            while not self.config.is_valid():
+                auth.show()
+                app.exec_()
+                if auth.isCanceled:
+                    sys.exit()
 
         try:
             print("Starting auth process")
             self.oauth = self.config.get_oauth()
-            token = self.oauth.get_access_token(as_dict=True)["access_token"]
-            self.spotify = Spotify(auth=token)
-
-            # self.ui_manager.add("spotlight", SpotlightUI(self.spotify, self.song_queue))
+            self.token_info = self.oauth.get_access_token(as_dict=True)
+            self.spotify = Spotify(auth=self.token_info["access_token"])
 
             self.init_tray()
 
@@ -123,19 +124,18 @@ class App:
         ui.raise_()
         ui.activateWindow()
         ui.function_row.refresh(None)  # refreshes function row button icons
-        self.refresh_token()
+        self.token_refresh()
 
 
         if "Windows" in platform():
             focus_windows()
 
 
-    def refresh_token(self):
+    def token_refresh(self):
         try:
-            current_token = self.oauth.get_access_token()
-            if self.oauth.is_token_expired(token_info=current_token):
-                token = self.oauth.refresh_access_token(current_token["refresh_token"])
-                self.spotify = Spotify(auth=token["access_token"])
+            if self.oauth.is_token_expired(token_info=self.token_info):
+                self.token_info = self.oauth.refresh_access_token(self.token_info["refresh_token"])
+                self.spotify = Spotify(auth=self.token_info["access_token"])
         except:
             print("[WARNING] Could not refresh user API token")
 
