@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QDialogButtonBox, QWidget, QLa
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QFont, QIcon
 
+import webbrowser
 from caching.manager import CacheManager
 from auth.config import config
 from settings.themes import default_themes
@@ -49,6 +50,8 @@ class AuthUI(QDialog):
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Save)
         self.buttonBox.accepted.connect(self.save_changes)
         self.buttonBox.rejected.connect(self.close)
+
+        webbrowser.open("https://alfred-spotify-mini-player.com/setup/", 2)
 
     def save_changes(self):
         widgets = self.layout_widget.children()

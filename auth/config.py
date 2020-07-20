@@ -70,7 +70,8 @@ class Config:
         )
 
     def is_valid(self):
-        # TODO needs work
+        if len(self.username) == 0:
+            return False
         if len(self.client_id) != 32:
             return False
         if len(self._client_secret) != 32:
