@@ -1,4 +1,5 @@
 import sys
+import time
 import webbrowser
 from os import sep, kill, getpid
 from platform import platform
@@ -135,7 +136,7 @@ class App:
         try:
             if self.oauth.is_token_expired(token_info=self.token_info):
                 self.token_info = self.oauth.refresh_access_token(self.token_info["refresh_token"])
-                self.spotify = Spotify(auth=self.token_info["access_token"])
+                self.spotify.set_auth(self.token_info["access_token"])
         except:
             print("[WARNING] Could not refresh user API token")
 
