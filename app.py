@@ -54,7 +54,7 @@ class App:
             app = QApplication([])
             app.setQuitOnLastWindowClosed(True)
             auth = AuthUI()
-            webbrowser.open("https://alfred-spotify-mini-player.com/setup/", 2)
+            # ADD TUTORIAL WEBSITE webbrowser.open("https://alfred-spotify-mini-player.com/setup/", 2)
             while not self.config.is_valid():
                 auth.show()
                 app.exec_()
