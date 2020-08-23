@@ -53,8 +53,7 @@ class CommandHandler:
                                          "exe"),
                              Command("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
                                          "exe"),
-                             Command("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe"),
-                             Command("Title", "Description", "", lambda: None, "", "example", "none")
+                             Command("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")
                              ]
         self.manager = PlaybackManager(sp, queue)
         self.manager.set_device("")  # Sets default device
