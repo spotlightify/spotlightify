@@ -11,6 +11,7 @@ class CacheHolder:
     song_cache = {"length": 0, "songs": {} }
     artist_cache = {"length": 0, "artist": {} }
     album_cache = {"length": 0, "playlists": {} }
+    liked_cache = {"length": 0, "songs": {} }
     last_refresh = datetime.now()
 
     @staticmethod
@@ -67,6 +68,7 @@ class CacheHolder:
             if _type == "liked" or _type == "all":
                 with open(liked_cache_file_path, 'r') as f:
                     CacheHolder.liked_cache = json.load(f)
+                    sort(CacheHolder.playlist_cache, "songs")
         except:
             None  # First time startup with no cache, TODO make the except more precise
 

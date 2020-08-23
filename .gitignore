@@ -7,6 +7,3 @@ cache
 venv
 __pycache__
 .cache-*
-
-# remove when new auth is used
-config.py

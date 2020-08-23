@@ -9,15 +9,17 @@ from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
 from spotipy import Spotify
 
+from caching import SongQueue
 
-class Ui(QWidget):
+
+class SpotlightUI(QWidget):
     QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icon-base
 
-    def __init__(self, sp: Spotify, command_handler, parent=None):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, parent=None):
         QWidget.__init__(self, parent)
         # for spotify interaction
-        self.command_handler = command_handler
+        self.command_handler = CommandHandler(sp, song_queue)
         self.sp = sp
         # row positioning
         center = position_app()
@@ -32,8 +34,8 @@ class Ui(QWidget):
         self.setWindowTitle('Spotlightify')
         self.setWindowOpacity(0.9)
         # global styling
-        self.custom_font = QtGui.QFont("SF Pro Display light")
-        # For cycling through previous suggestions
+        self.custom_font = QtGui.QFont("SF Pro Display Light")
+        # For cycling through previous commands
         self.previous_commands = [""]
         self.command_position = 0
         # needed for adding suggestion rows
@@ -84,22 +86,24 @@ class Ui(QWidget):
         self.textbox.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
 
     def eventFilter(self, source, event):
-        if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
-            if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
-                self.suggest_row_handler(source.command)
-        if (event.type() == QtCore.QEvent.FocusOut and
-                source is self.textbox and not self.suggestion_has_focus() and not self.function_row.hasFocus()):
+        def hide():
             self.textbox.clear()
             self.hide()
             return True
+        if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
+            if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
+                self.suggest_row_handler(source.command)
+        if (event.type() == QtCore.QEvent.FocusOut and not any(w.hasFocus() for w in self.children())):  # hides if not focused
+            hide()
             # return true here to bypass default behaviour
-        return super(Ui, self).eventFilter(source, event)
+        return super(SpotlightUI, self).eventFilter(source, event)
 
     def suggestion_has_focus(self):
         for row in self.rows:
             if row != 0:
                 if row.hasFocus():
                     return True
+        return False
 
     def toggle_function_buttons(self):
         if not self.function_row.isHidden():

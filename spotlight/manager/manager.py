@@ -1,8 +1,10 @@
 from os import kill, getpid
 from queue import Queue
-from spotlight.manager import misc, play, playback, toggle, check
-import spotipy
+
 import clipboard
+import spotipy
+
+from spotlight.manager import misc, play, playback, toggle, check
 
 
 class PlaybackManager:
