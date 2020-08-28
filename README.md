@@ -20,14 +20,6 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
 
 ## Installing Dependencies
 
-### Linking the Spotify App
-
-**Change the name of `_config.py` to `config.py` in the project's root directory.** On the Spotify App that you have created, take the values of `Client ID` and `Client Secret` and respectively assign their values to the variables inside of the `config.py` file in the project's root directory. To make sure the correct username is entered into the `username` variable, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it into the `username` variable.
-
-### Installing Fonts
-
-The fonts found in `assets/fonts` must be installed for this to display correctly.
-
 ### OS Specific Setup
 
 To setup a virtual environment, perform the following commands.
@@ -60,9 +52,21 @@ sudo apt-get install python3-pyqt5
 pip3 install -r requirements.txt
 ```
 
+### Linking the Spotify App
+
+Run `app.py` to start the application.
+
+On the Spotify App that you have created, take the values of `Client ID`, `Client Secret` and `Redirect URI` from the website and input them into their respective textboxes. To make sure the correct username is entered into the `username` textbox, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it (you only need to do this if you sign into Spotify using a service such as Facebook).
+
+### Installing Fonts
+
+The fonts found in `assets/fonts` must be installed for this to display correctly.
+
 ## Usage
 
-Run `app.py` to start the application. The GUI is activated by using the shortcut `ctrl + space`. Here is the current list of available functions:
+The GUI is activated by using the shortcut `ctrl + space`. Here is the current list of available functions:
+
+### List of Commands
 
 ```
 | Name     | Description                                | Prefix            | Parameter     |
@@ -89,11 +93,13 @@ Run `app.py` to start the application. The GUI is activated by using the shortcu
 
 **On first start up, Spotlightify will cache all of your liked and playlist songs, caching both song information and album art. So keep the app open for at least 10 minutes so that all your songs can be cached.**
 
-## Built With
+## Additional Information
+
+### Built With
 
 -   <a href="https://spotipy.readthedocs.io/en/2.12.0/" target="_blank">Spotipy</a> - A Spotify API wrapper for Python
 -   <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">PyQt5</a> - A cross platform GUI framework for Python
 
-## Contributing
+### Contributing
 
 Join us on <a href="https://discord.gg/nrDke3q" target="_blank">discord</a> to discuss how to contribute to the project.
