@@ -3,11 +3,11 @@ from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
 
 from spotlight.suggestions.menu import Menu
-from spotlight.suggestions.suggestion import Suggestion
 from spotlight.suggestions.handler import CommandHandler
 from widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
 from spotipy import Spotify
+from settings import default_themes
 
 from caching import SongQueue
 
@@ -22,28 +22,22 @@ class SpotlightUI(QWidget):
         self.command_handler = CommandHandler(sp, song_queue)
         self.sp = sp
         # row positioning
-        center = position_app()
-        self.move(center)
+        self.move(center_app())
         self.standard_row_height, self.small_row_height = [57, 47]
         self.resize(540, self.standard_row_height * 8)  # keep this, fixes weird bug
         # theming and style
-        self.theme = {"dark": {"bg": "#191414", "text": "#B3B3B3"},
-                      "light": {"bg": "#B3B3B3", "text": "#191414"}}
-        self.active_theme = self.theme["dark"]
-        self.setStyleSheet(f"QWidget {{background: {self.active_theme['bg']};}}")
+        self.active_theme = default_themes["dark"]  # TODO Use Properties Class to get theme when implemented
+        self.setStyleSheet(f"QWidget {{background: {self.active_theme.background};}}")
         self.setWindowTitle('Spotlightify')
         self.setWindowOpacity(0.9)
         # global styling
-        self.custom_font = QtGui.QFont("SF Pro Display Light")
-        # For cycling through previous commands
-        self.previous_commands = [""]
-        self.command_position = 0
+        self.custom_font = QtGui.QFont("SF Pro Display Light")  # TODO Replace with properties class reference when implemented
         # needed for adding suggestion rows
-        self.rows = [0] * 6
+        self.rows = [QWidget() for i in range(0, 7)]
         self.current_num_of_rows = 0  # used to find the default command to executed
-        # needed to exit the application
-        self.exit = 0
+        # set window flags
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
+        # create additional widgets
         self.create_widgets()
 
     def create_widgets(self):
@@ -67,8 +61,8 @@ class SpotlightUI(QWidget):
                         QLineEdit
                         {{
                             border: 0;
-                            background: {self.active_theme["bg"]};
-                            color: {self.active_theme["text"]};
+                            background: {self.active_theme.background};
+                            color: {self.active_theme.foreground};
                             font-size: 25px;
                             border-radius: 2px;
                             selection-background-color: #6f6f76;
@@ -90,9 +84,15 @@ class SpotlightUI(QWidget):
             self.textbox.clear()
             self.hide()
             return True
+        if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Down and source == self.textbox:
+            self.focusNextChild()
+        if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Up and source == self.textbox:
+            self.focusPreviousChild()
         if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
-                self.suggest_row_handler(source.command)
+                self.command_exe_handler(source.command)
+        if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
+            hide()
         if (event.type() == QtCore.QEvent.FocusOut and not any(w.hasFocus() for w in self.children())):  # hides if not focused
             hide()
             # return true here to bypass default behaviour
@@ -100,7 +100,7 @@ class SpotlightUI(QWidget):
 
     def suggestion_has_focus(self):
         for row in self.rows:
-            if row != 0:
+            if row.isVisible():
                 if row.hasFocus():
                     return True
         return False
@@ -119,18 +119,18 @@ class SpotlightUI(QWidget):
             self.move(self.x(), self.y() - 47)
             self.function_row.show()
         if self.textbox.text() != "":
-            self.create_suggestion_widgets()
+            self.create_command_widgets()
 
     def text_changed_handler(self):
         text = self.textbox.text()
         length = len(text)
         # this for loop resets tab the tab index for the suggestion rows
         for row in self.rows:
-            if row != 0:
+            if row.isVisible():
                 row.setFocusPolicy(QtCore.Qt.StrongFocus)
                 row.hide()
         if length > 0:
-            self.create_suggestion_widgets()
+            self.create_command_widgets()
         else:
             self.current_num_of_rows = 0
             if self.function_row.isHidden():
@@ -139,52 +139,25 @@ class SpotlightUI(QWidget):
                 self.resize(540, self.small_row_height + self.standard_row_height)
 
     def textbox_return_pressed_handler(self):
-        self.store_previous_command()
         if self.current_num_of_rows != 0:
-            self.suggest_row_handler(self.rows[0].command)
-        elif self.exit == 1:
-            exit()
+            self.command_exe_handler(self.rows[0].command)
         else:
             self.textbox.clear()
 
-    def store_previous_command(self):
-        self.previous_commands[len(self.previous_commands) - 1] = self.textbox.text()
-        self.previous_commands.append("")
-        self.command_position = len(self.previous_commands) - 1
-
-    def keyPresskeyPressEvent(self, event):
-        # code for going back through recently executed suggestions
-        if event.key() == QtCore.Qt.Key_Up:
-            length = len(self.previous_commands)
-            if length - 1 >= self.command_position != 0:
-                self.command_position -= 1
-                self.textbox.setText(self.previous_commands[self.command_position])
-        elif event.key() == QtCore.Qt.Key_Down:
-            length = len(self.previous_commands)
-            if length - 1 != self.command_position >= 0:
-                self.command_position += 1
-                self.textbox.setText(self.previous_commands[self.command_position])
-        # hides self when escape is pressed
-        elif event.key() == QtCore.Qt.Key_Escape:
-            self.textbox.clear()
-            self.hide()
-
-    def add_row(self, row_num, command):
-        if self.rows[row_num] != 0 and self.current_num_of_rows != 0:
-            self.rows[row_num].setFocusPolicy(QtCore.Qt.NoFocus)
-            self.rows[row_num].deleteLater()
-        self.rows[row_num] = SuggestRow(self, command)
-        self.rows[row_num].clicked.connect(lambda: self.suggest_row_handler(command))
-        self.rows[row_num].setFocusPolicy(QtCore.Qt.TabFocus)
-        self.rows[row_num].installEventFilter(self)
+    def add_row(self, index, command):
+        self.rows[index].deleteLater()
+        self.rows[index] = SuggestRow(self, command)
+        self.rows[index].clicked.connect(lambda: self.command_exe_handler(command))
+        self.rows[index].setFocusPolicy(QtCore.Qt.TabFocus)
+        self.rows[index].installEventFilter(self)
         if self.function_row.isHidden():
-            self.rows[row_num].move(0, self.standard_row_height * (1 + row_num))
+            self.rows[index].move(0, self.standard_row_height * (1 + index))
         else:
-            self.rows[row_num].move(0, self.standard_row_height * (1 + row_num) + self.small_row_height)
-        self.rows[row_num].show()
-        self.current_num_of_rows = row_num + 1
+            self.rows[index].move(0, self.standard_row_height * (1 + index) + self.small_row_height)
+        self.rows[index].show()
+        self.current_num_of_rows = index + 1
 
-    def suggest_row_handler(self, command):
+    def command_exe_handler(self, command):
         if command.setting == "fill":
             self.textbox.setText(command.prefix)
             self.textbox.setFocus()
@@ -192,23 +165,22 @@ class SpotlightUI(QWidget):
         elif isinstance(command, Menu):
             self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
             command.refresh_items()
-            self.suggestion_creation(command.menu_items)
+            self.show_command_widgets(command.menu_items)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
         elif command.setting == "none":
             return
         else:
-            self.store_previous_command()
             self.command_handler.perform_command(command)
             self.textbox.clear()
             self.hide()
 
-    def create_suggestion_widgets(self):
+    def create_command_widgets(self):
         term = self.textbox.text().strip().lower()
         matched_commands = self.command_handler.get_command_suggestions(term)
-        self.suggestion_creation(matched_commands)
+        self.show_command_widgets(matched_commands)
 
-    def suggestion_creation(self, command_list: list):
+    def show_command_widgets(self, command_list: list):
         length = len(command_list)
         self.dynamic_resize(length)
         if length != 0:
@@ -228,7 +200,7 @@ class SpotlightUI(QWidget):
         self.resize(540, height)
 
 
-def position_app():
+def center_app():
     sizeObject = QDesktopWidget().screenGeometry(-1)
     height = sizeObject.height()
     coord = QDesktopWidget().availableGeometry().center()
