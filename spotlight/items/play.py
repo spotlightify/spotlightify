@@ -1,6 +1,5 @@
-from spotlight.suggestions.items.item import Item
-from spotlight.suggestions.suggestion import Suggestion
-from spotlight.manager.manager import PlaybackManager
+from spotlight.items.item import Item
+from api.manager import PlaybackManager
 
 # Item classes that are used in more than one file should be written into this file
 

@@ -4,7 +4,7 @@ from queue import Queue
 import clipboard
 import spotipy
 
-from spotlight.manager import misc, play, playback, toggle, check
+from api import misc, play, playback, toggle, check
 
 
 class PlaybackManager:

@@ -2,9 +2,9 @@ from os import sep
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
 
-from spotlight.suggestions.menu import Menu
-from spotlight.suggestions.handler import CommandHandler
-from widgets import FunctionButtonsRow, SuggestRow, SvgButton
+from spotlight.menu import Menu
+from spotlight.handler import CommandHandler
+from ui.widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
 from spotipy import Spotify
 from settings import default_themes

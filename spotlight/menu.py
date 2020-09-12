@@ -1,5 +1,5 @@
-from spotlight.suggestions.commands.command import Command
-from spotlight.suggestions.suggestion import Suggestion
+from spotlight.commands.command import Command
+from spotlight.suggestion import Suggestion
 
 class Menu(Command):
     def __init__(self, title: str, description: str, icon: str, prefix: str, menu_items: list, fill_prefix=True):

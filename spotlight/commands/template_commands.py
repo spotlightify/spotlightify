@@ -1,5 +1,4 @@
-from spotlight.suggestions.commands.command import Command
-from spotlight.suggestions.suggestion import Suggestion
+from spotlight.commands.command import Command
 
 
 class ParameterCommand(Command):

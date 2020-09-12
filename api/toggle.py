@@ -1,5 +1,5 @@
 import spotipy
-from spotlight.manager import check
+from api import check
 
 
 class ToggleFunctions:

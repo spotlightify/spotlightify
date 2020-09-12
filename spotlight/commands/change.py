@@ -1,9 +1,8 @@
-from spotlight.suggestions.commands.command import Command
-from spotlight.suggestions.items.item import Item
-from spotlight.suggestions.suggestion import Suggestion
-from spotlight.suggestions.menu import Menu
-from spotlight.manager.manager import PlaybackManager
-from spotlight.manager.check import CheckFunctions
+from spotlight.commands.command import Command
+from spotlight.items.item import Item
+from spotlight.menu import Menu
+from api.manager import PlaybackManager
+from api.check import CheckFunctions
 from spotipy import Spotify
 
 # Dedicated to suggestions which change

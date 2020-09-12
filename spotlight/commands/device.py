@@ -1,11 +1,10 @@
 from spotipy import Spotify
 
-from spotlight.suggestions.items.item import Item
-from spotlight.suggestions.items.template_items import WarningItem, WarningFillItem
-from spotlight.suggestions.menu import Menu
-from spotlight.manager.misc import MiscFunctions
-from spotlight.suggestions.suggestion import Suggestion
-from spotlight.manager.manager import PlaybackManager
+from spotlight.items.item import Item
+from spotlight.items.template_items import WarningItem
+from spotlight.menu import Menu
+from api.misc import MiscFunctions
+from api.manager import PlaybackManager
 
 
 class DeviceCommand(Menu):
