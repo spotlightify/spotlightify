@@ -50,7 +50,7 @@ class OnlineCommand(Command):
         :return: Returns a list of command dictionaries of items from the online search
         """
         parameter = self.parameter
-        command_list = [self]
+        command_list = super(OnlineCommand, self).get_items()
         if parameter != "":
             try:
                 command_list = []

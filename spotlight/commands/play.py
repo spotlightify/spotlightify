@@ -12,8 +12,8 @@ class PlayCommand(Command):
         self._type = _type
 
     def get_items(self):
+        suggestions = super(PlayCommand, self).get_items()
         parameter = self.parameter
-        suggestions = [self]
         if parameter != "":
             try:
                 suggestions = [FillItem(f'Search Online "{parameter}"',
