@@ -1,10 +1,9 @@
 from spotipy import Spotify
 
-from spotlight.suggestions.commands.command import Command
-from spotlight.suggestions.suggestion import Suggestion
-from spotlight.suggestions.items.play import SongItem, QueueItem, AlbumItem, PlaylistItem, ArtistItem
-from spotlight.suggestions.items.template_items import WarningItem
-from spotlight.manager.manager import PlaybackManager
+from spotlight.commands.command import Command
+from spotlight.items.play import SongItem, QueueItem, AlbumItem, PlaylistItem, ArtistItem
+from spotlight.items.template_items import WarningItem
+from api.manager import PlaybackManager
 
 
 class OnlineCommand(Command):
@@ -51,7 +50,7 @@ class OnlineCommand(Command):
         :return: Returns a list of command dictionaries of items from the online search
         """
         parameter = self.parameter
-        command_list = [self]
+        command_list = super(OnlineCommand, self).get_items()
         if parameter != "":
             try:
                 command_list = []

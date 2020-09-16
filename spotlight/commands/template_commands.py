@@ -1,5 +1,4 @@
-from spotlight.suggestions.commands.command import Command
-from spotlight.suggestions.suggestion import Suggestion
+from spotlight.commands.command import Command
 
 
 class ParameterCommand(Command):
@@ -11,5 +10,5 @@ class ParameterCommand(Command):
             self.setting = "exe"
         else:
             self.setting = "fill"
-        command = [self]
+        command = super(ParameterCommand, self).get_items()
         return command

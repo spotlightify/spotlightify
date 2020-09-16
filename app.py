@@ -17,7 +17,7 @@ from colors import colors
 from definitions import ASSETS_DIR
 from settings import default_themes
 from shortcuts import listener
-from spotlight import SpotlightUI
+from ui import SpotlightUI
 
 
 class App:

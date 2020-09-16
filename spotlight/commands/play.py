@@ -1,8 +1,8 @@
 from caching.holder import CacheHolder
-from spotlight.manager.manager import PlaybackManager
-from spotlight.suggestions.commands.command import Command
-from spotlight.suggestions.items.play import SongItem, QueueItem, PlaylistItem, AlbumItem, ArtistItem
-from spotlight.suggestions.items.template_items import FillItem, WarningItem
+from api.manager import PlaybackManager
+from spotlight.commands.command import Command
+from spotlight.items.play import SongItem, QueueItem, PlaylistItem, AlbumItem, ArtistItem
+from spotlight.items.template_items import FillItem, WarningItem
 
 
 class PlayCommand(Command):
@@ -12,8 +12,8 @@ class PlayCommand(Command):
         self._type = _type
 
     def get_items(self):
+        suggestions = super(PlayCommand, self).get_items()
         parameter = self.parameter
-        suggestions = [self]
         if parameter != "":
             try:
                 suggestions = [FillItem(f'Search Online "{parameter}"',

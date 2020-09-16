@@ -2,17 +2,17 @@ from queue import Queue
 from spotipy import Spotify
 
 from auth import AuthUI
-from spotlight.suggestions.commands.command import Command
-from spotlight.suggestions.menu import Menu
-from spotlight.suggestions.suggestion import Suggestion
-from spotlight.suggestions.commands.device import DeviceCommand
+from spotlight.commands.command import Command
+from spotlight.menu import Menu
+from spotlight.suggestion import Suggestion
+from spotlight.commands.device import DeviceCommand
 from caching.holder import CacheHolder
-from spotlight.suggestions.commands.online import OnlineCommand
-from spotlight.suggestions.commands.template_commands import ParameterCommand
-from spotlight.suggestions.commands.play import PlaylistCommand, SongCommand, AlbumCommand, ArtistCommand, QueueCommand
-from spotlight.suggestions.commands.playing import PlayingCommand
-from spotlight.suggestions.commands.change import ShuffleCommand, LikeCommand, RepeatCommand
-from spotlight.manager.manager import PlaybackManager
+from spotlight.commands.online import OnlineCommand
+from spotlight.commands.template_commands import ParameterCommand
+from spotlight.commands.play import PlaylistCommand, SongCommand, AlbumCommand, ArtistCommand, QueueCommand
+from spotlight.commands.playing import PlayingCommand
+from spotlight.commands.change import ShuffleCommand, LikeCommand, RepeatCommand
+from api.manager import PlaybackManager
 
 
 class CommandHandler:

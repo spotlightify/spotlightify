@@ -1,8 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
 
-from spotlight.suggestions.suggestion import Suggestion
-from spotlight.manager import check, toggle, playback
+from spotlight.suggestion import Suggestion
+from api import check, toggle, playback
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtGui import QPixmap
 from definitions import ASSETS_DIR
@@ -137,13 +137,13 @@ class SuggestRow(QPushButton):
         # set style and location of title
         self.title_lbl.move(56, 9)
         self.title_lbl.setStyleSheet(
-            f"font-size: 20px; color: {self.active_theme['text']}; background-color: rgba(0,0,0,0%);")
+            f"font-size: 20px; color: {self.active_theme.foreground}; background-color: rgba(0,0,0,0%);")
         self.title_lbl.setFont(self.custom_font)
         # set style and location of description
         self.description_lbl.resize(479, 15)
         self.description_lbl.move(56, 33)
         self.description_lbl.setStyleSheet(
-            f"font-size: 13px; color: {self.active_theme['text']}; background-color: rgba(0,0,0,0%);")
+            f"font-size: 13px; color: {self.active_theme.foreground}; background-color: rgba(0,0,0,0%);")
         self.description_lbl.setFont(self.custom_font)
         # style for widget
         self.setStyleSheet('''

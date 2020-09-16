@@ -1,8 +1,8 @@
-from spotlight.suggestions.items.template_items import FillItem, WarningItem, WarningFillItem
-from spotlight.suggestions.menu import Menu
-from spotlight.manager.playback import PlaybackFunctions
+from spotlight.items.template_items import FillItem, WarningFillItem
+from spotlight.menu import Menu
+from api.playback import PlaybackFunctions
 from spotipy import Spotify
-from spotlight.suggestions.suggestion import Suggestion
+from spotlight.suggestion import Suggestion
 
 
 class PlayingCommand(Menu):
