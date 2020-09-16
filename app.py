@@ -143,7 +143,7 @@ class App:
     @staticmethod
     def exit():
         print(f"\n{colors.PINK}{colors.BOLD}Exiting{colors.RESET}")
-        kill(getpid(), 9)
+        kill(getpid(), 3)
         exit(0)
 
 
