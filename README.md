@@ -56,7 +56,7 @@ pip3 install -r requirements.txt
 
 Run `app.py` to start the application.
 
-On the Spotify App that you have created, take the values of `Client ID`, `Client Secret` and `Redirect URI` from the website and input them into their respective textboxes. To make sure the correct username is entered into the `username` textbox, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it (you only need to do this if you sign into Spotify using a service such as Facebook).
+On the Spotify App that you have created, take the values of `Client ID`, `Client Secret` and `Redirect URI` (Redirect URL is found when the "EDIT SETTINGS" button is clicked) from the website and input them into their respective textboxes. To make sure the correct username is entered into the `username` textbox, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it (you only need to do this if you sign into Spotify using a service such as Facebook).
 
 ### Installing Fonts
 
