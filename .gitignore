@@ -13,6 +13,10 @@
 .idea/**/dictionaries
 .idea/**/shelf
 
+# Spotlightify related stuff
+cache/
+.cache-*
+
 # Generated files
 .idea/**/contentModel.xml
 
