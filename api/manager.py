@@ -126,8 +126,16 @@ class PlaybackManager:
     def current_song(self) -> dict:
         return self._playback.get_current_song_info()
 
-    def copy_url_to_clipboard(self):
-        clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
+    def copy_url_to_clipboard(self, *args):
+        """
+
+        :param args: None or the uri of a track
+        :return:
+        """
+        if args is None:
+            clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
+        else:
+            clipboard.copy(self.sp.track(args[0])["external_urls"]["spotify"])
 
     def exit_app(self):
         kill(getpid(), 9)

@@ -11,7 +11,8 @@ class SongOptions:
                 AddToQueueOption(song_name, song_id),
                 SaveSongOption(song_name),
                 SongRadioOption(song_name, song_id),
-                AddToPlaylistOption(song_name, song_id)
+                AddToPlaylistOption(song_name, song_id),
+                ShareSongOption(song_id)
                 ]
 
 
@@ -53,3 +54,8 @@ class AddToPlaylistOption(Item):
     def __init__(self, song_name, song_id):
         Item.__init__(self, f"Add to Playlist", f"Add '{song_name}' to Playlist", "playlist", lambda: None,
                       "", song_id, "none")
+
+class ShareSongOption(Item):
+    def __init__(self, song_id):
+        Item.__init__(self, f"Share Song URL", f"Copy URL to Clipboard", "share", PlaybackManager.copy_url_to_clipboard,
+                      "", song_id, "exe")

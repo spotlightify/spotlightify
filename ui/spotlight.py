@@ -174,7 +174,6 @@ class SpotlightUI(QWidget):
         self.current_num_of_rows = index + 1
 
     def command_exe_handler(self, command):
-        print(self.shift_in)
         if command.setting == "fill":
             self.textbox.setText(command.prefix)
             self.textbox.setFocus()
@@ -196,7 +195,6 @@ class SpotlightUI(QWidget):
             self.command_handler.perform_command(command)
             self.textbox.clear()
             self.hide()
-        print(self.shift_in)
 
     def create_command_widgets(self):
         term = self.textbox.text().strip().lower()
