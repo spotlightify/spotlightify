@@ -39,3 +39,7 @@ class MiscFunctions:
                 raise Exception
         except:
             print("[Error] Invalid volume value. Valid command example: 'volume 8'")
+
+    @Limiter.rate_limiter(seconds=20)
+    def get_user_playlists(self):
+        self.sp.current_user_playlists(limit=100)

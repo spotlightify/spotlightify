@@ -86,3 +86,4 @@ class OnlineCommand(Command):
             except:
                 command_list = [WarningItem("No Results Found", "Please adjust search term")]
         return command_list
+

@@ -37,6 +37,8 @@ class SpotlightUI(QWidget):
         self.current_num_of_rows = 0  # used to find the default command to executed
         # set window flags
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
+        # for checking if shift is held in
+        self.shift_in = False
         # create additional widgets
         self.create_widgets()
 
@@ -84,6 +86,14 @@ class SpotlightUI(QWidget):
             self.textbox.clear()
             self.hide()
             return True
+        if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Shift:
+            self.shift_in = True
+            for row in self.rows:
+                row.show_option_icon() if row.isVisible() else None
+        if event.type() == QtCore.QEvent.KeyRelease and event.key() == QtCore.Qt.Key_Shift:
+            self.shift_in = False
+            for row in self.rows:
+                row.hide_option_icon() if row.isVisible() else None
         if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Down and source == self.textbox:
             self.focusNextChild()
         if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Up and source == self.textbox:
@@ -122,7 +132,13 @@ class SpotlightUI(QWidget):
             self.create_command_widgets()
 
     def text_changed_handler(self):
-        text = self.textbox.text()
+        self.refresh_visible_items()
+
+    def refresh_visible_items(self, hide_all_items=False):
+        if not hide_all_items:
+            text = self.textbox.text()
+        else:
+            text = ""
         length = len(text)
         # this for loop resets tab the tab index for the suggestion rows
         for row in self.rows:
@@ -158,8 +174,14 @@ class SpotlightUI(QWidget):
         self.current_num_of_rows = index + 1
 
     def command_exe_handler(self, command):
+        print(self.shift_in)
         if command.setting == "fill":
             self.textbox.setText(command.prefix)
+            self.textbox.setFocus()
+            self.textbox.deselect()  # deselects selected text as a result of focus
+        elif self.shift_in and hasattr(command, "option_items"):
+            self.refresh_visible_items(hide_all_items=True)
+            self.show_command_widgets(command.option_items)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
         elif isinstance(command, Menu):
@@ -174,6 +196,7 @@ class SpotlightUI(QWidget):
             self.command_handler.perform_command(command)
             self.textbox.clear()
             self.hide()
+        print(self.shift_in)
 
     def create_command_widgets(self):
         term = self.textbox.text().strip().lower()

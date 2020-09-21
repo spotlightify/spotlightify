@@ -42,7 +42,7 @@ class PlaybackManager:
 
     def queue_song(self, id_: str):
         """
-        Queue's a song given an id/uri/term
+        Queues a song given an id/uri/term
         :param id_: id/uri/term for song
         """
         format_ = self._check.item_link_type(id_, "song")
@@ -53,9 +53,17 @@ class PlaybackManager:
         else:
             self._play.queue_term(id_)
 
+    def play_recommended(self, id_):
+        """
+        Plays recommended songs based on a songs ID
+        :param id_:
+        :return:
+        """
+        self._play.song_recommendations(id_)
+
     def play_song(self, id_):
         """
-        Play's a song given an id/uri/term
+        Plays a song given an id/uri/term
         :param id_: id/uri/term for song
         """
         format_ = self._check.item_link_type(id_, "song")

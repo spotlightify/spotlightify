@@ -98,13 +98,15 @@ class SvgButton(QPushButton):
 class SuggestRow(QPushButton):
     def __init__(self, parent, command: Suggestion):
         QWidget.__init__(self, parent)
+        # defines whether the command has options
+        self.has_options = True if hasattr(command, "option_items") else False
         # gets the current theme
         self.active_theme = parent.active_theme
         # gets the font
         self.custom_font = parent.custom_font
         # setting height the row
-        height, width = [parent.width(), 114]
-        self.resize(height, width)
+        width, height = [parent.width(), 57]
+        self.resize(width, height)
         # makes command dictionary a class variable
         self.command = command # Stores information about the command the row will hold
         # widget creation
@@ -120,6 +122,8 @@ class SuggestRow(QPushButton):
             self.icon = icon
         self.title_lbl = QLabel(self.command.title, self)
         self.description_lbl = QLabel(self.command.description, self)
+        self.option_icon = QSvgWidget(self)
+        self.option_icon.load(f"{ASSETS_DIR}svg{sep}ellipsis.svg")
         self.set_style()
 
     def set_style(self):
@@ -134,6 +138,11 @@ class SuggestRow(QPushButton):
             self.icon.resize(40, 40)
             self.icon.setAlignment(Qt.AlignCenter)
             self.icon.setScaledContents(True)
+        # set style for options cog
+        self.option_icon.move(490, 16)
+        self.option_icon.resize(25, 25)
+        self.option_icon.setStyleSheet("background-color: rgba(0,0,0,0%);")
+        self.option_icon.hide()
         # set style and location of title
         self.title_lbl.move(56, 9)
         self.title_lbl.setStyleSheet(
@@ -161,3 +170,12 @@ class SuggestRow(QPushButton):
             outline: 0px
         }
         ''')
+
+    def show_option_icon(self):
+        if self.has_options:
+            self.option_icon.show()
+
+    def hide_option_icon(self):
+        if self.has_options:
+            self.option_icon.hide()
+
