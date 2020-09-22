@@ -45,6 +45,7 @@ class CacheHolder:
             cache[type] = dict(sorted(items.items(), key=lambda x: x[1]['name']))
 
         try:
+            print("[CACHE HOLDER] Reloading JSON File")
             if _type == "song" or _type == "all":
                 with open(song_cache_file_path, 'r') as f:
                     CacheHolder.song_cache = json.load(f)
@@ -68,7 +69,8 @@ class CacheHolder:
             if _type == "liked" or _type == "all":
                 with open(liked_cache_file_path, 'r') as f:
                     CacheHolder.liked_cache = json.load(f)
-                    sort(CacheHolder.playlist_cache, "songs")
+                    sort(CacheHolder.liked_cache, "songs")
+            print("[CACHE HOLDER] Reload Complete")
         except:
             None  # First time startup with no cache, TODO make the except more precise
 
