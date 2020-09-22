@@ -47,9 +47,15 @@ class PlayCommand(Command):
 
         for key, values in cache[f'{self._type if self._type != "queue" else "song"}s'].items():
             name = values[title]
+            search = name
+
+            removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
+            for i in removables:
+                search = search.replace(i, "")
+
             if len(suggestions) == 5:
-                break
-            if len(name) >= len(parameter) and name[:len(parameter)].lower() == parameter:
+                breakd
+            if len(search) >= len(parameter) and search[:len(parameter)].lower() == parameter:
                 new_suggestion = item(name, values[description], values[image], key)
                 suggestions.append(new_suggestion)
                 # TODO: Add duplicate removal system
