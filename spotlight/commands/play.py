@@ -54,7 +54,7 @@ class PlayCommand(Command):
                 search = search.replace(i, "")
 
             if len(suggestions) == 5:
-                breakd
+                break
             if len(search) >= len(parameter) and search[:len(parameter)].lower() == parameter:
                 new_suggestion = item(name, values[description], values[image], key)
                 suggestions.append(new_suggestion)
