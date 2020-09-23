@@ -45,22 +45,38 @@ class PlayCommand(Command):
             description = "genre"
             item = ArtistItem
 
-        for key, values in cache[f'{self._type if self._type != "queue" else "song"}s'].items():
+        L = list(cache[f'{self._type if self._type != "queue" else "song"}s'].items())
+        L = sorted(L, key = lambda x: x[1][title])
+        print(len(L))
+        start = 0
+        end = len(L) - 1
+
+        while start <= end:
+
+            middle = (start + end)// 2
+            key = L[middle][0]
+            values = L[middle][1]
             name = values[title]
             search = name
 
+            if len(suggestions)>= 5:
+                break
+
+            # Remove unwanted characters from searchable name
             removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
             for i in removables:
                 search = search.replace(i, "")
 
-            if len(suggestions) == 5:
-                break
-            if len(search) >= len(parameter) and search[:len(parameter)].lower() == parameter:
+            if len(search)>=len(parameter) and search[:len(parameter)].lower() == parameter.lower():
+                print(name)
                 new_suggestion = item(name, values[description], values[image], key)
                 suggestions.append(new_suggestion)
+            if search > parameter:
+                end = middle - 1 
+            elif search < parameter:
+                start = middle + 1
                 # TODO: Add duplicate removal system
         return suggestions
-
 
 class SongCommand(PlayCommand):
     def __init__(self):
