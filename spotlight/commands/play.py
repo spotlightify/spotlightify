@@ -25,6 +25,28 @@ class PlayCommand(Command):
                 suggestions = [WarningItem("Caching in progress...", "Please wait until items have been cached")]
         return suggestions
 
+    def binary_search(self, L, target):
+        start = 0
+        end = len(L) - 1
+
+        while start < end:
+            middle = (start + end)// 2
+
+            key, values = L[middle]
+            name = values["name"]
+            search = name.lower()
+
+            removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
+            for i in removables:
+                search = search.replace(i, "")
+            if len(search)>=len(target) and search[:len(target)].lower() == target.lower():
+                return middle
+
+            if search > target:
+                end = middle - 1 
+            elif search < target:
+                start = middle + 1
+
     def _get_item_suggestions(self, parameter: str) -> list:
         suggestions, title, image, item, cache, description = [], "name", "image", None, None, "description"
 
@@ -46,36 +68,16 @@ class PlayCommand(Command):
             item = ArtistItem
 
         L = list(cache[f'{self._type if self._type != "queue" else "song"}s'].items())
-        L = sorted(L, key = lambda x: x[1][title])
-        print(len(L))
-        start = 0
-        end = len(L) - 1
-
-        while start <= end:
-
-            middle = (start + end)// 2
-            key = L[middle][0]
-            values = L[middle][1]
-            name = values[title]
-            search = name
-
-            if len(suggestions)>= 5:
-                break
-
-            # Remove unwanted characters from searchable name
-            removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
-            for i in removables:
-                search = search.replace(i, "")
-
-            if len(search)>=len(parameter) and search[:len(parameter)].lower() == parameter.lower():
-                print(name)
-                new_suggestion = item(name, values[description], values[image], key)
+        
+         while len(suggestions)<5:
+            result = self.binary_search(L, parameter)
+            if result:
+                key, values = L[result]
+                new_suggestion = item(values[title], values[description], values[image], key)
                 suggestions.append(new_suggestion)
-            if search > parameter:
-                end = middle - 1 
-            elif search < parameter:
-                start = middle + 1
-                # TODO: Add duplicate removal system
+                L.pop(result)
+            else:
+                break
         return suggestions
 
 class SongCommand(PlayCommand):
