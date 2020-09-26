@@ -1,3 +1,5 @@
+from typing import List
+
 import spotipy
 from api.limiter import Limiter
 
@@ -41,5 +43,5 @@ class MiscFunctions:
             print("[Error] Invalid volume value. Valid command example: 'volume 8'")
 
     @Limiter.rate_limiter(seconds=20)
-    def get_user_playlists(self):
-        self.sp.current_user_playlists(limit=100)
+    def get_user_playlists(self) -> List[dict]:
+        return self.sp.current_user_playlists(limit=50)["items"]

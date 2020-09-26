@@ -7,7 +7,7 @@ class Suggestion:
     All suggestions and items inherit from this class
     """
 
-    def __init__(self, title: str, description: str, icon_name: str, function: classmethod, prefix: str, parameter: str, setting: str):
+    def __init__(self, title: str, description: str, icon_name: str, function: classmethod, prefix: str, parameter, setting: str):
         """
         :param title: title of the suggestion (displayed visually)
         :param description: description of the suggestion (displayed visually)

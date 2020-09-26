@@ -1,4 +1,4 @@
-from os import kill, getpid
+from os import kill, getpid, environ
 from queue import Queue
 
 import clipboard
@@ -136,6 +136,21 @@ class PlaybackManager:
             clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
         else:
             clipboard.copy(self.sp.track(args[0])["external_urls"]["spotify"])
+
+    def add_to_playlist(self, ids: dict):
+        user = environ.get("SPOTIFY_USERNAME")
+        playlist_items = self.sp.playlist_tracks(ids["playlist"])["items"]
+        is_duplicate = False
+        for item in playlist_items:
+            if item["track"]["id"] == ids["song"]:
+                is_duplicate = True
+                break
+
+        if not is_duplicate:
+            self.sp.user_playlist_add_tracks(user, ids["playlist"], [f"spotify:track:{ids['song']}"])
+        else:
+            print("[WARNING] Track not added to playlist as it is a duplicate")
+
 
     def exit_app(self):
         kill(getpid(), 9)

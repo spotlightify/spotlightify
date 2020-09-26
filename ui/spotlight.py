@@ -184,6 +184,7 @@ class SpotlightUI(QWidget):
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
         elif isinstance(command, Menu):
+            self.refresh_visible_items(hide_all_items=True)
             self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
             command.refresh_items()
             self.show_command_widgets(command.menu_items)

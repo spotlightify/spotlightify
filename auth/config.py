@@ -11,7 +11,9 @@ scopes = [
     "user-follow-read",
     "playlist-read-private",
     "playlist-read-collaborative",
-    "user-follow-read"
+    "user-follow-read",
+    "playlist-modify-public",
+    "playlist-modify-private"
 ]
 
 class Config:
