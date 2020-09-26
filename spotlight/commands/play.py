@@ -34,18 +34,18 @@ class PlayCommand(Command):
 
             key, values = L[middle]
             name = values["name"]
+            search = name.lower()
 
             removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
             for i in removables:
-                name = name.replace(i, "")
-                target = target.replace(i, "")
+                search = search.replace(i, "")
 
-            if len(name)>=len(target) and name[:len(target)].lower() == target.lower():
+            if len(search)>=len(target) and search[:len(target)].lower() == target.lower():
                 return middle
 
-            if name > target:
+            if search > target:
                 end = middle - 1 
-            elif name < target:
+            elif search < target:
                 start = middle + 1
 
     def _get_item_suggestions(self, parameter: str) -> list:
