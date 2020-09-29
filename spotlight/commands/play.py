@@ -29,24 +29,24 @@ class PlayCommand(Command):
         start = 0
         end = len(L) - 1
 
-        while start < end:
+        while start <= end:
             middle = (start + end)// 2
-
             key, values = L[middle]
-            name = values["name"]
-            search = name.lower()
+            search = values["name"]
 
             removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
             for i in removables:
                 search = search.replace(i, "")
+                target = target.replace(i, "")
 
             if len(search)>=len(target) and search[:len(target)].lower() == target.lower():
                 return middle
 
-            if search > target:
+            if search.lower() > target.lower():
                 end = middle - 1 
-            elif search < target:
+            elif search.lower() < target.lower():
                 start = middle + 1
+
 
     def _get_item_suggestions(self, parameter: str) -> list:
         suggestions, title, image, item, cache, description = [], "name", "image", None, None, "description"
@@ -68,9 +68,17 @@ class PlayCommand(Command):
             description = "genre"
             item = ArtistItem
 
+        def by_name(x):
+            removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
+            name = x[1]["name"].lower()
+            for i in removables:
+                name = name.replace(i, "")
+            return name
+
         L = list(cache[f'{self._type if self._type != "queue" else "song"}s'].items())
+        L = sorted(L, key=by_name)
         
-         while len(suggestions)<5:
+        while len(suggestions)<5:
             result = self.binary_search(L, parameter)
             if result:
                 key, values = L[result]
