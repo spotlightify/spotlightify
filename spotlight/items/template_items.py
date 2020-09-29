@@ -22,3 +22,8 @@ class WarningFillItem(Item):
 class PassiveItem(Item):
     def __init__(self, title, description, icon):
         Item.__init__(self, title, description, icon, lambda: None, "", "", "none")
+
+
+class ExecutableItem(Item):
+    def __init__(self, title, description, icon, function):
+        Item.__init__(self, title, description, icon, function, "", "", "exe")

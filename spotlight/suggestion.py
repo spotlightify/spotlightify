@@ -40,7 +40,10 @@ class Suggestion:
     @title.setter
     def title(self, value):
         if type(value).__name__ != "str": raise Exception("Suggestion.title must be of type str")
-        self.__title = value
+        if len(value) == 0:
+            self.__title = ""
+        else:
+            self.__title = f"{value[0].upper() + value[1:]}"
 
     @property
     def description(self):

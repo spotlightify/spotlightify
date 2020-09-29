@@ -31,8 +31,8 @@ class Menu(Command):
         if not match:
             return super(Menu, self).get_items()
         else:
-            self.refresh_items()
+            self.refresh_menu_items()
             return self.menu_items
 
-    def refresh_items(self):
+    def refresh_menu_items(self):
         pass

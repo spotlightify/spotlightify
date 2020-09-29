@@ -32,8 +32,7 @@ class SongOptions:
 
 class DisplaySongOption(PassiveItem):
     def __init__(self, song_name: str, artist_name: str, image_name: str):
-        PassiveItem.__init__(self, f"{song_name} by {artist_name}", "Options", image_name, lambda: None,
-                      "", "", "none")
+        PassiveItem.__init__(self, f"{song_name} by {artist_name}", "Options", image_name)
 
 
 class AddToQueueOption(Item):
@@ -63,7 +62,7 @@ class AddToPlaylistOption(Menu):
         self.image_name = image_name
         self.current_page = 0
 
-    def refresh_items(self):
+    def refresh_menu_items(self):
         # get relevant info from playlists
         playlists = []
         for key, value in CacheHolder.playlist_cache["playlists"].items():
@@ -110,7 +109,7 @@ class PlaylistPageChangeItem(Menu):
         self.pages = pages
         self.page_index = page_index
 
-    def refresh_items(self):
+    def refresh_menu_items(self):
         if self.navigation == "next":
             self.menu_items = self.pages[self.page_index + 1]
         else:

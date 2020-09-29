@@ -10,7 +10,7 @@ class PlayingCommand(Menu):
         Menu.__init__(self, "Currently Playing", "Displays the song which is currently playing", "play", "currently playing", [])
         self.sp = sp
 
-    def refresh_items(self):
+    def refresh_menu_items(self):
         song = PlaybackFunctions(self.sp).get_current_song_info()
         try:
             item = FillItem(f"Playing {song['name']}", f"By {song['artist']}", song["image"], song["name"])

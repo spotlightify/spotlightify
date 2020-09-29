@@ -175,6 +175,7 @@ class SpotlightUI(QWidget):
 
     def command_exe_handler(self, command):
         if command.setting == "fill":
+            print(command.prefix)
             self.textbox.setText(command.prefix)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
@@ -186,7 +187,7 @@ class SpotlightUI(QWidget):
         elif isinstance(command, Menu):
             self.refresh_visible_items(hide_all_items=True)
             self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
-            command.refresh_items()
+            command.refresh_menu_items()
             self.show_command_widgets(command.menu_items)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus

@@ -12,7 +12,7 @@ class DeviceCommand(Menu):
         Menu.__init__(self, "Device", "Click to select a device", "device", "device", [])
         self.sp = sp
 
-    def refresh_items(self):
+    def refresh_menu_items(self):
         devices = MiscFunctions(self.sp).get_device_list()
         self.clear_menu_items()
         if not devices:

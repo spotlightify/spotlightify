@@ -19,7 +19,7 @@ class CheckFunctions:
         except:
             return False
 
-    @Limiter.rate_limiter(seconds=2)
+    @Limiter.rate_limiter(seconds=5)
     def is_song_liked(self) -> bool:
         try:
             current_song = self.sp.currently_playing()["item"]
