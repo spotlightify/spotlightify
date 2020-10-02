@@ -126,16 +126,16 @@ class PlaybackManager:
     def current_song(self) -> dict:
         return self._playback.get_current_song_info()
 
-    def copy_url_to_clipboard(self, *args):
+    def copy_url_to_clipboard(self, id_=""):
         """
 
-        :param args: None or the uri of a track
+        :param id_: if not current song, use this variable for a songs id
         :return:
         """
-        if args is None:
+        if id_ == "":
             clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
         else:
-            clipboard.copy(self.sp.track(args[0])["external_urls"]["spotify"])
+            clipboard.copy(self.sp.track(id_)["external_urls"]["spotify"])
 
     def add_to_playlist(self, ids: dict):
         user = environ.get("SPOTIFY_USERNAME")

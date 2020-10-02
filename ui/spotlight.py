@@ -2,7 +2,7 @@ from os import sep
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
 
-from spotlight.menu import Menu
+from spotlight.suggestions.menu import MenuSuggestion
 from spotlight.handler import CommandHandler
 from ui.widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
@@ -184,7 +184,7 @@ class SpotlightUI(QWidget):
             self.show_command_widgets(command.option_items)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif isinstance(command, Menu):
+        elif isinstance(command, MenuSuggestion):
             self.refresh_visible_items(hide_all_items=True)
             self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
             command.refresh_menu_items()

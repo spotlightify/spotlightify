@@ -1,6 +1,6 @@
 from api.manager import PlaybackManager
-from spotlight.items.template_items import ExecutableItem
-from spotlight.new_commands.command import Command
+from spotlight.suggestions.templates import ExecutableSuggestion
+from spotlight.commands.command import Command
 
 
 class ResumeCommand(Command):
@@ -11,7 +11,7 @@ class ResumeCommand(Command):
         if kwargs["parameter"] != "":
             return []
         else:
-            return [ExecutableItem(self.title, self.description, "play", PlaybackManager.resume)]
+            return [ExecutableSuggestion(self.title, self.description, "play", PlaybackManager.resume)]
 
 
 class PauseCommand(Command):
@@ -22,7 +22,7 @@ class PauseCommand(Command):
         if kwargs["parameter"] != "":
             return []
         else:
-            return [ExecutableItem(self.title, self.description, "pause", PlaybackManager.pause)]
+            return [ExecutableSuggestion(self.title, self.description, "pause", PlaybackManager.pause)]
 
 
 class NextCommand(Command):
@@ -33,7 +33,7 @@ class NextCommand(Command):
         if kwargs["parameter"] != "":
             return []
         else:
-            return [ExecutableItem(self.title, self.description, "forward", PlaybackManager.skip)]
+            return [ExecutableSuggestion(self.title, self.description, "forward", PlaybackManager.skip)]
 
 
 class PreviousCommand(Command):
@@ -44,4 +44,15 @@ class PreviousCommand(Command):
         if kwargs["parameter"] != "":
             return []
         else:
-            return [ExecutableItem(self.title, self.description, "backward", PlaybackManager.previous)]
+            return [ExecutableSuggestion(self.title, self.description, "backward", PlaybackManager.previous)]
+
+
+class SavedCommand(Command):
+    def __init__(self):
+        Command.__init__(self, "Saved", "Plays saved/liked songs", "saved")
+
+    def get_items(self, **kwargs):
+        if kwargs["parameter"] != "":
+            return []
+        else:
+            return [ExecutableSuggestion(self.title, self.description, "heart", PlaybackManager.play_liked)]

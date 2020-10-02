@@ -1,7 +1,6 @@
-from spotlight.commands.command import Command
-from spotlight.suggestion import Suggestion
+from spotlight.suggestions.suggestion import Suggestion
 
-class Menu(Command):
+class MenuSuggestion(Suggestion):
     def __init__(self, title: str, description: str, icon: str, prefix: str, menu_items: list, fill_prefix=True):
         Suggestion.__init__(self, title, description, icon, lambda: None, prefix,
                             "", "menu_fill" if fill_prefix else "menu")
@@ -29,7 +28,7 @@ class Menu(Command):
         :return:
         """
         if not match:
-            return super(Menu, self).get_items()
+            return [self]
         else:
             self.refresh_menu_items()
             return self.menu_items

@@ -1,11 +1,10 @@
-from spotlight.items.item import Item
 from api.manager import PlaybackManager
 
 # Item classes that are used in more than one file should be written into this file
-from spotlight.items.options import SongOptions, OptionItem
+from spotlight.suggestions.options import SongOptions, OptionItem
 
 
-class SongItem(OptionItem):
+class SongSuggestion(OptionItem):
     def __init__(self, name: str, artists: str, image_name: str, id_: str):
         """
         Song Item Class
@@ -19,7 +18,7 @@ class SongItem(OptionItem):
         self.option_items = SongOptions.create_song_options(name, artists, image_name, id_)
 
 
-class QueueItem(OptionItem):
+class QueueSuggestion(OptionItem):
     def __init__(self, name: str, artists: str, image_name: str, id_: str):
         """
         Queue Item Class
@@ -32,7 +31,7 @@ class QueueItem(OptionItem):
                             PlaybackManager.queue_song, "", id_, "exe")
 
 
-class PlaylistItem(OptionItem):
+class PlaylistSuggestion(OptionItem):
     def __init__(self, name: str, owner: str, image_name: str, id_: str):
         """
         Playlist Item Class
@@ -45,7 +44,7 @@ class PlaylistItem(OptionItem):
                             PlaybackManager.play_playlist, "", id_, "exe")
 
 
-class ArtistItem(OptionItem):
+class ArtistSuggestion(OptionItem):
     def __init__(self, name: str, genre: str, image_name: str, id_: str):
         """
         Artist Item Class
@@ -58,7 +57,7 @@ class ArtistItem(OptionItem):
                             PlaybackManager.play_artist, "", id_, "exe")
 
 
-class AlbumItem(OptionItem):
+class AlbumSuggestion(OptionItem):
     def __init__(self, name: str, artists: str, image_name: str, id_: str):
         """
         Album Item Class

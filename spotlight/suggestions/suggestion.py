@@ -4,7 +4,7 @@ from os import sep
 
 class Suggestion:
     """
-    All suggestions and items inherit from this class
+    All suggestions and suggestions inherit from this class
     """
 
     def __init__(self, title: str, description: str, icon_name: str, function: classmethod, prefix: str, parameter, setting: str):

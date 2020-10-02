@@ -1,8 +1,8 @@
 from spotipy import Spotify
 
-from spotlight.items.play import SongItem, QueueItem, PlaylistItem, AlbumItem, ArtistItem
-from spotlight.items.template_items import WarningItem
-from spotlight.new_commands.command import Command
+from spotlight.suggestions.play import SongSuggestion, QueueSuggestion, PlaylistSuggestion, AlbumSuggestion, ArtistSuggestion
+from spotlight.suggestions.templates import WarningSuggestion
+from spotlight.commands.command import Command
 
 
 class SearchOnlineCommand(Command):
@@ -15,7 +15,7 @@ class SearchOnlineCommand(Command):
         """
         Overrides BaseCommand get_dicts method
         :param parameter: This is the str that comes after the prefix
-        :return: Returns a list of command dictionaries of items from the online search
+        :return: Returns a list of song suggestions from the online search
         """
         parameter = kwargs["parameter"]
         item_list = []
@@ -29,27 +29,27 @@ class SearchOnlineCommand(Command):
                 for item in results:
                     if self.type_ == "song":
                         item_list.append(
-                            SongItem(item["name"], f"{', '.join([a['name'] for a in item['artists']])}",
+                            SongSuggestion(item["name"], f"{', '.join([a['name'] for a in item['artists']])}",
                                      "play", item["uri"]))
                     elif self.type_ == "queue":
-                        item_list.append(QueueItem(item["name"],
+                        item_list.append(QueueSuggestion(item["name"],
                                                    f"{', '.join([a['name'] for a in item['artists']])}",
                                                    "queue", item["uri"]))
                     elif self.type_ == "album":
-                        item_list.append(AlbumItem(item["name"],
+                        item_list.append(AlbumSuggestion(item["name"],
                                                    f"By {', '.join([a['name'] for a in item['artists']])}",
                                                    "album", item["uri"]))
                     elif self.type_ == "playlist":
-                        item_list.append(PlaylistItem(item["name"], f"By {item['owner']['display_name']}",
+                        item_list.append(PlaylistSuggestion(item["name"], f"By {item['owner']['display_name']}",
                                                       "playlist", item["uri"]))
                     elif self.type_ == "artist":
-                        item_list.append(ArtistItem(item["name"],
+                        item_list.append(ArtistSuggestion(item["name"],
                                                     'music' if len(item['genres']) == 0 else
                                                     item['genres'][0],
                                                     "artist", item["uri"]))
 
                 if len(item_list) == 0:
-                    item_list = [WarningItem("No Results Found", "Please adjust search term")]
+                    item_list = [WarningSuggestion("No Results Found", "Please adjust search term")]
             except:
-                item_list = [WarningItem("No Results Found", "Please adjust search term")]
+                item_list = [WarningSuggestion("No Results Found", "Please adjust search term")]
         return item_list

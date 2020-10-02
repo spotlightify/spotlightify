@@ -35,7 +35,7 @@ class MiscFunctions:
         :param value: int between 1 and 10
         '''
         try:
-            if 0 <= value <= 10:
+            if 1 <= value <= 10:
                 self.sp.volume(value*10)
             else:
                 raise Exception

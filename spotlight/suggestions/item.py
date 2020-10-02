@@ -1,4 +1,4 @@
-from spotlight.suggestion import Suggestion
+from spotlight.suggestions.suggestion import Suggestion
 
 
 class Item(Suggestion):

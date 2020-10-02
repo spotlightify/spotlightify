@@ -1,10 +1,10 @@
 from typing import List
 
 from caching.holder import CacheHolder
-from spotlight.items.item import Item
-from spotlight.items.play import SongItem, QueueItem, PlaylistItem, AlbumItem, ArtistItem
-from spotlight.items.template_items import FillItem, PassiveItem
-from spotlight.new_commands.command import Command
+from spotlight.suggestions.item import Item
+from spotlight.suggestions.play import SongSuggestion, QueueSuggestion, PlaylistSuggestion, AlbumSuggestion, ArtistSuggestion
+from spotlight.suggestions.templates import FillSuggestion, PassiveSuggestion
+from spotlight.commands.command import Command
 
 
 class SearchCacheCommand(Command):
@@ -25,28 +25,28 @@ class SearchCacheCommand(Command):
         parameter = kwargs["parameter"]
 
         if parameter == "":
-            return [FillItem(self.title, self.description, self.prefix[:-1], self.prefix)]
+            return [FillSuggestion(self.title, self.description, self.prefix[:-1], self.prefix)]
 
-        online_item = FillItem(f"Search Online for '{parameter}'", "Search Online", "search", f"🔎{self.type_} {parameter}")
+        online_item = FillSuggestion(f"Search Online for '{parameter}'", "Search Online", "search", f"🔎{self.type_} {parameter}")
         item_list, title, image, item, cache, description = [online_item], \
                                                             "name", "image", None, None, "description"
 
         if self.type_ == "song" or self.type_ == "queue":
             description = "artist"
             cache = CacheHolder.song_cache
-            item = SongItem if self.type_ == "song" else QueueItem
+            item = SongSuggestion if self.type_ == "song" else QueueSuggestion
         if self.type_ == "playlist":
             description = "owner"
             cache = CacheHolder.playlist_cache
-            item = PlaylistItem
+            item = PlaylistSuggestion
         if self.type_ == "album":
             cache = CacheHolder.album_cache
             description = "artist"
-            item = AlbumItem
+            item = AlbumSuggestion
         if self.type_ == "artist":
             cache = CacheHolder.artist_cache
             description = "genre"
-            item = ArtistItem
+            item = ArtistSuggestion
 
         for key, values in cache[f'{self.type_ if self.type_ != "queue" else "song"}s'].items():
             name = values[title]

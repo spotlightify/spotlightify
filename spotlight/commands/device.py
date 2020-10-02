@@ -1,15 +1,26 @@
 from spotipy import Spotify
 
-from spotlight.items.item import Item
-from spotlight.items.template_items import WarningItem
-from spotlight.menu import Menu
-from api.misc import MiscFunctions
 from api.manager import PlaybackManager
+from api.misc import MiscFunctions
+from spotlight.suggestions.menu import MenuSuggestion
+from spotlight.commands.command import Command
+from spotlight.suggestions.templates import ExecutableSuggestion, WarningSuggestion
 
 
-class DeviceCommand(Menu):
+class DeviceCommand(Command):
     def __init__(self, sp: Spotify):
-        Menu.__init__(self, "Device", "Click to select a device", "device", "device", [])
+        Command.__init__(self, "Device", "Set the device to play music from", "device")
+        self.sp = sp
+
+    def get_items(self, **kwargs):
+        if kwargs["parameter"] != "":
+            return []
+        else:
+            return [DeviceMenuSuggestions(self.sp)]
+
+class DeviceMenuSuggestions(MenuSuggestion):
+    def __init__(self, sp: Spotify):
+        MenuSuggestion.__init__(self, "Device", "Set The device to play music from", "device", "device", [])
         self.sp = sp
 
     def refresh_menu_items(self):
@@ -17,12 +28,8 @@ class DeviceCommand(Menu):
         self.clear_menu_items()
         if not devices:
             self.add_menu_item(
-                WarningItem("No devices currently available", "Make sure the Spotify desktop app is open"))
+                WarningSuggestion("No devices currently available", "Make sure the Spotify desktop app is open"))
         else:
             for device in devices:
-                self.add_menu_item(DeviceItem(device["name"], device["type"], device["id"]))
-
-
-class DeviceItem(Item):
-    def __init__(self, name, type, id_):
-        Item.__init__(self, name, type, "device", PlaybackManager.set_device, "", id_, "exe")
+                self.add_menu_item(ExecutableSuggestion(device["name"], device["type"], "device",
+                                                        PlaybackManager.set_device, parameter=device["id"]))
