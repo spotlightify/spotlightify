@@ -12,11 +12,11 @@ from auth import config
 from caching import CacheManager, SongQueue, ImageQueue
 from colors import colors
 from definitions import ASSETS_DIR
-from settings import default_themes
 from shortcuts import listener
 from ui import SpotlightUI
 
 from settings.preferences import Preferences
+
 
 class App:
     def __init__(self):
@@ -24,8 +24,6 @@ class App:
 
         self.app = QApplication([])
         self.app.setQuitOnLastWindowClosed(False)
-
-        self.theme = default_themes["dark"]
 
         self.tray = None
         self.tray_menu = None
@@ -49,23 +47,22 @@ class App:
         self.run()
 
     def run(self):
-        prefs = self.preferences()
         self.uiInvoke()
-
 
     def uiInvoke(self):
         """
         Runs authorisation process
         and invokes the UI.
         """
+        prefs = self.preferences()
+        prefs.runPreChecks()
+
         try:
-            print("Starting auth process... ")
+            print(f"{colors.BLUE}Starting auth process...{colors.RESET} \n\n ")
             self.oauth = self.config.get_oauth()
             self.token_info = self.oauth.get_access_token(as_dict=True)
             self.spotify = Spotify(auth=self.token_info["access_token"])
-
             self.init_tray()
-
             self.listener_thread.start()
             self.song_queue = SongQueue()
             self.image_queue = ImageQueue()
@@ -79,8 +76,6 @@ class App:
 
         except Exception as ex:
             print(ex)
-
-
 
     def init_tray(self):
         self.tray_menu = QMenu()
@@ -101,7 +96,7 @@ class App:
         self.tray.activated.connect(lambda reason: self.show_spotlight(reason=reason))
 
     def show_spotlight(self, **kwargs):
-        def focus_windows(): # Only way to focus UI on Windows
+        def focus_windows():  # Only way to focus UI on Windows
             mouse = Controller()
             # mouse position before focus
             mouse_pos_before = mouse.position
@@ -111,7 +106,6 @@ class App:
             mouse.position = (target_pos_x, target_pos_y)
             mouse.click(Button.left)
             mouse.position = mouse_pos_before
-
 
         if kwargs and kwargs["reason"] != 3:
             # if kwargs contains "reason" this has been invoked by the tray icon being clicked
@@ -126,10 +120,8 @@ class App:
         ui.function_row.refresh(None)  # refreshes function row button icons
         self.token_refresh()
 
-
         if "Windows" in platform():
             focus_windows()
-
 
     def token_refresh(self):
         try:
