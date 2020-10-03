@@ -47,7 +47,7 @@ class Config:
                     self._redirect_uri = params["redirect_uri"]
 
         except FileNotFoundError:
-            print("_config.json does not exist.")
+            print("config.json does not exist.")
 
     def save_json(self):
         data = {
