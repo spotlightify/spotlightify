@@ -1,6 +1,3 @@
-import sys
-import time
-import webbrowser
 from os import sep, kill, getpid
 from platform import platform
 from sys import exit
@@ -11,7 +8,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from pynput.mouse import Controller, Button
 from spotipy import Spotify
 
-from auth import AuthUI, config
+from auth import config
 from caching import CacheManager, SongQueue, ImageQueue
 from colors import colors
 from definitions import ASSETS_DIR
@@ -19,6 +16,7 @@ from settings import default_themes
 from shortcuts import listener
 from ui import SpotlightUI
 
+from settings.preferences import Preferences
 
 class App:
     def __init__(self):
@@ -34,8 +32,10 @@ class App:
         self.action_open = None
         self.action_exit = None
 
-        self.config = config
+        self.preferences = Preferences
 
+        self.oauth = None
+        self.config = config
         self.spotlight = None
         self.spotify = None
         self.oauth = None
@@ -49,20 +49,17 @@ class App:
         self.run()
 
     def run(self):
-        print(self.config.username)
-        if not self.config.is_valid():
-            app = QApplication([])
-            app.setQuitOnLastWindowClosed(True)
-            auth = AuthUI()
-            # ADD TUTORIAL WEBSITE webbrowser.open("https://alfred-spotify-mini-player.com/setup/", 2)
-            while not self.config.is_valid():
-                auth.show()
-                app.exec_()
-                if auth.isCanceled:
-                    sys.exit()
+        prefs = self.preferences()
+        self.uiInvoke()
 
+
+    def uiInvoke(self):
+        """
+        Runs authorisation process
+        and invokes the UI.
+        """
         try:
-            print("Starting auth process")
+            print("Starting auth process... ")
             self.oauth = self.config.get_oauth()
             self.token_info = self.oauth.get_access_token(as_dict=True)
             self.spotify = Spotify(auth=self.token_info["access_token"])
@@ -82,6 +79,8 @@ class App:
 
         except Exception as ex:
             print(ex)
+
+
 
     def init_tray(self):
         self.tray_menu = QMenu()
