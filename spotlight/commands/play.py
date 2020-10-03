@@ -25,19 +25,20 @@ class PlayCommand(Command):
                 suggestions = [WarningItem("Caching in progress...", "Please wait until items have been cached")]
         return suggestions
 
+    def clean_name(self, x):
+        name = x.lower() if isinstance(x,str) else x[1]["name"].lower()
+        for i in ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]:
+            name = name.replace(i, "")
+        return name
+
     def binary_search(self, L, target):
         start = 0
         end = len(L) - 1
 
         while start <= end:
             middle = (start + end)// 2
-            key, values = L[middle]
-            search = values["name"]
-
-            removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
-            for i in removables:
-                search = search.replace(i, "")
-                target = target.replace(i, "")
+            search = self.clean_name(L[middle])
+            target = self.clean_name(target)
 
             if len(search)>=len(target) and search[:len(target)].lower() == target.lower():
                 return middle
@@ -46,7 +47,6 @@ class PlayCommand(Command):
                 end = middle - 1 
             elif search.lower() < target.lower():
                 start = middle + 1
-
 
     def _get_item_suggestions(self, parameter: str) -> list:
         suggestions, title, image, item, cache, description = [], "name", "image", None, None, "description"
@@ -68,23 +68,16 @@ class PlayCommand(Command):
             description = "genre"
             item = ArtistItem
 
-        def by_name(x):
-            removables = ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]
-            name = x[1]["name"].lower()
-            for i in removables:
-                name = name.replace(i, "")
-            return name
+        song_list = list(cache[f'{self._type if self._type != "queue" else "song"}s'].items())
+        song_list = sorted(song_list, key=self.clean_name)
 
-        L = list(cache[f'{self._type if self._type != "queue" else "song"}s'].items())
-        L = sorted(L, key=by_name)
-        
         while len(suggestions)<5:
-            result = self.binary_search(L, parameter)
+            result = self.binary_search(song_list, parameter)
             if result:
-                key, values = L[result]
+                key, values = song_list[result]
                 new_suggestion = item(values[title], values[description], values[image], key)
                 suggestions.append(new_suggestion)
-                L.pop(result)
+                song_list.pop(result)
             else:
                 break
         return suggestions
