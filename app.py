@@ -54,6 +54,8 @@ class App:
         Runs authorisation process
         and invokes the UI.
         """
+        # Pre checks in event of no config.json
+
         prefs = self.preferences()
         prefs.runPreChecks()
 
