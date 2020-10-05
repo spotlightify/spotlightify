@@ -7,14 +7,14 @@ class Suggestion:
     All suggestions and suggestions inherit from this class
     """
 
-    def __init__(self, title: str, description: str, icon_name: str, function: classmethod, prefix: str, parameter, setting: str):
+    def __init__(self, title: str, description: str, icon_name: str, function: classmethod, fill_str: str, parameter, setting: str):
         """
         :param title: title of the suggestion (displayed visually)
         :param description: description of the suggestion (displayed visually)
         :param icon_name: name of svg icon (svg displayed visually)
         :param function: the function that is called if the command is executed
         :param parameter: additional text used by the command
-        :param prefix: text which is entered to find the command
+        :param fill_str: text which is entered to find the command
         :param setting: what happens when the command is clicked, this can be "exe" - calls the function,
                         "fill" - fills the prefix to the textbox, "none" - does nothing when clicked
         """
@@ -24,14 +24,14 @@ class Suggestion:
         self.__function = None
         self.__parameter = None
         self.__setting = None
-        self.__prefix = None
+        self.__fill_str = None
         self.title = title
         self.description = description
         self.icon_name = icon_name
         self.function = function
         self.parameter = parameter
         self.setting = setting
-        self.prefix = prefix
+        self.fill_str = fill_str
 
     @property
     def title(self):
@@ -99,10 +99,10 @@ class Suggestion:
             raise Exception(f"Suggestion.setting must be str of {', '.join(settings[:-1])} or {settings[-1]}")
 
     @property
-    def prefix(self):
-        return self.__prefix
+    def fill_str(self):
+        return self.__fill_str
 
-    @prefix.setter
-    def prefix(self, value):
+    @fill_str.setter
+    def fill_str(self, value):
         if type(value).__name__ != "str": raise Exception("Suggestion.prefix must be of type str")
-        self.__prefix = value
+        self.__fill_str = value

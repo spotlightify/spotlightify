@@ -41,5 +41,5 @@ class Command:
         if type(value).__name__ != "str": raise Exception("Suggestion.prefix must be of type str")
         self.__prefix = value
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         pass

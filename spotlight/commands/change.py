@@ -14,7 +14,7 @@ class LikeCommand(Command):
         # The rate limiter requires the same is_song_liked method to run for it to properly limit API requests
         self.liked = CheckFunctions(self.sp).is_song_liked
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         liked = self.liked()
@@ -34,7 +34,7 @@ class RepeatCommand(Command):
     def __init__(self):
         Command.__init__(self, "Repeat", "Change the repeat state of your Spotify player", "repeat")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         items = [ExecutableSuggestion(s, f"Set repeat state to {s.upper()}", "repeat", PlaybackManager.toggle_repeat)
@@ -49,7 +49,7 @@ class ShuffleCommand(Command):
         # The rate limiter requires the same is_shuffle_on method to run for it to properly limit API requests
         self.check_shuffle = CheckFunctions(self.sp).is_shuffle_on
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         if self.check_shuffle():

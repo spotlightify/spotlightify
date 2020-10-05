@@ -1,7 +1,4 @@
-from typing import List
-
 from caching.holder import CacheHolder
-from spotlight.suggestions.item import Item
 from spotlight.suggestions.play import SongSuggestion, QueueSuggestion, PlaylistSuggestion, AlbumSuggestion, ArtistSuggestion
 from spotlight.suggestions.templates import FillSuggestion, PassiveSuggestion
 from spotlight.commands.command import Command
@@ -16,7 +13,7 @@ class SearchCacheCommand(Command):
         Command.__init__(self, prefix, f"Search for a {search_type}", prefix)
         self.type_ = search_type
 
-    def get_items(self, **kwargs) -> list:
+    def get_suggestions(self, **kwargs) -> list:
         """
 
         :param kwargs: parameter="song/artist/playlist/album name" <- takes this format

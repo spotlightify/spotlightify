@@ -96,10 +96,10 @@ class SvgButton(QPushButton):
 
 
 class SuggestRow(QPushButton):
-    def __init__(self, parent, command: Suggestion):
+    def __init__(self, parent, suggestion: Suggestion):
         QWidget.__init__(self, parent)
-        # defines whether the command has options
-        self.has_options = True if hasattr(command, "option_items") else False
+        # defines whether the command has associated options
+        self.has_options = True if hasattr(suggestion, "option_items") else False
         # gets the current theme
         self.active_theme = parent.active_theme
         # gets the font
@@ -108,10 +108,10 @@ class SuggestRow(QPushButton):
         width, height = [parent.width(), 57]
         self.resize(width, height)
         # makes command dictionary a class variable
-        self.command = command # Stores information about the command the row will hold
+        self.suggestion = suggestion # Stores information about the command the row will hold
         # widget creation
         self.icon = None  # This can either be an svg or jpg file
-        icon_path = self.command.icon_name  # gets the icon path
+        icon_path = self.suggestion.icon_name  # gets the icon path
         if "svg" in icon_path:
             self.icon = QSvgWidget(self)
             self.icon.load(icon_path)
@@ -120,8 +120,8 @@ class SuggestRow(QPushButton):
             icon = QLabel(self)
             icon.setPixmap(pixmap)
             self.icon = icon
-        self.title_lbl = QLabel(self.command.title, self)
-        self.description_lbl = QLabel(self.command.description, self)
+        self.title_lbl = QLabel(self.suggestion.title, self)
+        self.description_lbl = QLabel(self.suggestion.description, self)
         self.option_icon = QSvgWidget(self)
         self.option_icon.load(f"{ASSETS_DIR}svg{sep}ellipsis.svg")
         self.set_style()
@@ -129,7 +129,7 @@ class SuggestRow(QPushButton):
     def set_style(self):
         # TODO: Add support for theming for icon and layout scalability components
         # set style and location of icon
-        if "svg" in self.command.icon_name:  # different location and sizes depending on icon type
+        if "svg" in self.suggestion.icon_name:  # different location and sizes depending on icon type
             self.icon.move(18, 18)
             self.icon.resize(20, 20)
             self.icon.setStyleSheet("background-color: rgba(0,0,0,0%);")

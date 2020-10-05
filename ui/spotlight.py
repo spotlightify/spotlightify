@@ -129,7 +129,7 @@ class SpotlightUI(QWidget):
             self.move(self.x(), self.y() - 47)
             self.function_row.show()
         if self.textbox.text() != "":
-            self.create_command_widgets()
+            self.create_suggestion_widgets()
 
     def text_changed_handler(self):
         self.refresh_visible_items()
@@ -146,7 +146,7 @@ class SpotlightUI(QWidget):
                 row.setFocusPolicy(QtCore.Qt.StrongFocus)
                 row.hide()
         if length > 0:
-            self.create_command_widgets()
+            self.create_suggestion_widgets()
         else:
             self.current_num_of_rows = 0
             if self.function_row.isHidden():
@@ -160,10 +160,10 @@ class SpotlightUI(QWidget):
         else:
             self.textbox.clear()
 
-    def add_row(self, index, command):
+    def add_row(self, index, suggestion):
         self.rows[index].deleteLater()
-        self.rows[index] = SuggestRow(self, command)
-        self.rows[index].clicked.connect(lambda: self.command_exe_handler(command))
+        self.rows[index] = SuggestRow(self, suggestion)
+        self.rows[index].clicked.connect(lambda: self.command_exe_handler(suggestion))
         self.rows[index].setFocusPolicy(QtCore.Qt.TabFocus)
         self.rows[index].installEventFilter(self)
         if self.function_row.isHidden():
@@ -173,43 +173,43 @@ class SpotlightUI(QWidget):
         self.rows[index].show()
         self.current_num_of_rows = index + 1
 
-    def command_exe_handler(self, command):
-        if command.setting == "fill":
-            print(command.prefix)
-            self.textbox.setText(command.prefix)
+    def command_exe_handler(self, suggestion):
+        if suggestion.setting == "fill":
+            print(suggestion.fill_str)
+            self.textbox.setText(suggestion.fill_str)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif self.shift_in and hasattr(command, "option_items"):
+        elif self.shift_in and hasattr(suggestion, "option_items"):
             self.refresh_visible_items(hide_all_items=True)
-            self.show_command_widgets(command.option_items)
+            self.show_suggestion_widgets(suggestion.option_items)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif isinstance(command, MenuSuggestion):
+        elif isinstance(suggestion, MenuSuggestion):
             self.refresh_visible_items(hide_all_items=True)
-            self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
-            command.refresh_menu_items()
-            self.show_command_widgets(command.menu_items)
+            self.textbox.setText(suggestion.fill_str) if suggestion.setting == "menu_fill" else None
+            suggestion.refresh_menu_items()
+            self.show_suggestion_widgets(suggestion.menu_items)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif command.setting == "none":
+        elif suggestion.setting == "none":
             return
         else:
-            self.command_handler.perform_command(command)
+            self.command_handler.perform_command(suggestion)
             self.textbox.clear()
             self.hide()
 
-    def create_command_widgets(self):
+    def create_suggestion_widgets(self):
         term = self.textbox.text().strip().lower()
-        matched_commands = self.command_handler.get_command_suggestions(term)
-        self.show_command_widgets(matched_commands)
+        matched_suggestions = self.command_handler.get_command_suggestions(term)
+        self.show_suggestion_widgets(matched_suggestions)
 
-    def show_command_widgets(self, command_list: list):
-        length = len(command_list)
+    def show_suggestion_widgets(self, suggestion_list: list):
+        length = len(suggestion_list)
         self.dynamic_resize(length)
         if length != 0:
             for row in range(0, length):
-                command = command_list[row] # changes to dictionary form
-                self.add_row(row, command)
+                suggestion = suggestion_list[row] # changes to dictionary form
+                self.add_row(row, suggestion)
         else:
             self.current_num_of_rows = 0
 

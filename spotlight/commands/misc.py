@@ -7,7 +7,7 @@ class GoToCommand(Command):
     def __init__(self):
         Command.__init__(self, "Go to", "Seek to a point in a song e.g. '2:10'", "go to ")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         parameter = kwargs["parameter"]
         if parameter == "":
             return [FillSuggestion(self.title, self.description, "forward", "go to ")]
@@ -19,7 +19,7 @@ class VolumeCommand(Command):
     def __init__(self):
         Command.__init__(self, "Volume", "Set volume level from 1-10", "volume ")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         parameter = kwargs["parameter"]
         if parameter == "":
             return [FillSuggestion(self.title, self.description, "volume", "volume ")]
@@ -31,7 +31,7 @@ class ShareCommand(Command):
     def __init__(self):
         Command.__init__(self, "Share", "Copies to clipboard the Spotify URL of the song currently playing", "share")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:
@@ -42,7 +42,7 @@ class AuthenticationCommand(Command):
     def __init__(self):
         Command.__init__(self, "Authentication", "Change Spotify API App Credentials", "authentication")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:
@@ -53,7 +53,7 @@ class ExitCommand(Command):
     def __init__(self):
         Command.__init__(self, "Exit", "Exits the Spotightlify application", "exit")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:

@@ -12,7 +12,7 @@ class DeviceCommand(Command):
         Command.__init__(self, "Device", "Set the device to play music from", "device")
         self.sp = sp
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:

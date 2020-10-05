@@ -7,7 +7,7 @@ class ResumeCommand(Command):
     def __init__(self):
         Command.__init__(self, "Resume", "Resumes playback", "resume")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:
@@ -18,7 +18,7 @@ class PauseCommand(Command):
     def __init__(self):
         Command.__init__(self, "Pause", "Pauses playback", "pause")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:
@@ -29,7 +29,7 @@ class NextCommand(Command):
     def __init__(self):
         Command.__init__(self, "Next", "Skips current song", "next")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:
@@ -40,7 +40,7 @@ class PreviousCommand(Command):
     def __init__(self):
         Command.__init__(self, "Previous", "Plays previous song", "previous")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:
@@ -51,7 +51,7 @@ class SavedCommand(Command):
     def __init__(self):
         Command.__init__(self, "Saved", "Plays saved/liked songs", "saved")
 
-    def get_items(self, **kwargs):
+    def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:

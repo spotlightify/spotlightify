@@ -4,16 +4,21 @@ from os import getenv
 from api.manager import PlaybackManager
 from caching.holder import CacheHolder
 from spotlight.suggestions.suggestion import Suggestion
-from spotlight.suggestions.item import Item
 from spotlight.suggestions.templates import PassiveSuggestion
 from spotlight.suggestions.menu import MenuSuggestion
 
 
-class OptionItem(Suggestion):
-    def __init__(self, title: str, description: str, icon: str, function: classmethod, parameter: str, prefix: str,
-                 setting: str):
-        Suggestion.__init__(self, title, description, icon, function, parameter, prefix, setting)
-        self.option_items = []
+class OptionSuggestion(Suggestion):
+    """
+    Shows option suggestions (option_items list of Suggestions) when shift+enter is inputted on this suggestion from
+    the Spotlightify Search
+    """
+    def __init__(self, title: str, description: str, icon: str, function: classmethod, parameter: str, fill_str: str,
+                 setting: str, option_items=None):
+        Suggestion.__init__(self, title, description, icon, function, parameter, fill_str, setting)
+        if option_items is None:
+            option_items = []
+        self.option_items = option_items
 
 
 class SongOptions:
@@ -35,7 +40,7 @@ class DisplaySongOptionSuggestion(PassiveSuggestion):
 
 class AddToQueueOptionSuggestion(Suggestion):
     def __init__(self, song_name, song_id):
-        Suggestion.__init__(self, f"Add to Queue", f"Queue '{song_name}'", "list", PlaybackManager.queue_song,
+        Suggestion.__init__(self, f"Add to Queue", f"Queue '{song_name}'", "queue", PlaybackManager.queue_song,
                       "", song_id, "exe")
 
 
@@ -67,50 +72,26 @@ class AddToPlaylistOptionSuggestion(MenuSuggestion):
             if value["owner"] == getenv('SPOTIFY_USERNAME'):  # TODO Change to something more solid e.g. singleton
                 playlists.append({"name": value["name"], "id": key})
 
+
+
         # create pages list
         len_ = len(playlists)
         num_pages = ceil(len_/4)
+
+        # append back item
         back_item = MenuSuggestion("Back", f"Page 1 of {num_pages}", "exit", "",
                                    SongOptions.create_song_options(self.song_name, self.artist_name, self.image_name, self.song_id),
                                    fill_prefix=False)
-        pages = [[]]
-        pages[0].append(back_item)
-        playlist_index = 0
-        for i in range(0, num_pages):
-            if i != 0:
-                pages.append([])
-                pages[i].append(PlaylistPageChangeSuggestion("previous", pages, i, num_pages))
-            for a in range(0, 4 if (len_ - 1 - playlist_index > 4) else (len_ - playlist_index - 1)):
-                playlist = playlists[playlist_index]
-                playlist_index += 1
-                ids = {"song": self.song_id, "playlist": playlist["id"]}
-                pages[i].append(Item(playlist["name"], f"Add to {playlist['name']}", playlist['id'],
+        self.menu_items.append(back_item)
+
+        # make playlist suggestions list
+        for i in range(0, len_):
+            playlist = playlists[i]
+            ids = {"song": self.song_id, "playlist": playlists[i]["id"]}
+            self.menu_items.append(Suggestion(playlist["name"], f"Add to {playlist['name']}", playlist['id'],
                                      PlaybackManager.add_to_playlist, "", ids, "exe"))
-            if i != num_pages - 1:
-                pages[i].append(PlaylistPageChangeSuggestion("next", pages, i, num_pages))
 
-        self.menu_items = pages[0]
-
-
-class PlaylistPageChangeSuggestion(MenuSuggestion):
-    def __init__(self, navigation: str, pages: list, page_index: int, num_pages):
-        """
-        Used for navigation
-        :param navigation: either "next", "previous" or "back"
-        :param page_index: index of last page shown
-        """
-        MenuSuggestion.__init__(self, "Next Page" if navigation == "next" else "Previous Page",
-                      f"Page {page_index + 1} of {num_pages}", "forward" if navigation == "next" else "backward",
-                      "", [], fill_prefix=False)
-        self.navigation = navigation
-        self.pages = pages
-        self.page_index = page_index
-
-    def refresh_menu_items(self):
-        if self.navigation == "next":
-            self.menu_items = self.pages[self.page_index + 1]
-        else:
-            self.menu_items = self.pages[self.page_index - 1]
+        super(AddToPlaylistOptionSuggestion, self).refresh_menu_items()  # always call super at end for paging
 
 
 class ShareSongOptionSuggestion(Suggestion):

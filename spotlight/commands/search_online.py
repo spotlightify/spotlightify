@@ -11,7 +11,7 @@ class SearchOnlineCommand(Command):
         self.sp = sp
         self.type_ = search_type
 
-    def get_items(self, **kwargs) -> list:
+    def get_suggestions(self, **kwargs) -> list:
         """
         Overrides BaseCommand get_dicts method
         :param parameter: This is the str that comes after the prefix
