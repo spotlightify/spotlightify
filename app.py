@@ -47,17 +47,18 @@ class App:
         self.run()
 
     def run(self):
-        self.uiInvoke()
+        # Pre checks in event of no config.json
 
-    def uiInvoke(self):
+            prefs = self.preferences()
+            prefs.run_prechecks()
+            self.ui_invoke()
+
+    def ui_invoke(self):
+
         """
         Runs authorisation process
         and invokes the UI.
         """
-        # Pre checks in event of no config.json
-
-        prefs = self.preferences()
-        prefs.runPreChecks()
 
         try:
             print(f"{colors.BLUE}Starting auth process...{colors.RESET} \n\n ")
@@ -130,8 +131,8 @@ class App:
             if self.oauth.is_token_expired(token_info=self.token_info):
                 self.token_info = self.oauth.refresh_access_token(self.token_info["refresh_token"])
                 self.spotify.set_auth(self.token_info["access_token"])
-        except:
-            print("[WARNING] Could not refresh user API token")
+        except Exception as ex:
+            print(f"[WARNING] Could not refresh user API token \n \n {ex}")
 
     @staticmethod
     def exit():
