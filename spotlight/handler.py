@@ -21,10 +21,12 @@ class CommandHandler:
         self.sp = sp
         self.auth_ui = AuthUI()
         self.command_list = [SearchCacheCommand("song"),
+                             SearchCacheCommand("queue"),
                              SearchCacheCommand("artist"),
                              SearchCacheCommand("album"),
                              SearchCacheCommand("playlist"),
                              SearchOnlineCommand("song", sp),
+                             SearchOnlineCommand("queue", sp),
                              SearchOnlineCommand("artist", sp),
                              SearchOnlineCommand("album", sp),
                              SearchOnlineCommand("playlist", sp),
@@ -44,16 +46,7 @@ class CommandHandler:
                              AuthenticationCommand(),
                              ExitCommand()
                              ]
-        # self.command_list = [
-        #                      Command("Authentication", "Enter Spotify API details", "cog", lambda: None,
-        #                              "", "authentication", "exe"),
-        #                      DeviceCommand(sp),
-        #                      Command("Saved", "Plays liked music", "heart", PlaybackManager.play_liked, "", "saved",
-        #                                  "exe"),
-        #                      Command("Exit", "Exit the application", "exit", PlaybackManager.exit_app, "", "exit",
-        #                                  "exe"),
-        #                      Command("Share", "Copy song URL to clipboard", "share", PlaybackManager.copy_url_to_clipboard, "", "share", "exe")
-        #                      ]
+
         self.manager = PlaybackManager(sp, queue)
         self.manager.set_device("")  # Sets default device
         CacheHolder.reload_holder("all")
@@ -77,15 +70,15 @@ class CommandHandler:
                             parameter = text[len(prefix):]
                         else:
                             parameter = ""
-                        suggestions.extend(command.get_items(parameter=parameter))
+                        suggestions.extend(command.get_suggestions(parameter=parameter))
                 else:
                     if text > prefix:
                         parameter = text[len(prefix):]
                     else:
                         parameter = ""
-                    suggestions.extend(command.get_items(parameter=parameter))
+                    suggestions.extend(command.get_suggestions(parameter=parameter))
         if not suggestions:  # gets song suggestions if no other matches are found
-            suggestions = self.command_list[0].get_items(parameter=text)
+            suggestions = self.command_list[0].get_suggestions(parameter=text)
         return suggestions
 
     def perform_command(self, item: Suggestion):
