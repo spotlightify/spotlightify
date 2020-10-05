@@ -100,7 +100,7 @@ class SpotlightUI(QWidget):
             self.focusPreviousChild()
         if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
-                self.command_exe_handler(source.command)
+                self.suggestion_exe_handler(source.suggestion)
         if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
             hide()
         if (event.type() == QtCore.QEvent.FocusOut and not any(w.hasFocus() for w in self.children())):  # hides if not focused
@@ -156,14 +156,14 @@ class SpotlightUI(QWidget):
 
     def textbox_return_pressed_handler(self):
         if self.current_num_of_rows != 0:
-            self.command_exe_handler(self.rows[0].command)
+            self.suggestion_exe_handler(self.rows[0].suggestion)
         else:
             self.textbox.clear()
 
     def add_row(self, index, suggestion):
         self.rows[index].deleteLater()
         self.rows[index] = SuggestRow(self, suggestion)
-        self.rows[index].clicked.connect(lambda: self.command_exe_handler(suggestion))
+        self.rows[index].clicked.connect(lambda: self.suggestion_exe_handler(suggestion))
         self.rows[index].setFocusPolicy(QtCore.Qt.TabFocus)
         self.rows[index].installEventFilter(self)
         if self.function_row.isHidden():
@@ -173,9 +173,8 @@ class SpotlightUI(QWidget):
         self.rows[index].show()
         self.current_num_of_rows = index + 1
 
-    def command_exe_handler(self, suggestion):
+    def suggestion_exe_handler(self, suggestion):
         if suggestion.setting == "fill":
-            print(suggestion.fill_str)
             self.textbox.setText(suggestion.fill_str)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
