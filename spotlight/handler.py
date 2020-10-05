@@ -3,7 +3,6 @@ from spotipy import Spotify
 
 from auth import AuthUI
 
-from spotlight.suggestions.menu import MenuSuggestion
 from spotlight.commands.change import LikeCommand, RepeatCommand, ShuffleCommand
 from spotlight.commands.device import DeviceCommand
 from spotlight.commands.misc import VolumeCommand, GoToCommand, ExitCommand, ShareCommand, AuthenticationCommand
@@ -12,7 +11,9 @@ from spotlight.commands.playing import PlayingCommand
 from spotlight.commands.search_online import SearchOnlineCommand
 from spotlight.commands.search_songs import SearchCacheCommand
 from spotlight.suggestions.suggestion import Suggestion
+
 from caching.holder import CacheHolder
+
 from api.manager import PlaybackManager
 
 

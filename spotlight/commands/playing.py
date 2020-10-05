@@ -1,7 +1,7 @@
 from spotipy import Spotify
 
 from api.playback import PlaybackFunctions
-from spotlight.suggestions.play import SongSuggestion
+from spotlight.suggestions.playable.song import SongSuggestion
 from spotlight.suggestions.menu import MenuSuggestion
 from spotlight.commands.command import Command
 from spotlight.suggestions.templates import WarningSuggestion, WarningFillSuggestion

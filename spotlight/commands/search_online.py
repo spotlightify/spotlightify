@@ -1,6 +1,9 @@
 from spotipy import Spotify
 
-from spotlight.suggestions.play import SongSuggestion, QueueSuggestion, PlaylistSuggestion, AlbumSuggestion, ArtistSuggestion
+from spotlight.suggestions.playable.album import AlbumSuggestion
+from spotlight.suggestions.playable.artist import ArtistSuggestion
+from spotlight.suggestions.playable.playlist import PlaylistSuggestion
+from spotlight.suggestions.playable.song import SongSuggestion, QueueSuggestion
 from spotlight.suggestions.templates import WarningSuggestion
 from spotlight.commands.command import Command
 
