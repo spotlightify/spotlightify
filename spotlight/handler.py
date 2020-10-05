@@ -30,11 +30,11 @@ class CommandHandler:
                              SearchOnlineCommand("artist", sp),
                              SearchOnlineCommand("album", sp),
                              SearchOnlineCommand("playlist", sp),
+                             ResumeCommand(),
                              LikeCommand(sp),
                              RepeatCommand(),
                              ShuffleCommand(sp),
                              PlayingCommand(sp),
-                             ResumeCommand(),
                              PreviousCommand(),
                              NextCommand(),
                              PauseCommand(),
@@ -64,19 +64,11 @@ class CommandHandler:
         for command in self.command_list:
             prefix = command.prefix
             if prefix.startswith(text) or text.startswith(prefix):
-                if issubclass(command.__class__, MenuSuggestion):
-                    if len(prefix) >= len(text):
-                        if text > prefix:
-                            parameter = text[len(prefix):]
-                        else:
-                            parameter = ""
-                        suggestions.extend(command.get_suggestions(parameter=parameter))
+                if text > prefix:
+                    parameter = text[len(prefix):]
                 else:
-                    if text > prefix:
-                        parameter = text[len(prefix):]
-                    else:
-                        parameter = ""
-                    suggestions.extend(command.get_suggestions(parameter=parameter))
+                    parameter = ""
+                suggestions.extend(command.get_suggestions(parameter=parameter))
         if not suggestions:  # gets song suggestions if no other matches are found
             suggestions = self.command_list[0].get_suggestions(parameter=text)
         return suggestions
