@@ -14,7 +14,7 @@ class WarningSuggestion(Suggestion):
 
 class WarningFillSuggestion(Suggestion):
     def __init__(self, title, description, fill_str):
-        Suggestion.__init__(self, title, description, "cog", lambda: None, "", fill_str, "fill")
+        Suggestion.__init__(self, title, description, "cog", lambda: None, fill_str, "" , "fill")
 
 
 class PassiveSuggestion(Suggestion):
