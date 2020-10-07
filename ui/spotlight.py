@@ -140,7 +140,7 @@ class SpotlightUI(QWidget):
         else:
             text = ""
         length = len(text)
-        # this for loop resets tab the tab index for the suggestion rows
+        # this for loop resets the tab index for the suggestion rows
         for row in self.rows:
             if row.isVisible():
                 row.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -178,16 +178,16 @@ class SpotlightUI(QWidget):
             self.textbox.setText(suggestion.fill_str)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif self.shift_in and hasattr(suggestion, "option_items"):
+        elif self.shift_in and hasattr(suggestion, "option_suggestions"):
             self.refresh_visible_items(hide_all_items=True)
-            self.show_suggestion_widgets(suggestion.option_items)
+            self.show_suggestion_widgets(suggestion.option_suggestions)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif isinstance(suggestion, MenuSuggestion):
+        elif isinstance(suggestion, MenuSuggestion) or suggestion.setting == "menu":
             self.refresh_visible_items(hide_all_items=True)
             self.textbox.setText(suggestion.fill_str) if suggestion.setting == "menu_fill" else None
-            suggestion.refresh_menu_items()
-            self.show_suggestion_widgets(suggestion.menu_items)
+            suggestion.refresh_menu_suggestions()
+            self.show_suggestion_widgets(suggestion.menu_suggestions)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
         elif suggestion.setting == "none":

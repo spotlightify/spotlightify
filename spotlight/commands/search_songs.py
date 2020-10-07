@@ -8,6 +8,9 @@ from spotlight.commands.command import Command
 
 
 class SearchCacheCommand(Command):
+    """
+    Command to search for items (songs/playlists/artists/albums) in cache
+    """
     def __init__(self, search_type: str):
         if search_type == "song":
             prefix = "play "
@@ -55,5 +58,5 @@ class SearchCacheCommand(Command):
             if len(name) >= len(parameter) and name[:len(parameter)].lower() == parameter:
                 new_suggestion = item(name, values[description], values[image], key)
                 item_list.append(new_suggestion)
-                # TODO: Add duplicate removal system
+                # TODO: Add duplicate removal system and change search from linear to binary
         return item_list

@@ -53,13 +53,12 @@ class AddToPlaylistOptionSuggestion(MenuSuggestion):
         self.image_name = image_name
         self.current_page = 0
 
-    def refresh_menu_items(self):
+    def refresh_menu_suggestions(self):
         # get relevant info from playlists
         playlists = []
         for key, value in CacheHolder.playlist_cache["playlists"].items():
             if value["owner"] == getenv('SPOTIFY_USERNAME'):  # TODO Change to something more solid e.g. singleton
                 playlists.append({"name": value["name"], "id": key})
-
 
 
         # create pages list
@@ -70,16 +69,17 @@ class AddToPlaylistOptionSuggestion(MenuSuggestion):
         back_item = MenuSuggestion("Back", f"Page 1 of {num_pages}", "exit", "",
                                    SongOptions.create_song_options(self.song_name, self.artist_name, self.image_name, self.song_id),
                                    fill_prefix=False)
-        self.menu_items.append(back_item)
+        menu_items = [back_item]
 
         # make playlist suggestions list
         for i in range(0, len_):
             playlist = playlists[i]
             ids = {"song": self.song_id, "playlist": playlists[i]["id"]}
-            self.menu_items.append(Suggestion(playlist["name"], f"Add to {playlist['name']}", playlist['id'],
+            menu_items.append(Suggestion(playlist["name"], f"Add to {playlist['name']}", playlist['id'],
                                      PlaybackManager.add_to_playlist, "", ids, "exe"))
+        # paging method is called in the setter of menu_suggestions
+        self.menu_suggestions = menu_items
 
-        super(AddToPlaylistOptionSuggestion, self).refresh_menu_items()  # always call super at end for paging
 
 
 class ShareSongOptionSuggestion(Suggestion):
@@ -91,7 +91,7 @@ class ShareSongOptionSuggestion(Suggestion):
 class SongSuggestion(OptionSuggestion):
     def __init__(self, name: str, artists: str, image_name: str, id_: str):
         """
-        Song Item Class
+        Song Suggestion Class
         :param name: Name of the song
         :param artists: Artists associated with the song
         :param image_name: This is the ALBUM ID of a song, use "" if the song is not cached
@@ -99,13 +99,13 @@ class SongSuggestion(OptionSuggestion):
         """
         OptionSuggestion.__init__(self, name, f"By {artists}", image_name if len(image_name) == 22 else "play",
                                   PlaybackManager.play_song, "", id_, "exe")
-        self.option_items = SongOptions.create_song_options(name, artists, image_name, id_)
+        self.option_suggestions = SongOptions.create_song_options(name, artists, image_name, id_)
 
 
 class QueueSuggestion(OptionSuggestion):
     def __init__(self, name: str, artists: str, image_name: str, id_: str):
         """
-        Queue Item Class
+        Queue Suggestion Class
         :param name: Name of the song
         :param artists: Artists associated with the song
         :param image_name: This is the ALBUM ID of a song, use "" if the song is not cached

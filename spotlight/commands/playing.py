@@ -24,12 +24,12 @@ class SongPlayingSuggestion(MenuSuggestion):
         MenuSuggestion.__init__(self, "Currently Playing", "Show currently playing song", "play", "Currently Playing", [])
         self.sp = sp
 
-    def refresh_menu_items(self):
+    def refresh_menu_suggestions(self):
         song = PlaybackFunctions(self.sp).get_current_song_info()
         if song["name"] == "Nothing Currently Playing":
-            self.menu_items = [WarningFillSuggestion("No active device selected", "Click to select device", "device")]
+            self.menu_suggestions = [WarningFillSuggestion("No active device selected", "Click to select device", "device")]
         else:
-            self.menu_items = [PassiveSongSuggestion(f"Playing {song['name']} by {song['artist']}", "Song Currently Playing", song["image"])]
+            self.menu_suggestions = [PassiveSongSuggestion(f"Playing {song['name']} by {song['artist']}", "Song Currently Playing", song["image"])]
 
 
 class PassiveSongSuggestion(SongSuggestion):

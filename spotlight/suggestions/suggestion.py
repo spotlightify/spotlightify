@@ -4,19 +4,20 @@ from os import sep
 
 class Suggestion:
     """
-    All suggestions and suggestions inherit from this class
+    The base class for Suggestions.
     """
 
-    def __init__(self, title: str, description: str, icon_name: str, function: classmethod, fill_str: str, parameter, setting: str):
+    def __init__(self, title: str, description: str, icon_name: str, function: classmethod, fill_str: str, parameter: str, setting: str):
         """
         :param title: title of the suggestion (displayed visually)
         :param description: description of the suggestion (displayed visually)
-        :param icon_name: name of svg icon (svg displayed visually)
-        :param function: the function that is called if the command is executed
-        :param parameter: additional text used by the command
-        :param fill_str: text which is entered to find the command
-        :param setting: what happens when the command is clicked, this can be "exe" - calls the function,
-                        "fill" - fills the prefix to the textbox, "none" - does nothing when clicked
+        :param icon_name: name of svg icon or album art id (displayed visually). Do not include path or extension, just file name.
+        svg assets are stored in "assets/svg/", all icons must be svg.
+        :param function: the classmethod (must be from PlaybackManager) which is called if the command is executed
+        :param parameter: additional text used by the command, usually for a parameter for the function classmethod
+        :param fill_str: text which will fill the Spotlight search if setting variable is "fill"
+        :param setting: what happens when the command is clicked/entered, this can be "exe" - calls the function,
+                        "fill" - fills the fill_str to the textbox, "none" - does nothing when clicked
         """
         self.__title = None
         self.__description = None
@@ -61,7 +62,7 @@ class Suggestion:
     @icon_name.setter
     def icon_name(self, value):
         if type(value).__name__ != "str": raise Exception("Suggestion.icon_name must be of type str and (the name of an icon or album ID of cached album art)")
-        if len(value) == 22:
+        if len(value) == 22:  # checks whether the icon is album art or an svg asset from assets/svg/. Length of string determines this.
             self.__icon_name = f"{CACHE_DIR}art{sep}{value}.jpg"
         else:
             self.__icon_name = f"{ASSETS_DIR}svg{sep}{value if value!='' else 'no-texture'}.svg"

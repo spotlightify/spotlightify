@@ -5,7 +5,7 @@ from spotlight.suggestions.options import OptionSuggestion
 class PlaylistSuggestion(OptionSuggestion):
     def __init__(self, name: str, owner: str, image_name: str, id_: str):
         """
-        Playlist Item Class
+        Playlist Suggestion Class
         :param name: Name of the playlist
         :param owner: owner associated with the playlist
         :param image_name: This is the PLAYLIST ID of a playlist, use "" if the song is not cached

@@ -2,59 +2,69 @@ from math import ceil
 
 from spotlight.suggestions.suggestion import Suggestion
 
+
 class MenuSuggestion(Suggestion):
-    def __init__(self, title: str, description: str, icon: str, fill_str: str, menu_items: list, fill_prefix=True):
+    """
+    A Suggestion that, when clicked, displays more suggestions. Suggestions are paged and
+    """
+
+    def __init__(self, title: str, description: str, icon: str, fill_str: str, menu_suggestions: list,
+                 fill_prefix=True):
+        """
+
+        :param title:
+        :param description:
+        :param icon:
+        :param fill_str:
+        :param menu_suggestions: stores a list of Suggestions to be displayed
+        :param fill_prefix: confirms that when clicked the fill_str will fill into the Spotlight search
+        """
         Suggestion.__init__(self, title, description, icon, lambda: None, fill_str,
                             "", "menu_fill" if fill_prefix else "menu")
-        self.__menu_items = []
-        self.menu_items = menu_items
-        self.pages = [[]]
+        self.__menu_suggestions = []
+        self.menu_suggestions = menu_suggestions
 
     @property
-    def menu_items(self):
-        return self.__menu_items
+    def menu_suggestions(self):
+        return self.__menu_suggestions
 
-    @menu_items.setter
-    def menu_items(self, value):
-        self.__menu_items = value
-
-    def add_menu_item(self, item: Suggestion):
-        self.menu_items.append(item)
-
-    def clear_menu_items(self):
-        self.menu_items = []
-
-    def get_items(self, match: bool) -> list:
-        """
-
-        :param prompt_text: This is the whole text that has been typed into the prompt. NOT just what comes after the prefix
-        :return:
-        """
-        if not match:
-            return [self]
+    @menu_suggestions.setter
+    def menu_suggestions(self, value: list):
+        if len(value) > 6:  # pages lists over 6 Suggestions
+            self.__menu_suggestions = paging_suggestions.page_suggestions(value)
         else:
-            self.refresh_menu_items()
-            return self.menu_items
+            self.__menu_suggestions = value
 
-    def refresh_menu_items(self):
-        self.__page_menu_items()
+    def add_menu_suggestion(self, item: Suggestion):
+        self.menu_suggestions.append(item)
 
-    def __page_menu_items(self):
+    def clear_menu_suggestions(self):
+        self.menu_suggestions = []
+
+    def refresh_menu_suggestions(self):
+        pass
+
+
+class paging_suggestions:
+    """
+    Puts a list of suggestions into pages, primarily used for Option and Menu Suggestions
+    """
+
+    @staticmethod
+    def page_suggestions(items: list):
         # create pages list
-        items = self.menu_items
         len_ = len(items)
         if len_ > 6:
             num_pages = ceil(len_ / 4)
         else:
             num_pages = 1
 
-        pages = self.pages
+        pages = [[] for a in range(0, num_pages)]
         item_index = 1
         for i in range(0, num_pages):
             if i == 0:
                 pages[0].append(items[0])
             elif i > 0:  # Adds a 'previous page' suggestion after the for every page after the first
-                pages.append([])
                 pages[i].append(PageChangeSuggestion("previous", pages, i, num_pages))
             for a in range(item_index, item_index + 4 if len_ - item_index >= 4 else len_):
                 pages[i].append(items[a])
@@ -64,7 +74,7 @@ class MenuSuggestion(Suggestion):
             if len_ == 6:  # if there are 6 menu items to be displayed, this 'if' statement is needed to display the 6th item
                 pages[0].append(items[5])
 
-        self.menu_items = pages[0]
+        return pages[0]  # all suggestions from the initial list can be accessed through this page
 
 
 class PageChangeSuggestion(MenuSuggestion):
@@ -75,14 +85,11 @@ class PageChangeSuggestion(MenuSuggestion):
         :param page_index: index of last page shown
         """
         MenuSuggestion.__init__(self, "Next Page" if navigation == "next" else "Previous Page",
-                      f"Page {page_index + 1} of {num_pages}", "forward" if navigation == "next" else "backward",
-                      "", [], fill_prefix=False)
-        self.navigation = navigation
-        self.pages = pages
-        self.page_index = page_index
-
-    def refresh_menu_items(self):
-        if self.navigation == "next":
-            self.menu_items = self.pages[self.page_index + 1]
+                                f"Page {page_index + 1} of {num_pages}",
+                                "forward" if navigation == "next" else "backward",
+                                "", [], fill_prefix=False)
+        self.menu_suggestions = []
+        if navigation == "next":
+            self.menu_suggestions = pages[page_index + 1]
         else:
-            self.menu_items = self.pages[self.page_index - 1]
+            self.menu_suggestions = pages[page_index - 1]

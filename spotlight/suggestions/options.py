@@ -1,3 +1,4 @@
+from spotlight.suggestions.menu import paging_suggestions
 from spotlight.suggestions.suggestion import Suggestion
 
 
@@ -7,7 +8,7 @@ class OptionSuggestion(Suggestion):
     the Spotlightify Search
     """
     def __init__(self, title: str, description: str, icon: str, function: classmethod, parameter: str, fill_str: str,
-                 setting: str, option_items=None):
+                 setting: str, option_suggestions=None):
         """
 
         :param title:
@@ -17,11 +18,22 @@ class OptionSuggestion(Suggestion):
         :param parameter:
         :param fill_str:
         :param setting:
-        :param option_items: Shows a maximum of 6 (currently) Suggestions stored in a list
+        :param option_suggestions: list of Suggestions which will appear as options. Maximum of 6
         """
         Suggestion.__init__(self, title, description, icon, function, parameter, fill_str, setting)
-        if option_items is None:
-            option_items = []
-        self.option_items = option_items
+        if option_suggestions is None:
+            option_suggestions = []
+        self.__option_suggestions = []
+        self.option_suggestions = option_suggestions
 
+    @property
+    def option_suggestions(self):
+        return self.__option_suggestions
+
+    @option_suggestions.setter
+    def option_suggestions(self, suggestions: list):
+        if len(suggestions) > 6:  # pages lists over 6 Suggestions
+            self.__option_suggestions = paging_suggestions.page_suggestions(suggestions)
+        else:
+            self.__option_suggestions = suggestions
 

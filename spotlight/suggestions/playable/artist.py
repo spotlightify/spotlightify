@@ -5,7 +5,7 @@ from spotlight.suggestions.options import OptionSuggestion
 class ArtistSuggestion(OptionSuggestion):
     def __init__(self, name: str, genre: str, image_name: str, id_: str):
         """
-        Artist Item Class
+        Artist Suggestion Class
         :param name: Name of the artist
         :param genre: artists main genre
         :param image_name: This is the ARTIST ID, use "" if the song is not cached

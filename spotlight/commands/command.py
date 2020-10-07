@@ -1,5 +1,17 @@
+import abc
+
+
 class Command:
+    """
+    Class used to output Suggestions via the get_suggestions method
+    """
     def __init__(self, title: str, description: str, prefix: str):
+        """
+
+        :param title: Title of the command
+        :param description: Description of the command
+        :param prefix: Prefix of the command, used to match suggestions when
+        """
         self.__title = None
         self.__description = None
         self.__prefix = None
@@ -41,5 +53,6 @@ class Command:
         if type(value).__name__ != "str": raise Exception("Suggestion.prefix must be of type str")
         self.__prefix = value
 
+    @abc.abstractmethod
     def get_suggestions(self, **kwargs):
         pass

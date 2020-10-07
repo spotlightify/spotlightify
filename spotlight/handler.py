@@ -18,9 +18,14 @@ from api.manager import PlaybackManager
 
 
 class CommandHandler:
+    """
+    Handles commands and output suggestions for the Spotlight UI
+    """
     def __init__(self, sp: Spotify, queue: Queue):
         self.sp = sp
         self.auth_ui = AuthUI()
+        # store commands in a list
+        # sp needed for some commands for some API functions i.e. check the state of song shuffle
         self.command_list = [SearchCacheCommand("song"),
                              SearchCacheCommand("queue"),
                              SearchCacheCommand("artist"),
@@ -49,19 +54,20 @@ class CommandHandler:
                              ]
 
         self.manager = PlaybackManager(sp, queue)
-        self.manager.set_device("")  # Sets default device
-        CacheHolder.reload_holder("all")
+        # TODO create a settings json to store things like default device
+        self.manager.set_device("")  # sets device to first available
+        CacheHolder.reload_holder("all")  # Initially loads the cache into memory
 
     def get_command_suggestions(self, text: str) -> list:
         """
         Used to return a list of Suggestion objects to be displayed
-        :param text: Text from textbox widget on GUI
+        :param text: Text from textbox widget on Spotlight UI
         :return: list of Suggestion objects corresponding to the text parameter
         """
         CacheHolder.check_reload("all")  # Reloads cached suggestions if time since last reload has surpassed 5 minutes
         suggestions = []
         if text == "":
-            return []
+            return suggestions
         for command in self.command_list:
             prefix = command.prefix
             if prefix.startswith(text) or text.startswith(prefix):
@@ -78,14 +84,13 @@ class CommandHandler:
         """
         Executes a command
         :param command: Suggestion object
-        :return:
         """
         try:
-            if item.title == "Authentication":
+            if item.title == "Authentication":  # opens Auth UI, needs changed at some point
                 self.auth_ui.show()
-            elif item.parameter == "":
+            elif item.parameter == "":  # executes Suggestion's function
                 item.function(self.manager)
-            else:
+            else:  # executes Suggestion's function with a string parameter
                 item.function(self.manager, item.parameter)
         except:
             print("[Error] Command failed to execute")

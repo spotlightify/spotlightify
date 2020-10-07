@@ -9,6 +9,9 @@ from spotlight.commands.command import Command
 
 
 class SearchOnlineCommand(Command):
+    """
+    Command to search online for songs
+    """
     def __init__(self, search_type: str, sp: Spotify):
         Command.__init__(self, "", "Search Online", f"🔎{search_type} ")
         self.sp = sp

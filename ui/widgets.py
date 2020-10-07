@@ -99,7 +99,7 @@ class SuggestRow(QPushButton):
     def __init__(self, parent, suggestion: Suggestion):
         QWidget.__init__(self, parent)
         # defines whether the command has associated options
-        self.has_options = True if hasattr(suggestion, "option_items") else False
+        self.has_options = True if hasattr(suggestion, "option_suggestions") else False
         # gets the current theme
         self.active_theme = parent.active_theme
         # gets the font
@@ -138,7 +138,7 @@ class SuggestRow(QPushButton):
             self.icon.resize(40, 40)
             self.icon.setAlignment(Qt.AlignCenter)
             self.icon.setScaledContents(True)
-        # set style for options cog
+        # set style for options icon
         self.option_icon.move(490, 16)
         self.option_icon.resize(25, 25)
         self.option_icon.setStyleSheet("background-color: rgba(0,0,0,0%);")
