@@ -9,7 +9,7 @@ from spotlight.commands.misc import VolumeCommand, GoToCommand, ExitCommand, Sha
 from spotlight.commands.playback import ResumeCommand, PreviousCommand, PauseCommand, NextCommand, SavedCommand
 from spotlight.commands.playing import PlayingCommand
 from spotlight.commands.search_online import SearchOnlineCommand
-from spotlight.commands.search_songs import SearchCacheCommand
+from spotlight.commands.search_cache import SearchCacheCommand
 from spotlight.suggestions.suggestion import Suggestion
 
 from caching.holder import CacheHolder
