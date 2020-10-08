@@ -25,6 +25,29 @@ class PlayCommand(Command):
                 suggestions = [WarningItem("Caching in progress...", "Please wait until items have been cached")]
         return suggestions
 
+    def clean_name(self, x):
+        name = x.lower() if isinstance(x,str) else x[1]["name"].lower()
+        for i in ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]:
+            name = name.replace(i, "")
+        return name
+
+    def binary_search(self, L, target):
+        start = 0
+        end = len(L) - 1
+
+        while start <= end:
+            middle = (start + end)// 2
+            search = self.clean_name(L[middle])
+            target = self.clean_name(target)
+
+            if len(search)>=len(target) and search[:len(target)].lower() == target.lower():
+                return middle
+
+            if search.lower() > target.lower():
+                end = middle - 1 
+            elif search.lower() < target.lower():
+                start = middle + 1
+
     def _get_item_suggestions(self, parameter: str) -> list:
         suggestions, title, image, item, cache, description = [], "name", "image", None, None, "description"
 
@@ -45,16 +68,19 @@ class PlayCommand(Command):
             description = "genre"
             item = ArtistItem
 
-        for key, values in cache[f'{self._type if self._type != "queue" else "song"}s'].items():
-            name = values[title]
-            if len(suggestions) == 5:
-                break
-            if len(name) >= len(parameter) and name[:len(parameter)].lower() == parameter:
-                new_suggestion = item(name, values[description], values[image], key)
-                suggestions.append(new_suggestion)
-                # TODO: Add duplicate removal system
-        return suggestions
+        song_list = list(cache[f'{self._type if self._type != "queue" else "song"}s'].items())
+        song_list = sorted(song_list, key=self.clean_name)
 
+        while len(suggestions)<5:
+            result = self.binary_search(song_list, parameter)
+            if result:
+                key, values = song_list[result]
+                new_suggestion = item(values[title], values[description], values[image], key)
+                suggestions.append(new_suggestion)
+                song_list.pop(result)
+            else:
+                break
+        return suggestions
 
 class SongCommand(PlayCommand):
     def __init__(self):
