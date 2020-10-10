@@ -1,37 +1,31 @@
 import sys
 from settings.themes import Theme
-from auth import Config, AuthUI
+from auth import config, AuthUI
 from PyQt5.QtWidgets import QApplication
 
+class Preferences():
+    """Pref file for settings such as theming, and other general settings."""
 
-class Preferences_Meta(type):
-    """ Meta class for the Preferences Class.. """
-    _instances = {}
+    __instance__ = None
 
-    def __call__(cls, *args, **kwargs):
-        """
-        Possible changes to the value of the `__init__` argument do not affect
-        the returned instance.
-        """
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
+    def __init__(self):
+        self._config = config
+
+        if Preferences.__instance__ is None:
+            Preferences.__instance__ = self
+
+        else:
+            raise Exception("Another Preferences class cannot be created... \n\n")
 
 
-class Preferences(metaclass=Preferences_Meta):
-    """
-    Pref file for settings such as theming, and other general settings.
-    """
 
-    @classmethod
-    def themeConfig(cls, background, foreground, accent):
+    def themeConfig(self, background, foreground, accent):
         """ Fetches Theme settings  """
         theme_gen = Theme(background, foreground, accent)
         return theme_gen
 
-    @classmethod
-    def run_prechecks(cls):
+
+    def run_prechecks(self):
         """
         Does a pre check and if
         details haven't been set,
@@ -41,16 +35,23 @@ class Preferences(metaclass=Preferences_Meta):
         """
 
         # Validation dependencies
-        config_gen = Config()
 
-        if not config_gen.is_valid():
+        if not self._config.is_valid():
             app = QApplication([])
-            app.setQuitOnLastWindowClosed(False)
+            app.setQuitOnLastWindowClosed(True)
             auth = AuthUI()
 
-        while not config_gen.is_valid():
+
+        while not self._config.is_valid():
             auth.show()
             app.exec_()
             if auth.isCanceled:
                 sys.exit()
+
+
+
+
+
+
+
 
