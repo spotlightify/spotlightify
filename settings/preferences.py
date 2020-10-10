@@ -45,7 +45,7 @@ class Preferences(metaclass=Preferences_Meta):
 
         if not config_gen.is_valid():
             app = QApplication([])
-            app.setQuitOnLastWindowClosed(True)
+            app.setQuitOnLastWindowClosed(False)
             auth = AuthUI()
 
         while not config_gen.is_valid():
@@ -53,3 +53,4 @@ class Preferences(metaclass=Preferences_Meta):
             app.exec_()
             if auth.isCanceled:
                 sys.exit()
+

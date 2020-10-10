@@ -79,7 +79,7 @@ class Config:
         if len(self._redirect_uri) == 0:
             return False
 
-        return True
+        # return True
 
     @property
     def username(self):

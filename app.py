@@ -48,10 +48,10 @@ class App:
 
     def run(self):
         # Pre checks in event of no config.json
+        prefs = self.preferences()
+        prefs.run_prechecks()
 
-            prefs = self.preferences()
-            prefs.run_prechecks()
-            self.ui_invoke()
+        self.ui_invoke()
 
     def ui_invoke(self):
 
