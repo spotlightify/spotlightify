@@ -72,8 +72,9 @@ class SearchCacheCommand(Command):
 
     def __clean_name(self, x):
         name = x.lower() if isinstance(x, str) else x[1]["name"].lower()
-        for i in ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ","]:
+        for i in ["@", "'", '"', "¡", "!", "#", "$", "%", ".", ",", "-", "(", ")"]:
             name = name.replace(i, "")
+        name = name.replace("  ", " ")
         return name
 
     def __binary_search(self, L, target):
