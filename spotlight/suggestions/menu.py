@@ -31,7 +31,7 @@ class MenuSuggestion(Suggestion):
     @menu_suggestions.setter
     def menu_suggestions(self, value: list):
         if len(value) > 6:  # pages lists over 6 Suggestions
-            self.__menu_suggestions = paging_suggestions.page_suggestions(value)
+            self.__menu_suggestions = PagingSuggestions.page_suggestions(value)
         else:
             self.__menu_suggestions = value
 
@@ -45,7 +45,7 @@ class MenuSuggestion(Suggestion):
         pass
 
 
-class paging_suggestions:
+class PagingSuggestions:
     """
     Puts a list of suggestions into pages, primarily used for Option and Menu Suggestions
     """
@@ -55,24 +55,28 @@ class paging_suggestions:
         # create pages list
         len_ = len(items)
         if len_ > 6:
-            num_pages = ceil(len_ / 4)
+            num_pages = ceil((len_ - 2) / 4)
         else:
             num_pages = 1
 
         pages = [[] for a in range(0, num_pages)]
         item_index = 1
-        for i in range(0, num_pages):
-            if i == 0:
-                pages[0].append(items[0])
-            elif i > 0:  # Adds a 'previous page' suggestion after the for every page after the first
-                pages[i].append(PageChangeSuggestion("previous", pages, i, num_pages))
-            for a in range(item_index, item_index + 4 if len_ - item_index >= 4 else len_):
-                pages[i].append(items[a])
-                item_index += 1
-            if num_pages > 1 and i != num_pages - 1:  # Adds a 'next page' suggestion for every page before the last
-                pages[i].append(PageChangeSuggestion("next", pages, i, num_pages))
-            if len_ == 6:  # if there are 6 menu items to be displayed, this 'if' statement is needed to display the 6th item
-                pages[0].append(items[5])
+        if num_pages > 1:
+            for i in range(0, num_pages):
+                if i == 0:
+                    pages[0].append(items[0])
+                elif i > 0:  # Adds a 'previous page' suggestion after the for every page after the first
+                    pages[i].append(PageChangeSuggestion("previous", pages, i, num_pages))
+                for a in range(item_index, item_index + 4 if len_ - item_index >= 4 else len_):
+                    pages[i].append(items[a])
+                    item_index += 1
+                if num_pages > 1 and i != num_pages - 1:  # Adds a 'next page' suggestion for every page before the last
+                    pages[i].append(PageChangeSuggestion("next", pages, i, num_pages))
+                if i == num_pages - 1 and (len_ - 2) % 4 == 0 and num_pages != 1:
+                    pages[i].append(items[-1])
+        else:
+            pages[0].extend(items)
+
 
         return pages[0]  # all suggestions from the initial list can be accessed through this page
 
@@ -86,10 +90,16 @@ class PageChangeSuggestion(MenuSuggestion):
         """
         MenuSuggestion.__init__(self, "Next Page" if navigation == "next" else "Previous Page",
                                 f"Page {page_index + 1} of {num_pages}",
-                                "forward" if navigation == "next" else "backward",
+                                "forward-nav" if navigation == "next" else "back-nav",
                                 "", [], fill_prefix=False)
         self.menu_suggestions = []
-        if navigation == "next":
-            self.menu_suggestions = pages[page_index + 1]
+        self.pages = pages
+        self.page_index = page_index
+        self.navigation = navigation
+
+    def refresh_menu_suggestions(self):
+        # It's more efficient putting the below code here instead of in the __init__
+        if self.navigation == "next":
+            self.menu_suggestions = self.pages[self.page_index + 1]
         else:
-            self.menu_suggestions = pages[page_index - 1]
+            self.menu_suggestions = self.pages[self.page_index - 1]

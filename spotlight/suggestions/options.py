@@ -1,4 +1,4 @@
-from spotlight.suggestions.menu import paging_suggestions
+from spotlight.suggestions.menu import PagingSuggestions
 from spotlight.suggestions.suggestion import Suggestion
 
 
@@ -33,7 +33,7 @@ class OptionSuggestion(Suggestion):
     @option_suggestions.setter
     def option_suggestions(self, suggestions: list):
         if len(suggestions) > 6:  # pages lists over 6 Suggestions
-            self.__option_suggestions = paging_suggestions.page_suggestions(suggestions)
+            self.__option_suggestions = PagingSuggestions.page_suggestions(suggestions)
         else:
             self.__option_suggestions = suggestions
 
