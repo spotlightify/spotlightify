@@ -58,7 +58,7 @@ class SearchCacheCommand(Command):
         song_list = sorted(song_list, key=self.__clean_name)
 
         # Finds up to 21 results
-        while len(result_list) <= 21:
+        while len(result_list) <= 13:
             result = self.__binary_search(song_list, parameter)
             if result:
                 key, values = song_list[result]
