@@ -113,3 +113,4 @@ class QueueSuggestion(OptionSuggestion):
         """
         OptionSuggestion.__init__(self, name, f"By {artists}", image_name if len(image_name) == 22 else "list",
                                   PlaybackManager.queue_song, "", id_, "exe")
+        self.option_suggestions = SongOptions.create_song_options(name, artists, image_name, id_)
