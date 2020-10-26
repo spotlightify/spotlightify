@@ -1,6 +1,7 @@
 # IDEs
 .idea
 .vscode
+.pylintrc
 
 # project specific
 cache
