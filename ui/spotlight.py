@@ -2,7 +2,7 @@ from os import sep
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLineEdit
 from PyQt5 import QtCore, QtGui
 
-from spotlight.menu import Menu
+from spotlight.suggestions.menu import MenuSuggestion
 from spotlight.handler import CommandHandler
 from ui.widgets import FunctionButtonsRow, SuggestRow, SvgButton
 from definitions import ASSETS_DIR
@@ -37,6 +37,8 @@ class SpotlightUI(QWidget):
         self.current_num_of_rows = 0  # used to find the default command to executed
         # set window flags
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
+        # for checking if shift is held in
+        self.shift_in = False
         # create additional widgets
         self.create_widgets()
 
@@ -84,13 +86,21 @@ class SpotlightUI(QWidget):
             self.textbox.clear()
             self.hide()
             return True
+        if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Shift:
+            self.shift_in = True
+            for row in self.rows:
+                row.show_option_icon() if row.isVisible() else None
+        if event.type() == QtCore.QEvent.KeyRelease and event.key() == QtCore.Qt.Key_Shift:
+            self.shift_in = False
+            for row in self.rows:
+                row.hide_option_icon() if row.isVisible() else None
         if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Down and source == self.textbox:
             self.focusNextChild()
         if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Up and source == self.textbox:
             self.focusPreviousChild()
         if event.type() == QtCore.QEvent.KeyPress and source in self.rows:
             if event.key() == QtCore.Qt.Key_Return and source.hasFocus():
-                self.command_exe_handler(source.command)
+                self.suggestion_exe_handler(source.suggestion)
         if event.type() == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
             hide()
         if (event.type() == QtCore.QEvent.FocusOut and not any(w.hasFocus() for w in self.children())):  # hides if not focused
@@ -119,18 +129,24 @@ class SpotlightUI(QWidget):
             self.move(self.x(), self.y() - 47)
             self.function_row.show()
         if self.textbox.text() != "":
-            self.create_command_widgets()
+            self.create_suggestion_widgets()
 
     def text_changed_handler(self):
-        text = self.textbox.text()
+        self.refresh_visible_items()
+
+    def refresh_visible_items(self, hide_all_items=False):
+        if not hide_all_items:
+            text = self.textbox.text()
+        else:
+            text = ""
         length = len(text)
-        # this for loop resets tab the tab index for the suggestion rows
+        # this for loop resets the tab index for the suggestion rows
         for row in self.rows:
             if row.isVisible():
                 row.setFocusPolicy(QtCore.Qt.StrongFocus)
                 row.hide()
         if length > 0:
-            self.create_command_widgets()
+            self.create_suggestion_widgets()
         else:
             self.current_num_of_rows = 0
             if self.function_row.isHidden():
@@ -140,14 +156,14 @@ class SpotlightUI(QWidget):
 
     def textbox_return_pressed_handler(self):
         if self.current_num_of_rows != 0:
-            self.command_exe_handler(self.rows[0].command)
+            self.suggestion_exe_handler(self.rows[0].suggestion)
         else:
             self.textbox.clear()
 
-    def add_row(self, index, command):
+    def add_row(self, index, suggestion):
         self.rows[index].deleteLater()
-        self.rows[index] = SuggestRow(self, command)
-        self.rows[index].clicked.connect(lambda: self.command_exe_handler(command))
+        self.rows[index] = SuggestRow(self, suggestion)
+        self.rows[index].clicked.connect(lambda: self.suggestion_exe_handler(suggestion))
         self.rows[index].setFocusPolicy(QtCore.Qt.TabFocus)
         self.rows[index].installEventFilter(self)
         if self.function_row.isHidden():
@@ -157,36 +173,42 @@ class SpotlightUI(QWidget):
         self.rows[index].show()
         self.current_num_of_rows = index + 1
 
-    def command_exe_handler(self, command):
-        if command.setting == "fill":
-            self.textbox.setText(command.prefix)
+    def suggestion_exe_handler(self, suggestion):
+        if suggestion.setting == "fill":
+            self.textbox.setText(suggestion.fill_str)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif isinstance(command, Menu):
-            self.textbox.setText(command.prefix) if command.setting == "menu_fill" else None
-            command.refresh_items()
-            self.show_command_widgets(command.menu_items)
+        elif self.shift_in and hasattr(suggestion, "option_suggestions"):
+            self.refresh_visible_items(hide_all_items=True)
+            self.show_suggestion_widgets(suggestion.option_suggestions)
             self.textbox.setFocus()
             self.textbox.deselect()  # deselects selected text as a result of focus
-        elif command.setting == "none":
+        elif isinstance(suggestion, MenuSuggestion) or suggestion.setting == "menu":
+            self.refresh_visible_items(hide_all_items=True)
+            self.textbox.setText(suggestion.fill_str) if suggestion.setting == "menu_fill" else None
+            suggestion.refresh_menu_suggestions()
+            self.show_suggestion_widgets(suggestion.menu_suggestions)
+            self.textbox.setFocus()
+            self.textbox.deselect()  # deselects selected text as a result of focus
+        elif suggestion.setting == "none":
             return
         else:
-            self.command_handler.perform_command(command)
+            self.command_handler.perform_command(suggestion)
             self.textbox.clear()
             self.hide()
 
-    def create_command_widgets(self):
+    def create_suggestion_widgets(self):
         term = self.textbox.text().strip().lower()
-        matched_commands = self.command_handler.get_command_suggestions(term)
-        self.show_command_widgets(matched_commands)
+        matched_suggestions = self.command_handler.get_command_suggestions(term)
+        self.show_suggestion_widgets(matched_suggestions)
 
-    def show_command_widgets(self, command_list: list):
-        length = len(command_list)
+    def show_suggestion_widgets(self, suggestion_list: list):
+        length = len(suggestion_list)
         self.dynamic_resize(length)
         if length != 0:
             for row in range(0, length):
-                command = command_list[row] # changes to dictionary form
-                self.add_row(row, command)
+                suggestion = suggestion_list[row] # changes to dictionary form
+                self.add_row(row, suggestion)
         else:
             self.current_num_of_rows = 0
 

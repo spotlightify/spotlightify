@@ -7,7 +7,7 @@ from caching.manager import CacheManager
 from auth.config import config
 from settings.themes import default_themes
 from definitions import ASSETS_DIR
-from os import sep
+from os import sep, environ
 
 
 class AuthUI(QDialog):

@@ -1,7 +1,7 @@
 import sys
 import time
 import webbrowser
-from os import sep, kill, getpid
+from os import sep, kill, getpid, environ
 from platform import platform
 from sys import exit
 from threading import Thread
@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from pynput.mouse import Controller, Button
 from spotipy import Spotify
 
+from api.spotify_singleton import SpotifySingleton
 from auth import AuthUI, config
 from caching import CacheManager, SongQueue, ImageQueue
 from colors import colors
@@ -63,9 +64,14 @@ class App:
 
         try:
             print("Starting auth process")
+
+            # sets up a Spotify username env var which is referenced elsewhere
+            environ["SPOTIFY_USERNAME"] = self.config.username  # TODO Change this to something permanent
+
             self.oauth = self.config.get_oauth()
             self.token_info = self.oauth.get_access_token(as_dict=True)
-            self.spotify = Spotify(auth=self.token_info["access_token"])
+            SpotifySingleton(self.token_info["access_token"])  # Instantiate Singleton Object
+            self.spotify = SpotifySingleton.get_instance()
 
             self.init_tray()
 

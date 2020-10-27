@@ -86,3 +86,14 @@ class PlayFunctions:
             self.__queue.put(track)
         except:
             print("[Error] Could not queue song from term inputted")
+
+    def song_recommendations(self, id_: str):  # like a radio
+        try:
+            track = self.sp.track(id_)
+            #uri = f"spotify:track:{id_}"
+            results = self.sp.recommendations(seed_tracks=[track["id"]], limit=50)
+            print(results)
+            uris = [track["uri"] for track in results["tracks"]]
+            self.sp.start_playback(uris=uris)
+        except:
+            print(f"[Error] Could not play recommended songs")

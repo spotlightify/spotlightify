@@ -1,25 +1,39 @@
-from spotlight.items.template_items import FillItem, WarningFillItem
-from spotlight.menu import Menu
-from api.playback import PlaybackFunctions
 from spotipy import Spotify
-from spotlight.suggestion import Suggestion
+
+from api.playback import PlaybackFunctions
+from spotlight.suggestions.playable.song import SongSuggestion
+from spotlight.suggestions.menu import MenuSuggestion
+from spotlight.commands.command import Command
+from spotlight.suggestions.templates import WarningSuggestion, WarningFillSuggestion
 
 
-class PlayingCommand(Menu):
+class PlayingCommand(Command):
     def __init__(self, sp: Spotify):
-        Menu.__init__(self, "Currently Playing", "Displays the song which is currently playing", "play", "currently playing", [])
+        Command.__init__(self, "Currently Playing", "Show currently playing song", "currently playing")
         self.sp = sp
 
-    def refresh_items(self):
+    def get_suggestions(self, **kwargs):
+        if kwargs["parameter"] != "":
+            return []
+        else:
+            return [SongPlayingSuggestion(self.sp)]
+
+
+class SongPlayingSuggestion(MenuSuggestion):
+    def __init__(self, sp: Spotify):
+        MenuSuggestion.__init__(self, "Currently Playing", "Show currently playing song", "play", "Currently Playing", [])
+        self.sp = sp
+
+    def refresh_menu_suggestions(self):
         song = PlaybackFunctions(self.sp).get_current_song_info()
-        try:
-            item = FillItem(f"Playing {song['name']}", f"By {song['artist']}", song["image"], song["name"])
-        except KeyError:
-            item = WarningFillItem("No Device Selected", "Click here select a device", "device")
-        self.menu_items = [item]
+        if song["name"] == "Nothing Currently Playing":
+            self.menu_suggestions = [WarningFillSuggestion("No active device selected", "Click to select device", "device")]
+        else:
+            self.menu_suggestions = [PassiveSongSuggestion(f"Playing {song['name']} by {song['artist']}", "Song Currently Playing", song["image"])]
 
 
+class PassiveSongSuggestion(SongSuggestion):
+    def __init__(self, name, artist, image_name):
+        SongSuggestion.__init__(self, name, artist, image_name, image_name)
+        self.setting = "none"
 
-class PlayingItem(Suggestion):
-    def __init__(self, song_name, artists, image):
-        Suggestion.__init__(self, "", "", "", lambda: None, "", "none")

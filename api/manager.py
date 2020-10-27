@@ -1,4 +1,4 @@
-from os import kill, getpid
+from os import kill, getpid, environ
 from queue import Queue
 
 import clipboard
@@ -42,7 +42,7 @@ class PlaybackManager:
 
     def queue_song(self, id_: str):
         """
-        Queue's a song given an id/uri/term
+        Queues a song given an id/uri/term
         :param id_: id/uri/term for song
         """
         format_ = self._check.item_link_type(id_, "song")
@@ -53,9 +53,17 @@ class PlaybackManager:
         else:
             self._play.queue_term(id_)
 
+    def play_recommended(self, id_):
+        """
+        Plays recommended songs based on a songs ID
+        :param id_:
+        :return:
+        """
+        self._play.song_recommendations(id_)
+
     def play_song(self, id_):
         """
-        Play's a song given an id/uri/term
+        Plays a song given an id/uri/term
         :param id_: id/uri/term for song
         """
         format_ = self._check.item_link_type(id_, "song")
@@ -118,8 +126,31 @@ class PlaybackManager:
     def current_song(self) -> dict:
         return self._playback.get_current_song_info()
 
-    def copy_url_to_clipboard(self):
-        clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
+    def copy_url_to_clipboard(self, id_=""):
+        """
+
+        :param id_: if not current song, use this variable for a songs id
+        :return:
+        """
+        if id_ == "":
+            clipboard.copy(self.sp.current_playback()["item"]["external_urls"]["spotify"])
+        else:
+            clipboard.copy(self.sp.track(id_)["external_urls"]["spotify"])
+
+    def add_to_playlist(self, ids: dict):
+        user = environ.get("SPOTIFY_USERNAME")
+        playlist_items = self.sp.playlist_tracks(ids["playlist"])["items"]
+        is_duplicate = False
+        for item in playlist_items:
+            if item["track"]["id"] == ids["song"]:
+                is_duplicate = True
+                break
+
+        if not is_duplicate:
+            self.sp.user_playlist_add_tracks(user, ids["playlist"], [f"spotify:track:{ids['song']}"])
+        else:
+            print("[WARNING] Track not added to playlist as it is a duplicate")
+
 
     def exit_app(self):
         kill(getpid(), 9)

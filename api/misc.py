@@ -1,3 +1,5 @@
+from typing import List
+
 import spotipy
 from api.limiter import Limiter
 
@@ -33,9 +35,13 @@ class MiscFunctions:
         :param value: int between 1 and 10
         '''
         try:
-            if 0 <= value <= 10:
+            if 1 <= value <= 10:
                 self.sp.volume(value*10)
             else:
                 raise Exception
         except:
             print("[Error] Invalid volume value. Valid command example: 'volume 8'")
+
+    @Limiter.rate_limiter(seconds=20)
+    def get_user_playlists(self) -> List[dict]:
+        return self.sp.current_user_playlists(limit=50)["items"]
