@@ -100,6 +100,11 @@ The GUI is activated by using the shortcut `ctrl + space`. Here is the current l
 -   <a href="https://spotipy.readthedocs.io/en/2.12.0/" target="_blank">Spotipy</a> - A Spotify API wrapper for Python
 -   <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">PyQt5</a> - A cross platform GUI framework for Python
 
+### Reddit Posts
+
+- https://www.reddit.com/r/Python/comments/go6no5/spotlightify_a_overlay_controller_for_spotify/
+- https://www.reddit.com/r/Python/comments/gtnyll/spotlightify_the_spotify_overlay_controller/
+
 ### Contributing
 
 Join us on <a href="https://discord.gg/nrDke3q" target="_blank">discord</a> to discuss how to contribute to the project.
