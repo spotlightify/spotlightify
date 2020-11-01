@@ -29,11 +29,11 @@ class SongPlayingSuggestion(MenuSuggestion):
         if song["name"] == "Nothing Currently Playing":
             self.menu_suggestions = [WarningFillSuggestion("No active device selected", "Click to select device", "device")]
         else:
-            self.menu_suggestions = [PassiveSongSuggestion(f"Playing {song['name']} by {song['artist']}", "Song Currently Playing", song["image"])]
+            self.menu_suggestions = [PassiveSongSuggestion(f"Playing {song['name']} by {song['artist']}", "Song Currently Playing", song["image"], song["id"])]
 
 
 class PassiveSongSuggestion(SongSuggestion):
-    def __init__(self, name, artist, image_name):
-        SongSuggestion.__init__(self, name, artist, image_name, image_name)
+    def __init__(self, name, artist, image_name, id_):
+        SongSuggestion.__init__(self, name, artist, image_name, id_)
         self.setting = "none"
 
