@@ -31,7 +31,9 @@ cd path\to\spotlightify-root
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
+python app.py
 ```
+To run the application as an independent process (i.e. it will not end when the command line is exited), use: `pythonw app.py`
 
 #### MacOS
 
@@ -40,6 +42,7 @@ cd path/to/spotlightify-root
 python -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
+python app.py
 ```
 
 #### Linux
@@ -50,6 +53,7 @@ python3 -m venv venv
 . venv/bin/activate
 sudo apt-get install python3-pyqt5
 pip3 install -r requirements.txt
+python3 app.py
 ```
 
 ### Linking the Spotify App
