@@ -1,3 +1,4 @@
+import sys
 from os import sep, kill, getpid
 from platform import platform
 from sys import exit
@@ -8,7 +9,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from pynput.mouse import Controller, Button
 from spotipy import Spotify
 
-from auth import config
+from auth import config, AuthUI
 from caching import CacheManager, SongQueue, ImageQueue
 from colors import colors
 from definitions import ASSETS_DIR
@@ -21,7 +22,6 @@ from settings.preferences import Preferences
 class App:
     def __init__(self):
         print(f"{colors.PINK}{colors.BOLD}Welcome to Spotlightify{colors.RESET}\n\n")
-
         self.app = QApplication([])
         self.app.setQuitOnLastWindowClosed(False)
 
@@ -30,10 +30,11 @@ class App:
         self.action_open = None
         self.action_exit = None
 
-        self.preferences = Preferences
+        self.preferences = Preferences()
 
         self.oauth = None
         self.config = config
+
         self.spotlight = None
         self.spotify = None
         self.oauth = None
@@ -48,13 +49,22 @@ class App:
 
     def run(self):
         # Pre checks in event of no config.json
-        prefs = self.preferences()
-        prefs.run_prechecks()
+        # Validation dependencies
 
-        self.ui_invoke()
+        if not self.config.is_valid():
+            app = QApplication([])
+            app.setQuitOnLastWindowClosed(True)
+            auth = AuthUI()
+
+            while not self.config.is_valid():
+                auth.show()
+                app.exec_()
+                if auth.isCanceled:
+                    sys.exit()
+        while True:
+            self.ui_invoke()
 
     def ui_invoke(self):
-
         """
         Runs authorisation process
         and invokes the UI.
@@ -74,6 +84,7 @@ class App:
             self.spotlight = SpotlightUI(self.spotify, self.song_queue)
 
             self.show_spotlight()
+
             while True:
                 self.app.exec_()
 
