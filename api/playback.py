@@ -3,30 +3,31 @@ from api.limiter import Limiter
 
 
 class PlaybackFunctions:
-    def __init__(self, sp: spotipy.Spotify):
+    def __init__(self, sp: spotipy.Spotify, spotifyplayer):
         self.sp = sp
+        self.spotifyplayer = spotifyplayer
 
     def skip(self):
         try:
-            self.sp.next_track()
+            self.spotifyplayer.command(self.spotifyplayer.skip)
         except:
             print("[Error] Cannot skip track.")
 
     def pause(self):
         try:
-            self.sp.pause_playback()
+            self.spotifyplayer.command(self.spotifyplayer.pause)
         except:
             print("[Error] Could not pause playback.")
 
     def resume(self):
         try:
-            self.sp.start_playback()
+            self.spotifyplayer.command(self.spotifyplayer.resume)
         except:
             print("[Error] Could not resume playback.")
 
     def previous(self):
         try:
-            self.sp.previous_track()
+            self.spotifyplayer.command(self.spotifyplayer.previous)
         except:
             print("[Error]")
 
@@ -38,14 +39,15 @@ class PlaybackFunctions:
                 time = "0:" + str(time)
             h, m, s = time.split(':')
             time = (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
-            self.sp.seek_track(time)
+            self.spotifyplayer.command(self.spotifyplayer.seek_to(time))
         except:
             print("[Error] Invalid time give. Valid command example: go to 1:40")
 
     @Limiter.rate_limiter(seconds=10)
     def get_current_song_info(self) -> dict:
         try:
-            song = self.sp.current_playback()["item"]
+            song = self.sp.current_user_playing_track()["item"]
+            print(", ".join([artist["name"] for artist in song["artists"]]))
             return {"name": song["name"], "artist": ", ".join([artist["name"] for artist in song["artists"]]),
                     "image": song["album"]["id"]}
         except:

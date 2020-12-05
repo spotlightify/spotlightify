@@ -5,7 +5,8 @@ from api.limiter import Limiter
 
 
 class MiscFunctions:
-    def __init__(self, sp: spotipy.Spotify):
+    def __init__(self, sp: spotipy.Spotify, spotifyplayer):
+        self.spotifyplayer = spotifyplayer
         self.sp = sp
 
     @Limiter.rate_limiter(seconds=10)
@@ -18,14 +19,14 @@ class MiscFunctions:
 
     def set_device(self, id_: str):
         try:
-            self.sp.transfer_playback(id_, True)
+            self.spotifyplayer.transfer(id_)
         except:
             None
 
     def set_default_device(self):
         try:
             device_id = self.sp.devices()["devices"][0]["id"]
-            self.sp.transfer_playback(device_id, True)
+            self.spotifyplayer.transfer(device_id)
         except:
             print("[Error] could not select default device.")
 
@@ -36,7 +37,7 @@ class MiscFunctions:
         '''
         try:
             if 1 <= value <= 10:
-                self.sp.volume(value*10)
+                self.spotifyplayer.command(self.spotifyplayer.volume(int(value) * 10))
             else:
                 raise Exception
         except:

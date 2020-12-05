@@ -3,8 +3,9 @@ from api import check
 
 
 class ToggleFunctions:
-    def __init__(self, sp: spotipy.Spotify):
+    def __init__(self, sp: spotipy.Spotify, player):
         self.sp = sp
+        self.spotifyplayer = player
         self._check = check.CheckFunctions(sp)
 
     def like_song(self):
@@ -23,18 +24,18 @@ class ToggleFunctions:
     def shuffle(self):
         try:
             if self._check.is_shuffle_on():
-                self.sp.shuffle(False)
+                self.spotifyplayer.command(self.spotifyplayer.stop_shuffle())
             else:
-                self.sp.shuffle(True)
+                self.spotifyplayer.command(self.spotifyplayer.shuffle())
         except:
             print("[Error] Shuffle could not be toggled")
 
     def playback(self):
         try:
             if self._check.is_song_playing():
-                self.sp.pause_playback()
+                self.spotifyplayer.command(self.spotifyplayer.pause)
             else:
-                self.sp.start_playback()
+                self.spotifyplayer.command(self.spotifyplayer.resume)
         except:
             print("[Error] Playback could not be toggled")
 
@@ -44,11 +45,11 @@ class ToggleFunctions:
             if state == "cycle":
                 repeat_state = self._check.repeat_state()
                 if repeat_state == 'track':
-                    self.sp.repeat('off')
+                    self.spotifyplayer.command(self.spotifyplayer.no_repeat)
                 elif repeat_state == 'context':
-                    self.sp.repeat('track')
+                    self.spotifyplayer.command(self.spotifyplayer.repeating_track)
                 else:
-                    self.sp.repeat('context')
+                    self.spotifyplayer.command(self.spotifyplayer.repeating_context)
             else:
                 self.sp.repeat(state)
         except:

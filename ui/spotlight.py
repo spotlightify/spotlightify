@@ -16,10 +16,11 @@ class SpotlightUI(QWidget):
     QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
     QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icon-base
 
-    def __init__(self, sp: Spotify, song_queue: SongQueue, parent=None):
+    def __init__(self, sp: Spotify, song_queue: SongQueue, spotifyplayer, parent=None):
         QWidget.__init__(self, parent)
         # for spotify interaction
-        self.command_handler = CommandHandler(sp, song_queue)
+        self.spotifyplayer = spotifyplayer
+        self.command_handler = CommandHandler(sp, song_queue, spotifyplayer)
         self.sp = sp
         # row positioning
         self.move(center_app())
@@ -73,7 +74,7 @@ class SpotlightUI(QWidget):
                         }}''')
         self.textbox.setFont(self.custom_font)
         # add grouped widgets
-        self.function_row = FunctionButtonsRow(self, self.sp)
+        self.function_row = FunctionButtonsRow(self, self.sp, self.spotifyplayer)
         self.function_row.move(0, 0)
         self.function_row.show()
         self.toggle_function_buttons()

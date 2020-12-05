@@ -12,12 +12,13 @@ class DeviceCommand(Command):
     """
     Device Command allow's user to view and select available devices to stream on
     """
-    def __init__(self, sp: Spotify):
+    def __init__(self, sp: Spotify, spotifyplayer):
         Command.__init__(self, "Device", "Set the device to play music from", "device")
+        self.spotifyplayer = spotifyplayer
         self.sp = sp
 
     def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":  # menu item will not be retrieved if there is text in the parameter str
             return []
         else:
-            return [DeviceMenuSuggestions(self.sp)]
+            return [DeviceMenuSuggestions(self.sp, self.spotifyplayer)]

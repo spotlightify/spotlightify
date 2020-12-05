@@ -10,12 +10,13 @@ class DeviceMenuSuggestions(MenuSuggestion):
     """
     Device Menu Suggestion, when clicked shows device suggestions
     """
-    def __init__(self, sp: Spotify):
+    def __init__(self, sp: Spotify, spotifyplayer):
         MenuSuggestion.__init__(self, "Device", "Set The device to play music from", "device", "device", [])
+        self.spotifyplayer = spotifyplayer
         self.sp = sp
 
     def refresh_menu_suggestions(self):
-        devices = MiscFunctions(self.sp).get_device_list()
+        devices = MiscFunctions(self.sp, self.spotifyplayer).get_device_list()
         self.clear_menu_suggestions()
         if not devices:
             self.add_menu_suggestion(

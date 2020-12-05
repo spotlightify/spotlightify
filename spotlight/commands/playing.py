@@ -8,24 +8,26 @@ from spotlight.suggestions.templates import WarningSuggestion, WarningFillSugges
 
 
 class PlayingCommand(Command):
-    def __init__(self, sp: Spotify):
+    def __init__(self, sp: Spotify, spotifyplayer):
         Command.__init__(self, "Currently Playing", "Show currently playing song", "currently playing")
+        self.spotifyplayer = spotifyplayer
         self.sp = sp
 
     def get_suggestions(self, **kwargs):
         if kwargs["parameter"] != "":
             return []
         else:
-            return [SongPlayingSuggestion(self.sp)]
+            return [SongPlayingSuggestion(self.sp, self.spotifyplayer)]
 
 
 class SongPlayingSuggestion(MenuSuggestion):
-    def __init__(self, sp: Spotify):
+    def __init__(self, sp: Spotify, spotifyplayer):
         MenuSuggestion.__init__(self, "Currently Playing", "Show currently playing song", "play", "Currently Playing", [])
         self.sp = sp
+        self.spotifyplayer = spotifyplayer
 
     def refresh_menu_suggestions(self):
-        song = PlaybackFunctions(self.sp).get_current_song_info()
+        song = PlaybackFunctions(self.sp, self.spotifyplayer).get_current_song_info()
         if song["name"] == "Nothing Currently Playing":
             self.menu_suggestions = [WarningFillSuggestion("No active device selected", "Click to select device", "device")]
         else:

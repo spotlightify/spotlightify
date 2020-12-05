@@ -21,7 +21,8 @@ class CommandHandler:
     """
     Handles commands and output suggestions for the Spotlight UI
     """
-    def __init__(self, sp: Spotify, queue: Queue):
+    def __init__(self, sp: Spotify, queue: Queue, spotifyplayer):
+        self.spotifyplayer = spotifyplayer
         self.sp = sp
         self.auth_ui = AuthUI()
         # store commands in a list
@@ -40,22 +41,21 @@ class CommandHandler:
                              LikeCommand(sp),
                              RepeatCommand(),
                              ShuffleCommand(sp),
-                             PlayingCommand(sp),
+                             PlayingCommand(sp, spotifyplayer),
                              PreviousCommand(),
                              NextCommand(),
                              PauseCommand(),
                              VolumeCommand(),
                              GoToCommand(),
-                             DeviceCommand(sp),
+                             DeviceCommand(sp, spotifyplayer),
                              SavedCommand(),
                              ShareCommand(),
                              AuthenticationCommand(),
                              ExitCommand()
                              ]
 
-        self.manager = PlaybackManager(sp, queue)
+        self.manager = PlaybackManager(sp, queue, spotifyplayer)
         # TODO create a settings json to store things like default device
-        self.manager.set_device("")  # sets device to first available
         CacheHolder.reload_holder("all")  # Initially loads the cache into memory
 
     def get_command_suggestions(self, text: str) -> list:
@@ -83,7 +83,7 @@ class CommandHandler:
     def perform_command(self, item: Suggestion):
         """
         Executes a command
-        :param command: Suggestion object
+        :param command: Suggestion object n
         """
         try:
             if item.title == "Authentication":  # opens Auth UI, needs changed at some point

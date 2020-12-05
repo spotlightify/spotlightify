@@ -8,13 +8,13 @@ from api import misc, play, playback, toggle, check
 
 
 class PlaybackManager:
-    def __init__(self, sp: spotipy.Spotify, queue: Queue):
+    def __init__(self, sp: spotipy.Spotify, queue: Queue, spotifyplayer):
         self.sp = sp
-        self._playback = playback.PlaybackFunctions(sp)
-        self._play = play.PlayFunctions(sp, queue)
-        self._toggle = toggle.ToggleFunctions(sp)
+        self._playback = playback.PlaybackFunctions(sp, spotifyplayer)
+        self._play = play.PlayFunctions(sp, queue, spotifyplayer)
+        self._toggle = toggle.ToggleFunctions(sp, spotifyplayer)
         self._check = check.CheckFunctions(sp)
-        self._misc = misc.MiscFunctions(sp)
+        self._misc = misc.MiscFunctions(sp, spotifyplayer)
 
     def pause(self):
         self._playback.pause()

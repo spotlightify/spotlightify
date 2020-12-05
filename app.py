@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from pynput.mouse import Controller, Button
 from spotipy import Spotify
 
+from experimental import SpotifyPlayer
 from api.spotify_singleton import SpotifySingleton
 from auth import AuthUI, config
 from caching import CacheManager, SongQueue, ImageQueue
@@ -47,6 +48,8 @@ class App:
         self.image_queue = None
         self.cache_manager = None
 
+        self.spotifyclient = SpotifyPlayer()
+
         self.run()
 
     def run(self):
@@ -80,7 +83,7 @@ class App:
             self.image_queue = ImageQueue()
             self.cache_manager = CacheManager(self.spotify, self.song_queue, self.image_queue)
 
-            self.spotlight = SpotlightUI(self.spotify, self.song_queue)
+            self.spotlight = SpotlightUI(self.spotify, self.song_queue, self.spotifyclient)
 
             self.show_spotlight()
             while True:

@@ -10,12 +10,12 @@ from os import sep
 
 
 class FunctionButtonsRow(QWidget):
-    def __init__(self, parent, sp):
+    def __init__(self, parent, sp, spotifyplayer):
         QWidget.__init__(self, parent)
         # creates a useful function object
         self.sp = sp
-        toggles = toggle.ToggleFunctions(sp)
-        playback_change = playback.PlaybackFunctions(sp)
+        toggles = toggle.ToggleFunctions(sp, spotifyplayer)
+        playback_change = playback.PlaybackFunctions(sp, spotifyplayer)
         # gets the current theme
         self.active_theme = parent.active_theme
         # gets the font
