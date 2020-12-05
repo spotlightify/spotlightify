@@ -1,6 +1,6 @@
 # SpotlightifyFree
 
-Spotlightify is a GUI based application designed to allow users to quickly interact with the Spotify Desktop application across Windows, Linux and macOS. This is a fork that allows you to use this with a Spotify Free subscription.
+Spotlightify is a GUI based application designed to allow users to quickly interact with the Spotify Desktop application across Windows, Linux and macOS. This is an update that allows you to use this with a Spotify Free subscription.
 
 ![Spotlightify](preview.gif)
 
