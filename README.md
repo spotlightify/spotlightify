@@ -1,12 +1,13 @@
-# Spotlightify
+# SpotlightifyFree
 
-Spotlightify is a GUI based application designed to allow users to quickly interact with the Spotify Desktop application across Windows, Linux and macOS.
+Spotlightify is a GUI based application designed to allow users to quickly interact with the Spotify Desktop application across Windows, Linux and macOS. This is a fork that allows you to use this with a Spotify Free subscription.
 
 ![Spotlightify](preview.gif)
 
 ## Prerequisites
 
--   Spotify Premium Account
+-   ~~Spotify Premium Account~~
+-   You must have logged into open.spotify.com through Google Chrome. This is for using cookies to manage playback.
 -   Python 3.7 or later
 -   A Spotify App must also be created, the instructions follow:
     1. Open the Spotify Developer Dashboard <a href="https://developer.spotify.com/dashboard/login" target="_blank">here</a> and login using your Spotify account credentials.
