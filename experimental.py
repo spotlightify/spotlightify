@@ -178,6 +178,7 @@ class SpotifyPlayer:
 
         self._session = requests.Session()
         self.shuffling = False
+        self.ping = False
         if self.isinitialized:
             self._authorize()
 
@@ -203,6 +204,7 @@ class SpotifyPlayer:
         async def websocket():
             try:
                 async with websockets.connect(guc_url, extra_headers=guc_headers) as ws:
+                    self.ping = True
                     Thread(target=lambda: start_ping_loop(ws)).start()
                     while True:
                         recv = await ws.recv()
@@ -225,12 +227,14 @@ class SpotifyPlayer:
                                 pass
             except Exception as exe:
                 logging.error(exe, exc_info=True)
+                self.ping = False
+                self._authorize()
 
         def start_ping_loop(ws):
             asyncio.new_event_loop().run_until_complete(ping_loop(ws))
 
         async def ping_loop(ws):
-            while True:
+            while self.ping:
                 await ws.send('{"type": "ping"}')
                 await asyncio.sleep(30)
 
