@@ -19,14 +19,20 @@ class MiscFunctions:
 
     def set_device(self, id_: str):
         try:
-            self.spotifyplayer.transfer(id_)
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.transfer(id_)
+            else:
+                self.sp.transfer_playback(id_, True)
         except:
             None
 
     def set_default_device(self):
         try:
             device_id = self.sp.devices()["devices"][0]["id"]
-            self.spotifyplayer.transfer(device_id)
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.transfer(device_id)
+            else:
+                self.sp.transfer_playback(device_id, True)
         except:
             print("[Error] could not select default device.")
 
@@ -37,7 +43,10 @@ class MiscFunctions:
         '''
         try:
             if 1 <= value <= 10:
-                self.spotifyplayer.command(self.spotifyplayer.volume(int(value) * 10))
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.volume(int(value) * 10))
+                else:
+                    self.sp.volume(value * 10)
             else:
                 raise Exception
         except:

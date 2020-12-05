@@ -24,18 +24,30 @@ class ToggleFunctions:
     def shuffle(self):
         try:
             if self._check.is_shuffle_on():
-                self.spotifyplayer.command(self.spotifyplayer.stop_shuffle())
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.stop_shuffle())
+                else:
+                    self.sp.shuffle(False)
             else:
-                self.spotifyplayer.command(self.spotifyplayer.shuffle())
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.shuffle())
+                else:
+                    self.sp.shuffle(True)
         except:
             print("[Error] Shuffle could not be toggled")
 
     def playback(self):
         try:
             if self._check.is_song_playing():
-                self.spotifyplayer.command(self.spotifyplayer.pause)
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.pause)
+                else:
+                    self.sp.pause_playback()
             else:
-                self.spotifyplayer.command(self.spotifyplayer.resume)
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.resume)
+                else:
+                    self.sp.start_playback()
         except:
             print("[Error] Playback could not be toggled")
 
@@ -45,11 +57,20 @@ class ToggleFunctions:
             if state == "cycle":
                 repeat_state = self._check.repeat_state()
                 if repeat_state == 'track':
-                    self.spotifyplayer.command(self.spotifyplayer.no_repeat)
+                    if self.spotifyplayer.isinitialized:
+                        self.spotifyplayer.command(self.spotifyplayer.no_repeat)
+                    else:
+                        self.sp.repeat('off')
                 elif repeat_state == 'context':
-                    self.spotifyplayer.command(self.spotifyplayer.repeating_track)
+                    if self.spotifyplayer.isinitialized:
+                        self.spotifyplayer.command(self.spotifyplayer.repeating_track)
+                    else:
+                        self.sp.repeat('track')
                 else:
-                    self.spotifyplayer.command(self.spotifyplayer.repeating_context)
+                    if self.spotifyplayer.isinitialized:
+                        self.spotifyplayer.command(self.spotifyplayer.repeating_context)
+                    else:
+                        self.sp.repeat('context')
             else:
                 self.sp.repeat(state)
         except:

@@ -14,7 +14,10 @@ class PlayFunctions:
         try:
             track = self.sp.search(term, limit=1, market="GB", type="track")["tracks"]["items"][0]
             uri = track["uri"]
-            self.spotifyplayer.command(self.spotifyplayer.play(uri.split(':')[-1]))
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.play(uri.split(':')[-1]))
+            else:
+                self.sp.start_playback(uris=[uri])
             self.__queue.put(track)
         except:
             print("[Error] Could not play song from term inputted")
@@ -22,9 +25,15 @@ class PlayFunctions:
     def uri(self, uri: str):
         try:
             if "track" not in uri:
-                self.spotifyplayer.command(self.spotifyplayer.play_from_context(uri))
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.play_from_context(uri))
+                else:
+                    self.sp.start_playback(context_uri=uri)
             else:
-                self.spotifyplayer.command(self.spotifyplayer.play(uri.split(':')[-1]))
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.play(uri.split(':')[-1]))
+                else:
+                    self.sp.start_playback(uris=[uri])
                 track = self.sp.track(uri)
                 self.__queue.put(track)
         except:
@@ -34,11 +43,17 @@ class PlayFunctions:
         try:
             uri = f"spotify:{type_}:{id_}"
             if type_ == "track":
-                self.spotifyplayer.command(self.spotifyplayer.play(id_))
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.play(id_))
+                else:
+                    self.sp.start_playback(uris=[uri])
                 track = self.sp.track(uri)
                 self.__queue.put(track)
             else:
-                self.spotifyplayer.command(self.spotifyplayer.play_from_context(uri))
+                if self.spotifyplayer.isinitialized:
+                    self.spotifyplayer.command(self.spotifyplayer.play_from_context(uri))
+                else:
+                    self.sp.start_playback(context_uri=uri)
         except:
             print(f"[Error] Could not play {type_} from ID")
 
@@ -58,13 +73,19 @@ class PlayFunctions:
             for track in values:
                 uris.append(f"spotify:track:{track[0]}")
 
-            self.spotifyplayer.command(self.spotifyplayer.play_from_uris(uris))
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.play_from_uris(uris))
+            else:
+                self.sp.start_playback(uris=uris)
         except:
             print("[Error] Could not play liked music")
 
     def queue_uri(self, uri: str):
         try:
-            self.spotifyplayer.command(self.spotifyplayer.add_to_queue(uri.split(':')[-1]))
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.add_to_queue(uri.split(':')[-1]))
+            else:
+                self.sp.add_to_queue(uri)
             track = self.sp.track(uri)
             self.__queue.put(track)
         except:
@@ -73,7 +94,10 @@ class PlayFunctions:
     def queue_id(self, id_: str):
         try:
             uri = f"spotify:track:{id_}"
-            self.spotifyplayer.command(self.spotifyplayer.add_to_queue(id_))
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.add_to_queue(id_))
+            else:
+                self.sp.add_to_queue(uri)
             track = self.sp.track(uri)
             self.__queue.put(track)
         except:
@@ -83,7 +107,10 @@ class PlayFunctions:
         try:
             track = self.sp.search(term, limit=1, market="GB", type="track")["tracks"]["items"][0]
             uri = track["uri"]
-            self.spotifyplayer.command(self.spotifyplayer.add_to_queue(uri.split(':')[-1]))
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.add_to_queue(uri.split(':')[-1]))
+            else:
+                self.sp.add_to_queue(uri=uri)
             self.__queue.put(track)
         except:
             print("[Error] Could not queue song from term inputted")
@@ -95,6 +122,9 @@ class PlayFunctions:
             results = self.sp.recommendations(seed_tracks=[track["id"]], limit=50)
             print(results)
             uris = [track["uri"] for track in results["tracks"]]
-            self.spotifyplayer.command(self.spotifyplayer.play_from_uris(uris))
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.play_from_uris(uris))
+            else:
+                self.sp.start_playback(uris=uris)
         except:
             print(f"[Error] Could not play recommended songs")

@@ -9,25 +9,37 @@ class PlaybackFunctions:
 
     def skip(self):
         try:
-            self.spotifyplayer.command(self.spotifyplayer.skip)
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.skip)
+            else:
+                self.sp.next_track()
         except:
             print("[Error] Cannot skip track.")
 
     def pause(self):
         try:
-            self.spotifyplayer.command(self.spotifyplayer.pause)
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.pause)
+            else:
+                self.sp.pause_playback()
         except:
             print("[Error] Could not pause playback.")
 
     def resume(self):
         try:
-            self.spotifyplayer.command(self.spotifyplayer.resume)
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.resume)
+            else:
+                self.sp.start_playback()
         except:
             print("[Error] Could not resume playback.")
 
     def previous(self):
         try:
-            self.spotifyplayer.command(self.spotifyplayer.previous)
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.previous)
+            else:
+                self.sp.previous_track()
         except:
             print("[Error]")
 
@@ -39,7 +51,10 @@ class PlaybackFunctions:
                 time = "0:" + str(time)
             h, m, s = time.split(':')
             time = (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
-            self.spotifyplayer.command(self.spotifyplayer.seek_to(time))
+            if self.spotifyplayer.isinitialized:
+                self.spotifyplayer.command(self.spotifyplayer.seek_to(time))
+            else:
+                self.sp.seek_track(time)
         except:
             print("[Error] Invalid time give. Valid command example: go to 1:40")
 

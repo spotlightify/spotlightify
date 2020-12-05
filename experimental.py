@@ -164,7 +164,12 @@ class SpotifyPlayer:
                             'endpoint': 'set_queue'}}
 
     def __init__(self):
-        self.cj = browser_cookie3.chrome()
+        self.isinitialized = False
+        try:
+            self.cj = browser_cookie3.chrome()
+            self.isinitialized = True
+        except Exception as e:
+            logging.error(e, exc_info=True)
         self._default_headers = {'sec-fetch-dest': 'empty',
                                  'sec-fetch-mode': 'cors',
                                  'sec-fetch-site': 'same-origin',
@@ -173,7 +178,8 @@ class SpotifyPlayer:
 
         self._session = requests.Session()
         self.shuffling = False
-        self._authorize()
+        if self.isinitialized:
+            self._authorize()
 
     def _authorize(self):
         access_token_headers = self._default_headers.copy()
@@ -276,6 +282,7 @@ class SpotifyPlayer:
         self.queue = response.json()['player_state']['next_tracks']
         self.queue_revision = response.json()['player_state']['queue_revision']
         self.shuffling = response.json()['player_state']['options']['shuffling_context']
+        self.isinitialized = True
 
     def transfer(self, device_id):
         transfer_url = f'https://guc-spclient.spotify.com/connect-state/v1/connect/transfer/from/' \

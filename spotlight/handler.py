@@ -83,7 +83,7 @@ class CommandHandler:
     def perform_command(self, item: Suggestion):
         """
         Executes a command
-        :param command: Suggestion object n
+        :param command: Suggestion object
         """
         try:
             if item.title == "Authentication":  # opens Auth UI, needs changed at some point
