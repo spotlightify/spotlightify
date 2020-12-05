@@ -7,7 +7,7 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
 ## Prerequisites
 
 -   ~~Spotify Premium Account~~
--   You must have logged into open.spotify.com through Google Chrome. This is for using cookies to manage playback.
+-   You must have logged into open.spotify.com through Google Chrome. This is for using cookies to manage playback. If you haven't, the default playback commands will run, which don't work with a free Spotify subscription.
 -   Python 3.7 or later
 -   A Spotify App must also be created, the instructions follow:
     1. Open the Spotify Developer Dashboard <a href="https://developer.spotify.com/dashboard/login" target="_blank">here</a> and login using your Spotify account credentials.
