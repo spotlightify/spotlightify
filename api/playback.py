@@ -47,7 +47,6 @@ class PlaybackFunctions:
     def get_current_song_info(self) -> dict:
         try:
             song = self.sp.current_user_playing_track()["item"]
-            print(", ".join([artist["name"] for artist in song["artists"]]))
             return {"name": song["name"], "artist": ", ".join([artist["name"] for artist in song["artists"]]),
                     "image": song["album"]["id"]}
         except:

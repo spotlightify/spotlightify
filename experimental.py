@@ -76,7 +76,6 @@ class SpotifyPlayer:
             random.shuffle(queue)
         queuequeue = [track for track in self.queue if track['provider'] != 'context']
         queue = queuequeue + queue
-        print(queue)
         if ids:
             return {'command': {'next_tracks': queue, 'queue_revision': self.queue_revision, 'endpoint': 'set_queue'}}
 
@@ -90,7 +89,6 @@ class SpotifyPlayer:
         if self.shuffling:
             random.shuffle(queue)
         queue = queue + self.queue
-        print(queue)
         if ids:
             return [{'command': {'next_tracks': queue[1:], 'queue_revision': self.queue_revision,
                                  'endpoint': 'set_queue'}},
@@ -107,7 +105,6 @@ class SpotifyPlayer:
                  for uri in uris]
         queuequeue = [track for track in self.queue if track['provider'] != 'context']
         queue = queuequeue + queue
-        print(queue)
         return {'command': {'next_tracks': queue, 'queue_revision': self.queue_revision,
                             'endpoint': 'set_queue'}}
 
@@ -115,11 +112,10 @@ class SpotifyPlayer:
         queue = [{'uri': uri, 'metadata': {'is_queued': True}, 'provider': 'queue'}
                  for uri in uris]
         queue = queue + self.queue
-        print(uris)
         return [{'command': {'next_tracks': queue[1:], 'queue_revision': self.queue_revision,
                              'endpoint': 'set_queue'}},
-                {"command": {"context": {"uri": uris[0],
-                                         "url": f'context://{uris[0]}',
+                {"command": {"context": {"uri": queue[0]['uri'],
+                                         "url": queue[0]['uri'],
                                          "metadata": {}}, "play_origin":
                                  {"feature_identifier": "harmony", "feature_version": "4.11.0-af0ef98"}, "options":
                                  {"license": "on-demand", "skip_to": {"track_index": 0}, "player_options_override": {}},
@@ -205,7 +201,6 @@ class SpotifyPlayer:
                     while True:
                         recv = await ws.recv()
                         load = json.loads(recv)
-                        # pprint(load, indent=4)
                         if load.get('headers'):
                             if load['headers'].get('Spotify-Connection-Id'):
                                 self.connection_id = load['headers']['Spotify-Connection-Id']
@@ -216,14 +211,14 @@ class SpotifyPlayer:
                                         self.queue = load['payloads'][0]['cluster']['player_state']['next_tracks']
                                     except KeyError:
                                         pass
-                                    self.queue_revision = load['payloads'][0]['cluster']['player_state']['queue_revision']
+                                    self.queue_revision = (load['payloads'][0]['cluster']['player_state']
+                                    ['queue_revision'])
                                     self.shuffling = (load['payloads'][0]['cluster']['player_state']['options']
                                     ['shuffling_context'])
                             except AttributeError:
                                 pass
             except Exception as exe:
-                print(exe)
-                self._authorize()
+                logging.error(exe, exc_info=True)
 
         def start_ping_loop(ws):
             asyncio.new_event_loop().run_until_complete(ping_loop(ws))
@@ -278,11 +273,7 @@ class SpotifyPlayer:
                                                                     {"capabilities": {"can_be_player": False,
                                                                                       "hidden": True}}}}
         response = self._session.put(hobs_url, headers=hobs_headers, data=json.dumps(hobs_data))
-        try:
-            self.queue = response.json()['player_state']['next_tracks']
-        except Exception as e:
-            self.queue = []
-            logging.error(e, exc_info=True)
+        self.queue = response.json()['player_state']['next_tracks']
         self.queue_revision = response.json()['player_state']['queue_revision']
         self.shuffling = response.json()['player_state']['options']['shuffling_context']
 
@@ -303,8 +294,7 @@ class SpotifyPlayer:
         except json.decoder.JSONDecodeError:
             currently_playing_device = self._session.get('https://api.spotify.com/v1/me/player/devices',
                                                          headers=headers).json()['devices'][0]['id']
-            response = self.transfer(currently_playing_device)
-            print(response.json())
+            self.transfer(currently_playing_device)
             time.sleep(1)
             currently_playing_device = self._session.get('https://api.spotify.com/v1/me/player', headers=headers)
             currently_playing_device = currently_playing_device.json()['device']['id']

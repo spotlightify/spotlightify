@@ -3,3 +3,5 @@ pynput
 spotipy
 requests
 clipboard
+browser_cookie3
+websockets
