@@ -167,6 +167,7 @@ class SpotifyPlayer:
         self.isinitialized = False
         try:
             self.cj = browser_cookie3.chrome()
+            _ = self.cj._cookies['.spotify.com']['/']['sp_t']
             self.isinitialized = True
         except Exception as e:
             logging.error(e, exc_info=True)
@@ -179,22 +180,24 @@ class SpotifyPlayer:
         self._session = requests.Session()
         self.shuffling = False
         self.ping = False
+        self.running_pings = False
+        self.event_loop = None
+        self.ws = None
         if self.isinitialized:
             self._authorize()
 
     def _authorize(self):
         if self.running_pings:
-            self.ws.close()
+            asyncio.run_coroutine_threadsafe(self.ws.close(), self.event_loop)
         access_token_headers = self._default_headers.copy()
         access_token_headers.update({'spotify-app-version': '1.1.48.530.g38509c6c'})
 
         access_token_url = 'https://open.spotify.com/get_access_token?reason=transport&productType=web_player'
-
+        self._session = requests.Session()
         response = self._session.get(access_token_url, headers=access_token_headers, cookies=self.cj)
         access_token_response = response.json()
         self.access_token = access_token_response['accessToken']
         self.access_token_expire = access_token_response['accessTokenExpirationTimestampMs']
-        self.cj._cookies['.spotify.com']['/']['sp_t'] = response.cookies
 
         guc_url = f'wss://guc-dealer.spotify.com/?access_token={self.access_token}'
         guc_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
@@ -202,17 +205,16 @@ class SpotifyPlayer:
 
         self.connection_id = None
         self.queue_revision = None
-        self.running_pings = False
-        self.ws = None
 
         async def websocket():
-            try:
-                async with websockets.connect(guc_url, extra_headers=guc_headers) as ws:
-                    self.ping = True
-                    self.ws = ws
-                    if not self.running_pings:
-                        Thread(target=lambda: start_ping_loop()).start()
-                    while True:
+            async with websockets.connect(guc_url, extra_headers=guc_headers) as ws:
+                self.ping = True
+                self.ws = ws
+                if not self.running_pings:
+                    Thread(target=lambda: start_ping_loop()).start()
+                while True:
+                    try:
+                        self.isinitialized = True
                         recv = await ws.recv()
                         load = json.loads(recv)
                         if load.get('headers'):
@@ -231,10 +233,10 @@ class SpotifyPlayer:
                                     ['shuffling_context'])
                             except AttributeError:
                                 pass
-            except Exception as exe:
-                logging.error(exe, exc_info=True)
-                self.ping = False
-                self._authorize()
+                    except websockets.exceptions.ConnectionClosedOK as exc:
+                        logging.error(exc, exc_info=False)
+                        self.isinitialized = False
+                        break
 
         def start_ping_loop():
             asyncio.new_event_loop().run_until_complete(ping_loop())
@@ -244,11 +246,17 @@ class SpotifyPlayer:
             while self.ping:
                 if self.access_token_expire < time.time():
                     self._authorize()
+                    while not self.isinitialized:
+                        pass
                 if self.ping:
                     await self.ws.send('{"type": "ping"}')
                 await asyncio.sleep(30)
 
-        Thread(target=lambda: asyncio.new_event_loop().run_until_complete(websocket())).start()
+        if not self.event_loop:
+            self.event_loop = asyncio.new_event_loop()
+        else:
+            self.event_loop = asyncio.get_event_loop()
+        Thread(target=lambda: self.event_loop.run_until_complete(websocket())).start()
 
         device_url = 'https://guc-spclient.spotify.com/track-playback/v1/devices'
         self.device_id = ''.join(random.choices(string.ascii_letters, k=40))
@@ -296,11 +304,12 @@ class SpotifyPlayer:
         self.queue = response.json()['player_state']['next_tracks']
         self.queue_revision = response.json()['player_state']['queue_revision']
         self.shuffling = response.json()['player_state']['options']['shuffling_context']
-        self.isinitialized = True
 
     def transfer(self, device_id):
         if self.access_token_expire < time.time():
             self._authorize()
+            while not self.isinitialized:
+                pass
         transfer_url = f'https://guc-spclient.spotify.com/connect-state/v1/connect/transfer/from/' \
                        f'{self.device_id}/to/{device_id}'
         transfer_headers = self._default_headers.copy()
@@ -312,6 +321,8 @@ class SpotifyPlayer:
     def command(self, command_dict):
         if self.access_token_expire < time.time():
             self._authorize()
+            while not self.isinitialized:
+                pass
         headers = {'Authorization': f'Bearer {self.access_token}'}
         currently_playing_device = self._session.get('https://api.spotify.com/v1/me/player', headers=headers)
         try:
