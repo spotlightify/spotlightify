@@ -237,6 +237,8 @@ class SpotifyPlayer:
 
         async def ping_loop():
             while self.ping:
+                if self.access_token_expire < time.time():
+                    self._authorize()
                 await self.ws.send('{"type": "ping"}')
                 await asyncio.sleep(30)
 
@@ -291,6 +293,8 @@ class SpotifyPlayer:
         self.isinitialized = True
 
     def transfer(self, device_id):
+        if self.access_token_expire < time.time():
+            self._authorize()
         transfer_url = f'https://guc-spclient.spotify.com/connect-state/v1/connect/transfer/from/' \
                        f'{self.device_id}/to/{device_id}'
         transfer_headers = self._default_headers.copy()
@@ -300,6 +304,8 @@ class SpotifyPlayer:
         return response
 
     def command(self, command_dict):
+        if self.access_token_expire < time.time():
+            self._authorize()
         headers = {'Authorization': f'Bearer {self.access_token}'}
         currently_playing_device = self._session.get('https://api.spotify.com/v1/me/player', headers=headers)
         try:
