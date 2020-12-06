@@ -183,6 +183,8 @@ class SpotifyPlayer:
             self._authorize()
 
     def _authorize(self):
+        if self.running_pings:
+            self.ws.close()
         access_token_headers = self._default_headers.copy()
         access_token_headers.update({'spotify-app-version': '1.1.48.530.g38509c6c'})
 
@@ -200,6 +202,7 @@ class SpotifyPlayer:
 
         self.connection_id = None
         self.queue_revision = None
+        self.running_pings = False
         self.ws = None
 
         async def websocket():
@@ -207,7 +210,8 @@ class SpotifyPlayer:
                 async with websockets.connect(guc_url, extra_headers=guc_headers) as ws:
                     self.ping = True
                     self.ws = ws
-                    Thread(target=lambda: start_ping_loop()).start()
+                    if not self.running_pings:
+                        Thread(target=lambda: start_ping_loop()).start()
                     while True:
                         recv = await ws.recv()
                         load = json.loads(recv)
@@ -236,10 +240,12 @@ class SpotifyPlayer:
             asyncio.new_event_loop().run_until_complete(ping_loop())
 
         async def ping_loop():
+            self.running_pings = True
             while self.ping:
                 if self.access_token_expire < time.time():
                     self._authorize()
-                await self.ws.send('{"type": "ping"}')
+                if self.ping:
+                    await self.ws.send('{"type": "ping"}')
                 await asyncio.sleep(30)
 
         Thread(target=lambda: asyncio.new_event_loop().run_until_complete(websocket())).start()
