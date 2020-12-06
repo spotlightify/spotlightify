@@ -120,7 +120,6 @@ class PlayFunctions:
             track = self.sp.track(id_)
             #uri = f"spotify:track:{id_}"
             results = self.sp.recommendations(seed_tracks=[track["id"]], limit=50)
-            print(results)
             uris = [track["uri"] for track in results["tracks"]]
             if self.spotifyplayer.isinitialized:
                 self.spotifyplayer.command(self.spotifyplayer.play_from_uris(uris))

@@ -115,7 +115,7 @@ class SpotifyPlayer:
         return [{'command': {'next_tracks': queue[1:], 'queue_revision': self.queue_revision,
                              'endpoint': 'set_queue'}},
                 {"command": {"context": {"uri": queue[0]['uri'],
-                                         "url": queue[0]['uri'],
+                                         "url": f'context://{queue[0]["uri"]}',
                                          "metadata": {}}, "play_origin":
                                  {"feature_identifier": "harmony", "feature_version": "4.11.0-af0ef98"}, "options":
                                  {"license": "on-demand", "skip_to": {"track_index": 0}, "player_options_override": {}},
@@ -301,7 +301,10 @@ class SpotifyPlayer:
                                                                     {"capabilities": {"can_be_player": False,
                                                                                       "hidden": True}}}}
         response = self._session.put(hobs_url, headers=hobs_headers, data=json.dumps(hobs_data))
-        self.queue = response.json()['player_state']['next_tracks']
+        try:
+            self.queue = response.json()['player_state']['next_tracks']
+        except KeyError:
+            self.queue = []
         self.queue_revision = response.json()['player_state']['queue_revision']
         self.shuffling = response.json()['player_state']['options']['shuffling_context']
 
