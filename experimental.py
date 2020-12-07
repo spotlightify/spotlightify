@@ -233,7 +233,7 @@ class SpotifyPlayer:
                                     ['shuffling_context'])
                             except AttributeError:
                                 pass
-                    except websockets.exceptions.ConnectionClosedOK as exc:
+                    except websockets.exceptions.ConnectionClosedError as exc:
                         logging.error(exc, exc_info=False)
                         self.isinitialized = False
                         break
