@@ -53,6 +53,14 @@ python3 -m venv venv
 . venv/bin/activate
 sudo apt-get install python3-pyqt5
 pip3 install -r requirements.txt
+
+Configure a service to auto start up Spotlightify:
+
+cp spotlightify.service /etc/systemd/service (Make sure you're in the Spotlightify root dir)
+sudo systemctl daemon-reload
+sudo systemctl start spotlightify.service
+sudo systemctl enable spotlightify.service
+
 python3 app.py
 ```
 
