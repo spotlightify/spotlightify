@@ -26,17 +26,10 @@ class Config:
         self._scope = " ".join(scopes)
         self.config_path = f"{CACHE_DIR}config.json"
 
-        self.open_env()
         if not self.is_valid():
             self.open_json()
 
-    def open_env(self):
-        if all(p in environ for p in
-               ["SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI", "USERNAME"]):
-            self._username = environ["USERNAME"]
-            self._client_id = environ["SPOTIPY_CLIENT_ID"]
-            self._client_secret = environ["SPOTIPY_CLIENT_SECRET"]
-            self._redirect_uri = environ["SPOTIPY_REDIRECT_URI"]
+
 
     def open_json(self):
         try:
@@ -49,7 +42,7 @@ class Config:
                     self._redirect_uri = params["redirect_uri"]
 
         except FileNotFoundError:
-            print("_config.json does not exist.")
+            print("config.json does not exist.")
 
     def save_json(self):
         data = {
