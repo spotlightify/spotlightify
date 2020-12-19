@@ -12,8 +12,8 @@ class PlayingCommand(Command):
         Command.__init__(self, "Currently Playing", "Show currently playing song", "currently playing")
         self.sp = sp
 
-    def get_suggestions(self, **kwargs):
-        if kwargs["parameter"] != "":
+    def get_suggestions(self, parameter=""):
+        if parameter != "":
             return []
         else:
             return [SongPlayingSuggestion(self.sp)]

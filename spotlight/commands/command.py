@@ -1,8 +1,12 @@
 import abc
+from typing import List
+
+from spotlight.suggestions.suggestion import Suggestion
 
 
 class Command:
     """
+    The base abstract class for Commands.
     Class used to output Suggestions via the get_suggestions method
     """
     def __init__(self, title: str, description: str, prefix: str):
@@ -54,5 +58,5 @@ class Command:
         self.__prefix = value
 
     @abc.abstractmethod
-    def get_suggestions(self, **kwargs):
+    def get_suggestions(self, parameter="") -> List[Suggestion]:
         pass

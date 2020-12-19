@@ -80,17 +80,17 @@ class CommandHandler:
             suggestions = self.command_list[0].get_suggestions(parameter=text)
         return suggestions
 
-    def perform_command(self, item: Suggestion):
+    def execute_function(self, suggestion: Suggestion):
         """
         Executes a command
-        :param command: Suggestion object
+        :param suggestion: Suggestion Object
         """
         try:
-            if item.title == "Authentication":  # opens Auth UI, needs changed at some point
+            if suggestion.title == "Authentication":  # opens Auth UI, needs changed at some point
                 self.auth_ui.show()
-            elif item.parameter == "":  # executes Suggestion's function
-                item.function(self.manager)
+            elif suggestion.parameter == "":  # executes Suggestion's function
+                suggestion.function(self.manager)
             else:  # executes Suggestion's function with a string parameter
-                item.function(self.manager, item.parameter)
+                suggestion.function(self.manager, suggestion.parameter)
         except:
             print("[Error] Command failed to execute")

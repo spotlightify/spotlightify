@@ -25,7 +25,7 @@ class MiscFunctions:
     def set_default_device(self):
         try:
             device_id = self.sp.devices()["devices"][0]["id"]
-            self.sp.transfer_playback(device_id, True)
+            self.sp.transfer_playback(device_id, force_play=False)
         except:
             print("[Error] could not select default device.")
 

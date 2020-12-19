@@ -16,8 +16,8 @@ class DeviceCommand(Command):
         Command.__init__(self, "Device", "Set the device to play music from", "device")
         self.sp = sp
 
-    def get_suggestions(self, **kwargs):
-        if kwargs["parameter"] != "":  # menu item will not be retrieved if there is text in the parameter str
+    def get_suggestions(self, parameter=""):
+        if parameter != "":  # menu item will not be retrieved if there is text in the parameter str
             return []
         else:
             return [DeviceMenuSuggestions(self.sp)]
