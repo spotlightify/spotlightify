@@ -12,7 +12,7 @@ When a command's `prefix` matches the text within the prompt, the command can co
 The base class is found within `spotlight/commands/command.py`. Classes that inherit from this `Command` class are also
 found within the `commands/` directory.
 
-The `Command` base class includes the following variables:
+The `Command` base class includes the following variables and method:
  - `title: str` The title of the command.
  - `description: str` A description of the command.
  - `prefix: str` The prefix is used to find the command, using text entered into the Spotlightify prompt (identifies command).
@@ -30,7 +30,7 @@ found within the `suggestions/` directory.
 Template suggestions can be found in `spotlight/suggestions/template.py`. These are general use suggestions
 which come with a description of their different abilities.
 
-The Suggestion base class includes the following variables and methods:
+The Suggestion base class includes the following variables:
  - `title: str` The title of the suggestion (displayed visually).
  - `description: str` The description of the suggestion (displayed visually).
  - `icon_name: str`  The name of an svg asset **without** the file's extension or path (svg assets found within `assets/svg/`).
