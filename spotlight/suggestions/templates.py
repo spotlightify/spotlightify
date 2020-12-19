@@ -7,7 +7,6 @@ class FillSuggestion(Suggestion):
     """
     def __init__(self, title, description, icon, fill_str):
         Suggestion.__init__(self, title, description, icon, lambda: None, fill_str, "", "fill")
-        self.prefix = fill_str  # TODO Change this by creating a base class for ITEM
 
 
 class WarningSuggestion(Suggestion):

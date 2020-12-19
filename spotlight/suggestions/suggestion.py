@@ -4,7 +4,7 @@ from os import sep
 
 class Suggestion:
     """
-    The base class for Suggestions.
+    The base abstract class for Suggestions.
     """
 
     def __init__(self, title: str, description: str, icon_name: str, function: classmethod, fill_str: str, parameter: str, setting: str):

@@ -19,13 +19,13 @@ class SearchOnlineCommand(Command):
         self.sp = sp
         self.type_ = search_type
 
-    def get_suggestions(self, **kwargs) -> list:
+    def get_suggestions(self, parameter="") -> list:
         """
         Overrides BaseCommand get_dicts method
         :param parameter: This is the str that comes after the prefix
         :return: Returns a list of song suggestions from the online search
         """
-        parameter = kwargs["parameter"]
+
         item_list = []
         if parameter != "":
             try:

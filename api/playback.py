@@ -47,7 +47,7 @@ class PlaybackFunctions:
         try:
             song = self.sp.current_playback()["item"]
             return {"name": song["name"], "artist": ", ".join([artist["name"] for artist in song["artists"]]),
-                    "image": song["album"]["id"]}
+                    "image": song["album"]["id"], "id": song["id"]}
         except:
             print("[Error] could not get current song information.")
             return {"name": "Nothing Currently Playing", "artist": ""}

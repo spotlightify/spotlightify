@@ -21,13 +21,13 @@ class SearchCacheCommand(Command):
         Command.__init__(self, prefix, f"Search for a {search_type}", prefix)
         self.type_ = search_type
 
-    def get_suggestions(self, **kwargs) -> list:
+    def get_suggestions(self, parameter="") -> list:
         """
 
-        :param kwargs: parameter="song/artist/playlist/album name" <- takes this format
+        :param parameter: parameter="song/artist/playlist/album name" <- takes this format
         :return: List of Items
         """
-        parameter = kwargs["parameter"]
+
 
         if parameter == "":
             return [FillSuggestion(self.title, self.description, self.prefix[:-1], self.prefix)]

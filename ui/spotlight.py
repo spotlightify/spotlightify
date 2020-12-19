@@ -193,7 +193,7 @@ class SpotlightUI(QWidget):
         elif suggestion.setting == "none":
             return
         else:
-            self.command_handler.perform_command(suggestion)
+            self.command_handler.execute_function(suggestion)
             self.textbox.clear()
             self.hide()
 
