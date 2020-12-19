@@ -30,7 +30,7 @@ found within the `suggestions/` directory.
 Template suggestions can be found in `spotlight/suggestions/template.py`. These are general use suggestions
 which come with a description of their different abilities.
 
-The Suggestion base class includes the following variables:
+The Suggestion base class includes the following variables and methods:
  - `title: str` The title of the suggestion (displayed visually).
  - `description: str` The description of the suggestion (displayed visually).
  - `icon_name: str`  The name of an svg asset **without** the file's extension or path (svg assets found within `assets/svg/`).
