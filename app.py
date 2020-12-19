@@ -1,7 +1,5 @@
 import sys
-import time
-import webbrowser
-from os import sep, kill, getpid, environ
+from os import sep, kill, getpid
 from platform import platform
 from sys import exit
 from threading import Thread
@@ -11,14 +9,15 @@ from PyQt5.QtWidgets import QApplication, QMenu, QAction, QSystemTrayIcon
 from pynput.mouse import Controller, Button
 from spotipy import Spotify
 
-from api.spotify_singleton import SpotifySingleton
-from auth import AuthUI, config
+from auth import config, AuthUI
 from caching import CacheManager, SongQueue, ImageQueue
 from colors import colors
 from definitions import ASSETS_DIR
 from settings import default_themes
 from shortcuts import listener
 from ui import SpotlightUI
+
+from settings.preferences import Preferences
 
 
 class App:
@@ -35,6 +34,9 @@ class App:
         self.action_open = None
         self.action_exit = None
 
+        self.preferences = Preferences()
+
+        self.oauth = None
         self.config = config
 
         self.spotlight = None
@@ -50,29 +52,33 @@ class App:
         self.run()
 
     def run(self):
-        print(self.config.username)
+        # Pre checks in event of no config.json
+        # Validation dependencies
+
         if not self.config.is_valid():
             app = QApplication([])
             app.setQuitOnLastWindowClosed(True)
             auth = AuthUI()
-            # ADD TUTORIAL WEBSITE webbrowser.open("https://alfred-spotify-mini-player.com/setup/", 2)
+
             while not self.config.is_valid():
                 auth.show()
                 app.exec_()
                 if auth.isCanceled:
                     sys.exit()
+        while True:
+            self.ui_invoke()
+
+    def ui_invoke(self):
+        """
+        Runs authorisation process
+        and invokes the UI.
+        """
 
         try:
-            print("Starting auth process")
-
-            # sets up a Spotify username env var which is referenced elsewhere
-            environ["SPOTIFY_USERNAME"] = self.config.username  # TODO Change this to something permanent
-
+            print(f"{colors.BLUE}Starting auth process...{colors.RESET} \n\n ")
             self.oauth = self.config.get_oauth()
             self.token_info = self.oauth.get_access_token(as_dict=True)
-            SpotifySingleton(self.token_info["access_token"])  # Instantiate Singleton Object
-            self.spotify = SpotifySingleton.get_instance()
-
+            self.spotify = Spotify(auth=self.token_info["access_token"])
             self.init_tray()
 
             self.listener_thread.start()
@@ -108,7 +114,7 @@ class App:
         self.tray.activated.connect(lambda reason: self.show_spotlight(reason=reason))
 
     def show_spotlight(self, **kwargs):
-        def focus_windows(): # Only way to focus UI on Windows
+        def focus_windows():  # Only way to focus UI on Windows
             mouse = Controller()
             # mouse position before focus
             mouse_pos_before = mouse.position
@@ -143,8 +149,8 @@ class App:
             if self.oauth.is_token_expired(token_info=self.token_info):
                 self.token_info = self.oauth.refresh_access_token(self.token_info["refresh_token"])
                 self.spotify.set_auth(self.token_info["access_token"])
-        except:
-            print("[WARNING] Could not refresh user API token")
+        except Exception as ex:
+            print(f"[WARNING] Could not refresh user API token \n \n {ex}")
 
     @staticmethod
     def exit():

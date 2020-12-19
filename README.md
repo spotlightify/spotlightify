@@ -31,7 +31,9 @@ cd path\to\spotlightify-root
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
+python app.py
 ```
+To run the application as an independent process (i.e. it will not end when the command line is exited), use: `pythonw app.py`
 
 #### MacOS
 
@@ -40,6 +42,7 @@ cd path/to/spotlightify-root
 python -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
+python app.py
 ```
 
 #### Linux
@@ -50,6 +53,15 @@ python3 -m venv venv
 . venv/bin/activate
 sudo apt-get install python3-pyqt5
 pip3 install -r requirements.txt
+
+Configure a service to auto start up Spotlightify:
+
+sudo cp spotlightify.service /etc/systemd/service (Make sure you're in the Spotlightify root dir)
+sudo systemctl daemon-reload
+sudo systemctl start spotlightify.service
+sudo systemctl enable spotlightify.service
+
+python3 app.py
 ```
 
 ### Linking the Spotify App
@@ -99,6 +111,11 @@ The GUI is activated by using the shortcut `ctrl + space`. Here is the current l
 
 -   <a href="https://spotipy.readthedocs.io/en/2.12.0/" target="_blank">Spotipy</a> - A Spotify API wrapper for Python
 -   <a href="https://www.riverbankcomputing.com/software/pyqt/" target="_blank">PyQt5</a> - A cross platform GUI framework for Python
+
+### Reddit Posts
+
+- https://www.reddit.com/r/Python/comments/go6no5/spotlightify_a_overlay_controller_for_spotify/
+- https://www.reddit.com/r/Python/comments/gtnyll/spotlightify_the_spotify_overlay_controller/
 
 ### Contributing
 

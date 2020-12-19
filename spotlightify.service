@@ -1,0 +1,11 @@
+[Unit]
+Description=Service for Spotlightify Application
+
+[Service]
+User=root
+WorkingDirectory=${SPOTLIGHTIFY}
+ExecStart=${SPOTLIGHTIFY}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
