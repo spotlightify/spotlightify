@@ -55,7 +55,6 @@ class CommandHandler:
 
         self.manager = PlaybackManager(sp, queue)
         # TODO create a settings json to store things like default device
-        self.manager.set_device("")  # sets device to first available
         CacheHolder.reload_holder("all")  # Initially loads the cache into memory
 
     def get_command_suggestions(self, text: str) -> list:
