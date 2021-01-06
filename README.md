@@ -70,6 +70,8 @@ Run `app.py` to start the application.
 
 On the Spotify App that you have created, take the values of `Client ID`, `Client Secret` and `Redirect URI` (Redirect URL is found when the "EDIT SETTINGS" button is clicked) from the website and input them into their respective textboxes. To make sure the correct username is entered into the `username` textbox, go to <a href="https://www.spotify.com/us/account/overview/" target="_blank">this link</a>, get your exact username string and paste it (you only need to do this if you sign into Spotify using a service such as Facebook).
 
+**On first start up, Spotlightify will cache all of your liked and playlist songs, caching both song information and album art. So keep the app open for at least 10 minutes so that all of your songs can be cached.**
+
 ### Installing Fonts
 
 The fonts found in `assets/fonts` must be installed for this to display correctly.
@@ -81,29 +83,41 @@ The GUI is activated by using the shortcut `ctrl + space`. Here is the current l
 ### List of Commands
 
 ```
-| Name     | Description                                | Prefix            | Parameter     |
-|----------|--------------------------------------------|-------------------|---------------|
-| Play     | Plays a song                               | play              | song name     |
-| Queue    | Queues a song                              | queue             | song name     |
-| Playlist | Plays a saved/followed playlist            | playlist          | playlist name |
-| Album    | Plays a saved album                        | album             | album name    |
-| Artist   | Plays songs from a saved/followed artist   | artist            | artist name   |
-| Liked    | Plays saved/liked music                    | liked             | None          |
-| Volume   | Changes music volume                       | volume            | 1 - 10        |
-| Go to    | Seeks a position in a song                 | goto              | e.g. 1:24     |
-| Resume   | Resumes music playback                     | resume, start     | None          |
-| Skip     | Skips the current song                     | skip, next        | None          |
-| Previous | Plays pervious song                        | previous          | None          |
-| Pause    | Pauses music playback                      | pause             | None          |
-| Shuffle  | Toggles shuffle playback                   | shuffle           | None          |
-| Device   | Select device for music playback           | device            | None          |
-| Repeat   | Toggles repeating modes                    | repeat            | None          |
-| Current  | Provides currently playing song info       | currently playing | None          |
-| Share    | Copies the current song's URL to clipboard | share             | None          |
-| Exit     | Exits the application                      | exit              | None          |
+| Name     | Description                                        | Prefix            | Parameter     |
+|----------|----------------------------------------------------|-------------------|---------------|
+| Play     | Find and play a song                               | play              | song name     |
+| Queue    | Find and queues a song                             | queue             | song name     |
+| Playlist | Find and play a saved/followed playlist            | playlist          | playlist name |
+| Album    | Find and play a saved album                        | album             | album name    |
+| Artist   | Find and play songs from a saved/followed artist   | artist            | artist name   |
+| Liked    | Plays saved/liked music                            | liked             | None          |
+| Volume   | Changes music volume                               | volume            | 1 - 10        |
+| Go to    | Seeks a position in a song                         | goto              | e.g. 1:24     |
+| Resume   | Resumes music playback                             | resume            | None          |
+| Skip     | Skips the current song                             | next              | None          |
+| Previous | Plays pervious song                                | previous          | None          |
+| Pause    | Pauses music playback                              | pause             | None          |
+| Shuffle  | Toggles shuffle playback                           | shuffle           | None          |
+| Device   | Select device for music playback                   | device            | None          |
+| Repeat   | Toggles repeating modes                            | repeat            | None          |
+| Current  | Provides currently playing song info               | currently playing | None          |
+| Share    | Copies the current song's URL to clipboard         | share             | None          |
+| Exit     | Exits the application                              | exit              | None          |
 ```
 
-**On first start up, Spotlightify will cache all of your liked and playlist songs, caching both song information and album art. So keep the app open for at least 10 minutes so that all your songs can be cached.**
+### List of Song Options
+
+```
+| Name                      | Description                                        |
+|---------------------------|----------------------------------------------------|
+| Add Song to Queue         | Adds the selected song to the queue                |
+| Add Song to Playlist      | Adds the selected song to the selected playlist    |
+| Play Song Radio           | Plays a Spotify radio related to the selected song |
+| Save/Like Song            | Saves the selected song to user Spotify library    |
+| Share Song                | Copies the selected song's URL to the clipboard    |
+```
+Song options are shown by holding down either `shift` key and `left clicking`/pressing the `enter` key on the song.  
+
 
 ## Additional Information
 
