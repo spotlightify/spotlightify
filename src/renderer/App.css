@@ -1,0 +1,131 @@
+/* #root {
+  height: 60px;
+  width: 100%;
+} */
+
+:root {
+  --base-children-height: 50px;
+  --base-height: 64px;
+  --suggestion-item-height: 58px;
+  --font-color: rgb(202, 202, 202);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Geist Light';
+}
+
+/* 16px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    Cantarell,
+    'Open Sans',
+    'Helvetica Neue',
+    sans-serif; */
+
+.base {
+  /* padding: 20px; */
+  /* height: var(--base-height); */
+  height: 100%;
+  max-height: calc(var(--base-height) + var(--suggestion-item-height) * 8);
+  width: 100%;
+  background-color: #262626;
+  /* -webkit-user-select: none; */
+  user-select: none;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.input-wrapper {
+  /* width: auto; */
+  flex-grow: 1;
+  padding: 4px;
+  /* background-color: #333333; */
+  border-radius: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: row;
+  padding: 10px;
+  gap: 10px;
+  -webkit-app-region: drag;
+}
+
+.input-prompt {
+  flex-grow: 1;
+  height: var(--base-children-height);
+  background-color: #4f4f4f;
+  border-radius: 10px;
+  border-width: 0px;
+  user-select: text;
+  -webkit-app-region: no-drag;
+  color: var(--font-color);
+  font-size: 26px;
+  padding: 0 10px 0 10px;
+  font-family: 'Geist Light';
+}
+
+.input-prompt:focus {
+  outline: none;
+}
+
+.spotify-logo {
+  height: var(--base-children-height);
+}
+
+.suggestions-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.suggestion-item {
+  height: var(--suggestion-item-height);
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 10px;
+  align-items: center;
+  color: #b5b5b5;
+}
+
+.suggestion-item:hover {
+  background-color: #251e1e;
+}
+
+.suggestion-item:hover:focus {
+  background-color: #322828;
+}
+
+.suggestion-item:focus {
+  background-color: #3f3232;
+  outline: 0px;
+}
+
+.suggestion-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  gap: 3px;
+}
+
+.suggestion-item__title {
+  text-align: left;
+  font-size: 22px;
+}
+
+.suggestion-item__description {
+  font-size: 15px;
+}
+
+.suggestion-item__icon {
+  height: 40px;
+  padding-left: 10px;
+}
