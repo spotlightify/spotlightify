@@ -30,7 +30,8 @@ body {
   height: 100%;
   max-height: calc(var(--base-height) + var(--suggestion-item-height) * 8);
   width: 100%;
-  background-color: #262626;
+  background-color: #121212;
+  /* background-color: #191414; */
   /* -webkit-user-select: none; */
   user-select: none;
   border-radius: 10px;
@@ -55,17 +56,27 @@ body {
   -webkit-app-region: drag;
 }
 
+.active-command {
+  font-size: 15px;
+  border-radius: 5px;
+  padding: 4px;
+  border: 2px solid #1db954;
+  color: #1db954;
+}
+
 .input-prompt {
   flex-grow: 1;
   height: var(--base-children-height);
-  background-color: #4f4f4f;
+  /* background-color: #4f4f4f; */
+  /* background-color: #191414; */
+  background-color: #121212;
   border-radius: 10px;
   border-width: 0px;
   user-select: text;
   -webkit-app-region: no-drag;
   color: var(--font-color);
-  font-size: 26px;
-  padding: 0 10px 0 10px;
+  font-size: 30px;
+  /* padding: 0 10px 0 10px; */
   font-family: 'Geist Light';
 }
 
@@ -75,6 +86,10 @@ body {
 
 .spotify-logo {
   height: var(--base-children-height);
+}
+
+button {
+  all: unset;
 }
 
 .suggestions-wrapper {

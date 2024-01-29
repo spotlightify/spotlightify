@@ -1,14 +1,30 @@
-import logo from 'assets/svg/spotify-logo.svg';
+import { Action } from '../../Action/Action';
 
-function Suggestion() {
+export interface SuggestionData {
+  title: string;
+  description: string;
+  icon: string | undefined;
+  action: Action;
+}
+
+interface SuggestionProps {
+  suggestion: SuggestionData;
+  actionHandler: (action: Action) => void;
+}
+
+function Suggestion({ suggestion, actionHandler }: SuggestionProps) {
+  const onAction = () => actionHandler(suggestion.action);
+
   return (
-    <div className="suggestion-item">
-      <img className="suggestion-item__icon" src={logo} alt="spotify logo" />
+    <button type="button" onClick={onAction} className="suggestion-item">
+      <img className="suggestion-item__icon" src={suggestion.icon} alt="icon" />
       <div className="suggestion-text-wrapper">
-        <div className="suggestion-item__title">Do I wanna know</div>
-        <div className="suggestion-item__description">By Arctic Monkeys</div>
+        <div className="suggestion-item__title">{suggestion.title}</div>
+        <div className="suggestion-item__description">
+          {suggestion.description}
+        </div>
       </div>
-    </div>
+    </button>
   );
 }
 
