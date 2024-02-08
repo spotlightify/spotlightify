@@ -15,9 +15,9 @@ import log from 'electron-log';
 // import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
-const height = 70;
-const width = 600;
-const suggestionHeight = 58;
+const height = 72.0;
+const width = 600.0;
+const suggestionHeight = 58.0;
 
 class AppUpdater {
   constructor() {
@@ -139,7 +139,15 @@ const setNumberOfSuggestionsHandler = (event: IpcMainEvent, length: number) => {
   if (!win) {
     return;
   }
-  win.setSize(width, height + adjustedLength * suggestionHeight);
+
+  const { x, y } = win.getBounds();
+  const windowSize = {
+    width,
+    height: height + adjustedLength * suggestionHeight,
+    x: Math.round(x + 0.88),
+    y: Math.round(y + 0.88),
+  };
+  win.setBounds(windowSize);
 };
 
 app
