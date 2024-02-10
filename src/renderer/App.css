@@ -109,16 +109,19 @@ button {
   color: #b5b5b5;
 }
 
-.suggestion-item:hover,
 .button--focus {
-  background-color: #251e1e;
-}
-
-/* .suggestion-item:hover:focus {
   background-color: #322828;
 }
 
-.suggestion-item:focus {
+.suggestion-item:hover {
+  background-color: #251e1e;
+}
+
+.button--focus:hover {
+  background-color: #322828;
+}
+
+/* .suggestion-item:focus {
   background-color: #3f3232;
   outline: 0px;
 } */
