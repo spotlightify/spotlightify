@@ -29,6 +29,23 @@ function Spotlightify() {
     setFocusedSuggestionIndex(0);
   }, [suggestions]);
 
+  const actionSetters = useMemo(
+    () => ({
+      setActiveCommand: (commandId: string) => {
+        const command = commandMap.get(commandId);
+        if (!command) {
+          console.log('Command not found');
+          return;
+        }
+        setActiveCommand(command);
+      },
+      setPrompt: (text: string) => setPromptText(text),
+      setSuggestions: (suggestionData: SuggestionData[]) =>
+        setSuggestions(suggestionData),
+    }),
+    [commandMap],
+  );
+
   useEffect(() => {
     const moveFocusedIndex = (direction: 'up' | 'down') => {
       if (direction === 'up') {
@@ -42,22 +59,7 @@ function Spotlightify() {
       }
     };
 
-    const actionSetters: ActionSetters = {
-      setActiveCommand: (commandId: string) => {
-        const command = commandMap.get(commandId);
-        if (!command) {
-          console.log('Command not found');
-          return;
-        }
-        setActiveCommand(command);
-      },
-      setPrompt: (text: string) => setPromptText(text),
-      setSuggestions: (suggestionData: SuggestionData[]) =>
-        setSuggestions(suggestionData),
-    };
-
     const handleKeyDown = (event: KeyboardEvent) => {
-      console.log(event);
       if (event.key === 'Escape') {
         if (!activeCommand) {
           window.electron.minizeWindow();
@@ -72,10 +74,8 @@ function Spotlightify() {
       if (event.key === 'Tab' || event.key === 'ArrowDown') {
         event.preventDefault();
         moveFocusedIndex('down');
-        console.log('down', 'Focus Index: ', focusedSuggestionIndex);
       }
       if (event.key === 'ArrowUp') {
-        console.log('RAN');
         event.preventDefault();
         moveFocusedIndex('up');
       }
@@ -95,7 +95,14 @@ function Spotlightify() {
 
     // Remove the event listener on cleanup
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeCommand, commandMap, focusedSuggestionIndex, suggestions]);
+  }, [
+    actionSetters,
+    activeCommand,
+    commandMap,
+    focusedSuggestionIndex,
+    promptText.length,
+    suggestions,
+  ]);
 
   useEffect(() => {
     setSuggestions(commandMatcher(promptText, activeCommand));
@@ -110,6 +117,7 @@ function Spotlightify() {
       key={suggestion.title}
       suggestion={suggestion}
       isFocused={index === focusedSuggestionIndex}
+      handleAction={() => ActionHandler(suggestion.action, actionSetters)}
     />
   ));
 
