@@ -1,4 +1,6 @@
 import logo from 'assets/svg/spotify-logo.svg';
+import queueIcon from 'assets/svg/queue.svg';
+import playIcon from 'assets/svg/play.svg';
 import onekiss from 'assets/Calvin_Harris_and_Dua_Lipa_One_Kiss.png';
 import ophelia from 'assets/Cleopatra_album_cover.jpg';
 import oceanavenue from 'assets/ocean_avenue.jpg';
@@ -22,7 +24,7 @@ export const PlayCommand: Command = {
       {
         title: 'Play',
         description: 'Play a song',
-        icon: logo,
+        icon: playIcon,
         action: {
           type: 'setActiveCommand',
           parentCommandId: 'play',
@@ -44,7 +46,7 @@ export const QueueCommand: Command = {
         {
           title: 'Queue',
           description: 'Adds a song to the queue',
-          icon: logo,
+          icon: queueIcon,
           action: {
             type: 'setActiveCommand',
             parentCommandId: 'queue',

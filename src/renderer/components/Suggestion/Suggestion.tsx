@@ -9,14 +9,15 @@ export interface SuggestionData {
 
 interface SuggestionProps {
   suggestion: SuggestionData;
-  actionHandler: (action: Action) => void;
+  isFocused: boolean;
 }
 
-function Suggestion({ suggestion, actionHandler }: SuggestionProps) {
-  const onAction = () => actionHandler(suggestion.action);
-
+function Suggestion({ suggestion, isFocused = false }: SuggestionProps) {
   return (
-    <button type="button" onClick={onAction} className="suggestion-item">
+    <button
+      type="button"
+      className={`suggestion-item ${isFocused ? 'button--focus' : ''}`}
+    >
       <img className="suggestion-item__icon" src={suggestion.icon} alt="icon" />
       <div className="suggestion-text-wrapper">
         <div className="suggestion-item__title">{suggestion.title}</div>

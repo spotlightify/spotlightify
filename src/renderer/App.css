@@ -4,7 +4,7 @@
 } */
 
 :root {
-  --base-children-height: 50px;
+  --base-children-height: 45px;
   --base-height: 64px;
   --suggestion-item-height: 58px;
   --font-color: rgb(202, 202, 202);
@@ -57,7 +57,7 @@ body {
 }
 
 .active-command {
-  font-size: 15px;
+  font-size: 14px;
   border-radius: 5px;
   padding: 4px;
   border: 2px solid #1db954;
@@ -75,7 +75,7 @@ body {
   user-select: text;
   -webkit-app-region: no-drag;
   color: var(--font-color);
-  font-size: 30px;
+  font-size: 26px;
   /* padding: 0 10px 0 10px; */
   font-family: 'Geist Light';
 }
@@ -109,18 +109,19 @@ button {
   color: #b5b5b5;
 }
 
-.suggestion-item:hover {
+.suggestion-item:hover,
+.button--focus {
   background-color: #251e1e;
 }
 
-.suggestion-item:hover:focus {
+/* .suggestion-item:hover:focus {
   background-color: #322828;
 }
 
 .suggestion-item:focus {
   background-color: #3f3232;
   outline: 0px;
-}
+} */
 
 .suggestion-text-wrapper {
   display: flex;
@@ -133,14 +134,19 @@ button {
 
 .suggestion-item__title {
   text-align: left;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .suggestion-item__description {
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .suggestion-item__icon {
   height: 40px;
-  padding-left: 10px;
+  padding-left: 15px;
+}
+
+.suggestion-item__icon svg {
+  height: 10px;
+  padding-left: 15px;
 }
