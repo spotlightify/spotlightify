@@ -150,11 +150,19 @@ const setNumberOfSuggestionsHandler = (event: IpcMainEvent, length: number) => {
   win.setBounds(windowSize);
 };
 
+const minimizeWindow = () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    win.minimize();
+  }
+};
+
 app
   .whenReady()
   .then(() => {
     createWindow();
     ipcMain.on('set-number-of-suggestions', setNumberOfSuggestionsHandler);
+    ipcMain.on('minimize-window', minimizeWindow);
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

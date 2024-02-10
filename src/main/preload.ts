@@ -26,6 +26,9 @@ const electronHandler = {
     const adjustedLength = Math.max(0, Math.min(length, 8));
     ipcRenderer.send('set-number-of-suggestions', adjustedLength);
   },
+  minizeWindow: () => {
+    ipcRenderer.send('minimize-window');
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

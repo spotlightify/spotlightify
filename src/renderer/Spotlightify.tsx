@@ -26,6 +26,23 @@ function Spotlightify() {
   };
 
   useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      if (event.key === 'Escape') {
+        if (!activeCommand) {
+          window.electron.minizeWindow();
+        }
+        setActiveCommand(undefined);
+      }
+    };
+
+    // Add the event listener
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Remove the event listener on cleanup
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeCommand]);
+
+  useEffect(() => {
     setSuggestions(commandMatcher(promptText, activeCommand));
   }, [activeCommand, promptText]);
 
