@@ -1,11 +1,13 @@
--- Songs Table
+-- Songs Table with artist_names field
 CREATE TABLE Songs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name CHAR(200) NOT NULL,
+    artist_names CHAR(250) NOT NULL, -- Added artist_names field
     spotify_id CHAR(200) NOT NULL,
     length CHAR(10) NOT NULL,
     image CHAR(50) NOT NULL
 );
+CREATE INDEX idx_songs_name ON Songs(name); -- Index on name field
 
 -- Artists Table
 CREATE TABLE Artists (
@@ -14,6 +16,7 @@ CREATE TABLE Artists (
     spotify_id CHAR(200) NOT NULL,
     image CHAR(50) NOT NULL
 );
+CREATE INDEX idx_artists_name ON Artists(name); -- Index on name field
 
 -- SongArtists Table (Associative table for many-to-many relationship between Songs and Artists)
 CREATE TABLE SongArtists (
@@ -32,6 +35,7 @@ CREATE TABLE Playlists (
     image CHAR(50) NOT NULL,
     username CHAR(50) NOT NULL
 );
+CREATE INDEX idx_playlists_name ON Playlists(name); -- Index on name field
 
 -- Podcasts Table
 CREATE TABLE Podcasts (
@@ -40,3 +44,4 @@ CREATE TABLE Podcasts (
     spotify_id CHAR(200) NOT NULL,
     image CHAR(50) NOT NULL
 );
+CREATE INDEX idx_podcasts_name ON Podcasts(name); -- Index on name field
