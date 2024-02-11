@@ -31,8 +31,6 @@ body {
   max-height: calc(var(--base-height) + var(--suggestion-item-height) * 8);
   width: 100%;
   background-color: #121212;
-  /* background-color: #191414; */
-  /* -webkit-user-select: none; */
   user-select: none;
   border-radius: 10px;
   display: flex;
@@ -96,6 +94,11 @@ button {
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow-y: scroll;
+}
+
+.suggestions-wrapper::-webkit-scrollbar {
+  display: none;
 }
 
 .suggestion-item {
@@ -107,6 +110,7 @@ button {
   gap: 10px;
   align-items: center;
   color: #b5b5b5;
+  flex-shrink: 0;
 }
 
 .button--focus {

@@ -9,7 +9,7 @@ function Prompt({ value, onChange }: Props) {
       className="input-prompt"
       onChange={onChange}
       value={value}
-      placeholder="Do I wanna know"
+      placeholder="Spotlightify Search"
     />
   );
 }

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import logo from 'assets/svg/spotify-logo.svg';
 import Prompt from './components/Prompt';
 import Suggestion, { SuggestionData } from './components/Suggestion/Suggestion';
 import Command from './Command/Command';
-import { ActionHandler, ActionSetters } from './Action/Handler';
+import { ActionHandler } from './Action/Handler';
 import commandMatcher, { commands } from './Command/Commander';
 
 function Spotlightify() {
@@ -11,6 +11,7 @@ function Spotlightify() {
   const [activeCommand, setActiveCommand] = useState<Command | undefined>();
   const [suggestions, setSuggestions] = useState<SuggestionData[]>([]);
   const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState(0);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const commandMap = useMemo(() => {
     const map = new Map<string, Command>();
@@ -28,6 +29,14 @@ function Spotlightify() {
   useEffect(() => {
     setFocusedSuggestionIndex(0);
   }, [suggestions]);
+
+  useEffect(() => {
+    if (suggestionsRef.current && focusedSuggestionIndex > 7) {
+      suggestionsRef.current.scrollTop = 58 * (focusedSuggestionIndex - 7);
+    } else if (suggestionsRef.current) {
+      suggestionsRef.current.scrollTop = 0;
+    }
+  }, [focusedSuggestionIndex]);
 
   const actionSetters = useMemo(
     () => ({
@@ -130,7 +139,13 @@ function Spotlightify() {
         )}
         <Prompt value={promptText} onChange={onPromptChange} />
       </div>
-      <div className="suggestions-wrapper">{suggestionElements}</div>
+      <div
+        ref={suggestionsRef}
+        style={{ height: Math.min(suggestions.length, 8) * 58 }}
+        className="suggestions-wrapper"
+      >
+        {suggestionElements}
+      </div>
     </div>
   );
 }

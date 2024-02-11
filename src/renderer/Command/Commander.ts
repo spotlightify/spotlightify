@@ -1,7 +1,23 @@
 import { SuggestionData } from '../components/Suggestion/Suggestion';
-import Command, { AutoPlayCommand, PlayCommand, QueueCommand } from './Command';
+import Command, { AutoPlayCommand } from './Command';
+import QueueCommand from './Queue/QueueCommand';
+import PlayCommand from './Play/PlayCommand';
+import {
+  NextCommand,
+  PauseCommand,
+  PreviousCommand,
+  ResumeCommand,
+} from './Playback/PlaybackCommands';
 
-export const commands = [PlayCommand, AutoPlayCommand, QueueCommand];
+export const commands = [
+  PlayCommand,
+  AutoPlayCommand,
+  QueueCommand,
+  ResumeCommand,
+  PauseCommand,
+  NextCommand,
+  PreviousCommand,
+];
 
 function CommandMatcher(
   input: string,
