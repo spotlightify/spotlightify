@@ -121,11 +121,6 @@ button {
   background-color: #322828;
 }
 
-/* .suggestion-item:focus {
-  background-color: #3f3232;
-  outline: 0px;
-} */
-
 .suggestion-text-wrapper {
   display: flex;
   flex-direction: column;
@@ -144,12 +139,19 @@ button {
   font-size: 13px;
 }
 
-.suggestion-item__icon {
+.suggestion-item__icon-wrapper {
+  width: 40px;
   height: 40px;
   padding-left: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.suggestion-item__icon svg {
-  height: 10px;
-  padding-left: 15px;
+.suggestion-item__icon {
+  height: 40px;
+}
+
+.suggestion-item__icon--svg {
+  height: 25px;
 }

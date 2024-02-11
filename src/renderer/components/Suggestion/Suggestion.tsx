@@ -24,7 +24,13 @@ function Suggestion({
       className={`suggestion-item ${isFocused ? 'button--focus' : ''}`}
       onClick={handleAction}
     >
-      <img className="suggestion-item__icon" src={suggestion.icon} alt="icon" />
+      <div className="suggestion-item__icon-wrapper">
+        <img
+          className={`suggestion-item__icon${suggestion.icon?.endsWith('.svg') ? '--svg' : ''}`}
+          src={suggestion.icon}
+          alt="icon"
+        />
+      </div>
       <div className="suggestion-text-wrapper">
         <div className="suggestion-item__title">{suggestion.title}</div>
         <div className="suggestion-item__description">
