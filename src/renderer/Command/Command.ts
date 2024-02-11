@@ -3,7 +3,10 @@ import { SuggestionData } from '../components/Suggestion/Suggestion';
 
 interface Command {
   prefix: string;
-  getSuggestions(input: string, isActiveCommand: boolean): SuggestionData[];
+  getSuggestions(
+    input: string,
+    isActiveCommand: boolean,
+  ): Promise<SuggestionData[]>;
   id: string;
 }
 

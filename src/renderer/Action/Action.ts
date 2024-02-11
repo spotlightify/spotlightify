@@ -4,9 +4,9 @@ export interface FillAction {
   parentCommandId: string;
 }
 
-export interface PlayAction {
-  type: 'anotherAction';
-  payload: { SongName: string };
+export interface ExecuteAction {
+  type: 'execute';
+  payload: () => void;
   parentCommandId: string;
 }
 
@@ -15,4 +15,4 @@ export interface SetActiveCommandAction {
   parentCommandId: string;
 }
 
-export type Action = FillAction | PlayAction | SetActiveCommandAction;
+export type Action = FillAction | ExecuteAction | SetActiveCommandAction;

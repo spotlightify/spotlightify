@@ -4,7 +4,7 @@ import { SuggestionData } from '../components/Suggestion/Suggestion';
 export interface ActionSetters {
   setPrompt: (text: string) => void;
   setSuggestions: (suggestions: SuggestionData[]) => void;
-  setActiveCommand: (commandId: string) => void;
+  setActiveCommand: (commandId: string | undefined) => void;
 }
 
 export function ActionHandler(
@@ -18,6 +18,11 @@ export function ActionHandler(
     case 'setActiveCommand':
       setActiveCommand(action.parentCommandId);
       setPrompt('');
+      break;
+    case 'execute':
+      action.payload();
+      setPrompt('');
+      setActiveCommand(undefined);
       break;
     default:
       break;

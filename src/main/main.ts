@@ -14,6 +14,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 // import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { DatabaseQuery } from './database/db';
+// import Spotify from './spotify';
 
 const height = 72.0;
 const width = 600.0;
@@ -28,12 +30,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -156,6 +152,17 @@ const minimizeWindow = () => {
     win.minimize();
   }
 };
+
+const dbInstance = new DatabaseQuery();
+
+ipcMain.handle('query-songs', async (event, input: string) => {
+  // Assuming querySongs is a method of a class that has 'database' as a member
+  return dbInstance.querySongs(input);
+});
+
+// ipcMain.handle('spotify-queue', (event, uri: string) => {
+//   Spotify.queueSong(uri);
+// });
 
 app
   .whenReady()
