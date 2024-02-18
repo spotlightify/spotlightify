@@ -10,32 +10,34 @@ import {
 } from './Playback/PlaybackCommands';
 
 export const commands = [
-  PlayCommand,
-  AutoPlayCommand,
+  // PlayCommand,
+  // AutoPlayCommand,
   QueueCommand,
-  ResumeCommand,
-  PauseCommand,
-  NextCommand,
-  PreviousCommand,
+  // ResumeCommand,
+  // PauseCommand,
+  // NextCommand,
+  // PreviousCommand,
 ];
 
-function CommandMatcher(
+async function CommandMatcher(
   input: string,
   activeCommand: Command | undefined,
-): SuggestionData[] {
+): Promise<SuggestionData[]> {
   const suggestionData: SuggestionData[] = [];
   if (input === '') {
     return [];
   }
 
   if (activeCommand) {
-    suggestionData.push(...activeCommand.getSuggestions(input, true));
+    const suggestions = await activeCommand.getSuggestions(input, true);
+    suggestionData.push(...suggestions);
     return suggestionData;
   }
 
-  commands.forEach((command) => {
+  commands.forEach(async (command) => {
     if (command.prefix.startsWith(input)) {
-      suggestionData.push(...command.getSuggestions(input, false));
+      const suggestions = await command.getSuggestions(input, false);
+      suggestionData.push(...suggestions);
     }
   });
 

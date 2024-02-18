@@ -40,7 +40,11 @@ function Spotlightify() {
 
   const actionSetters = useMemo(
     () => ({
-      setActiveCommand: (commandId: string) => {
+      setActiveCommand: (commandId: string | undefined) => {
+        if (!commandId) {
+          setActiveCommand(undefined);
+          return;
+        }
         const command = commandMap.get(commandId);
         if (!command) {
           console.log('Command not found');
@@ -114,7 +118,20 @@ function Spotlightify() {
   ]);
 
   useEffect(() => {
-    setSuggestions(commandMatcher(promptText, activeCommand));
+    let abortSignal = false;
+
+    const fetchSuggestions = async () => {
+      const result = await commandMatcher(promptText, activeCommand);
+      if (!abortSignal) {
+        setSuggestions(result);
+      }
+    };
+
+    fetchSuggestions();
+
+    return () => {
+      abortSignal = true;
+    };
   }, [activeCommand, promptText]);
 
   useEffect(() => {
@@ -123,7 +140,7 @@ function Spotlightify() {
 
   const suggestionElements = suggestions.map((suggestion, index) => (
     <Suggestion
-      key={suggestion.title}
+      key={suggestion.title + suggestion.description}
       suggestion={suggestion}
       isFocused={index === focusedSuggestionIndex}
       handleAction={() => ActionHandler(suggestion.action, actionSetters)}
