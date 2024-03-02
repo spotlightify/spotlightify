@@ -32,5 +32,11 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "[gotmpl]": {
+    "editor.defaultFormatter": "golang.go"
+  }
 }
