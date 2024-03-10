@@ -9,13 +9,32 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, IpcMainEvent } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  IpcMainEvent,
+  utilityProcess,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 // import MenuBuilder from './menu';
+import { AccessToken, SpotifyApi } from '@spotify/web-api-ts-sdk';
 import { resolveHtmlPath } from './util';
 import { DatabaseQuery } from './database/db';
+import authResponse from './spotify';
 // import Spotify from './spotify';
+
+// const child = utilityProcess.fork(path.join(__dirname, 'server.js'));
+// let accessToken: AccessToken;
+
+// child.stdout!.on('data', (data) => {
+//   accessToken = JSON.parse(data.toString());
+//   console.log(accessToken);
+// });
+
+const test = authResponse;
 
 const height = 72.0;
 const width = 600.0;
