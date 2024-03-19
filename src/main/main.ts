@@ -24,7 +24,7 @@ import { AccessToken, SpotifyApi } from '@spotify/web-api-ts-sdk';
 import { resolveHtmlPath } from './util';
 import { DatabaseQuery } from './database/db';
 import authResponse from './spotify';
-// import Spotify from './spotify';
+import { spawn } from 'child_process';
 
 // const child = utilityProcess.fork(path.join(__dirname, 'server.js'));
 // let accessToken: AccessToken;
@@ -33,8 +33,6 @@ import authResponse from './spotify';
 //   accessToken = JSON.parse(data.toString());
 //   console.log(accessToken);
 // });
-
-const test = authResponse;
 
 const height = 72.0;
 const width = 600.0;

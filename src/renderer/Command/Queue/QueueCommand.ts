@@ -1,17 +1,20 @@
 import queueIcon from 'assets/svg/queue.svg';
-import Command from '../Command';
+import { AbstractCommand } from '../Command';
 import { SetActiveCommandAction } from '../../Action/Action';
 import { SuggestionData } from '../../components/Suggestion/Suggestion';
 import { Song } from '../../../main/database/structs';
+import { matchStrings } from '../../utils';
 
-const QueueCommand: Command = {
-  id: 'queue',
-  prefix: 'queue',
+class QueueCommand extends AbstractCommand {
+  constructor() {
+    super('Queue', ['queue']);
+  }
+
   getSuggestions(
     input: string,
     isActiveCommand: boolean,
   ): Promise<SuggestionData[]> {
-    if (!input.startsWith('queue') && !isActiveCommand) {
+    if (matchStrings(input, this.matchStrings) && !isActiveCommand) {
       return Promise.resolve([
         {
           title: 'Queue',
@@ -33,6 +36,7 @@ const QueueCommand: Command = {
         icon: queueIcon,
         action: {
           payload: () => {
+            // TODO Placeholder for call to queue song
             console.log('Now playing: ', song.name, ' by ', song.artist_names);
           },
           type: 'execute',
@@ -40,7 +44,7 @@ const QueueCommand: Command = {
         },
       }));
     });
-  },
-};
+  }
+}
 
 export default QueueCommand;
