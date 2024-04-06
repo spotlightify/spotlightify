@@ -4,6 +4,7 @@ export interface SuggestionData {
   title: string;
   description: string;
   icon: string | undefined;
+  id: string;
   action: Action;
 }
 

@@ -1,12 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import pauseIcon from 'assets/svg/pause.svg';
-import { SetActiveCommandAction } from '../../Action/Action';
+import { ExecuteAction } from '../../Action/Action';
 import { SuggestionData } from '../../components/Suggestion/Suggestion';
 import { AbstractCommand } from '../Command';
+import spotifyApi from '../Spotify';
 
 export default class PauseCommand extends AbstractCommand {
   constructor() {
-    super('pause', ['pause']);
+    super('pause', ['pause'], 'Pause');
   }
 
   getSuggestions(): Promise<SuggestionData[]> {
@@ -15,10 +16,14 @@ export default class PauseCommand extends AbstractCommand {
         title: 'Pause',
         description: 'Pause the current playback',
         icon: pauseIcon,
+        id: 'pause',
         action: {
-          type: 'setActiveCommand',
+          type: 'execute',
           parentCommandId: 'pause',
-        } as SetActiveCommandAction,
+          payload: async () => {
+            await spotifyApi.player.pausePlayback('');
+          },
+        } as ExecuteAction,
       },
     ]);
   }

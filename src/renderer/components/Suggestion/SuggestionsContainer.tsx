@@ -62,7 +62,7 @@ function SuggestionsContainer({
 
   const suggestionElements = suggestions.map((suggestion, index) => (
     <Suggestion
-      key={`${suggestion.title}/${suggestion.description}/${suggestion.icon}`}
+      key={suggestion.id}
       suggestion={suggestion}
       isFocused={index === focusedSuggestionIndex}
       handleAction={() => actionHandler(suggestion.action)}

@@ -1,16 +1,17 @@
 import queueIcon from 'assets/svg/queue.svg';
 import { AbstractCommand } from '../Command';
-import { SetActiveCommandAction } from '../../Action/Action';
+import { NullAction, SetActiveCommandAction } from '../../Action/Action';
 import { SuggestionData } from '../../components/Suggestion/Suggestion';
 import { Song } from '../../../main/database/structs';
 import { matchStrings } from '../../utils';
+import spotifyApi from '../Spotify';
 
 class QueueCommand extends AbstractCommand {
   constructor() {
-    super('Queue', ['queue']);
+    super('queue', ['queue'], 'Queue');
   }
 
-  getSuggestions(
+  async getSuggestions(
     input: string,
     isActiveCommand: boolean,
   ): Promise<SuggestionData[]> {
@@ -20,6 +21,7 @@ class QueueCommand extends AbstractCommand {
           title: 'Queue',
           description: 'Adds a song to the queue',
           icon: queueIcon,
+          id: 'queue',
           action: {
             type: 'setActiveCommand',
             parentCommandId: this.id,
@@ -29,21 +31,41 @@ class QueueCommand extends AbstractCommand {
     }
 
     const query = input.replace('queue', '').trim();
-    return window.database.querySongs(query).then((songs: Song[]) => {
+    try {
+      const songs = (await window.database.querySongs(query)) as Song[];
+
+      if (songs.length === 0) {
+        return [
+          {
+            title: 'No results found',
+            description: 'Please try searching for something else',
+            icon: queueIcon,
+            id: 'no-results',
+            action: {
+              type: 'nullAction',
+            } as NullAction,
+          },
+        ];
+      }
+
       return songs.map<SuggestionData>((song) => ({
         title: song.name,
         description: `by ${song.artist_names}`,
-        icon: queueIcon,
+        icon: String(song.id),
+        id: song.spotify_id,
         action: {
-          payload: () => {
-            // TODO Placeholder for call to queue song
-            console.log('Now playing: ', song.name, ' by ', song.artist_names);
+          payload: async () => {
+            await spotifyApi.player.addItemToPlaybackQueue(
+              `spotify:track:${song.spotify_id}`,
+            );
           },
           type: 'execute',
           parentCommandId: this.id,
         },
       }));
-    });
+    } catch (e) {
+      return [];
+    }
   }
 }
 
