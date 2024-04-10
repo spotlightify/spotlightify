@@ -1,18 +1,14 @@
 /* eslint-disable class-methods-use-this */
 import playIcon from 'assets/svg/play.svg';
 
-import { SetActiveCommandAction } from '../../Action/Action';
+import { ExecuteAction } from '../../Action/Action';
 import { SuggestionData } from '../../components/Suggestion/Suggestion';
 import { AbstractCommand } from '../Command';
+import spotifyApi from '../Spotify';
 
 export default class ResumeCommand extends AbstractCommand {
-  /**
-   * No need for 'prefix' based on given schema, but we need to ensure compatibility
-   * with the AbstractCommand constructor which expects 'matchStrings'.
-   * Assuming 'prefix' serves a similar role to 'matchStrings'.
-   */
   constructor() {
-    super('Resume', ['resume', 'next', 'skip']);
+    super('Resume', ['resume'], 'Resume');
   }
 
   getSuggestions(): Promise<SuggestionData[]> {
@@ -22,10 +18,14 @@ export default class ResumeCommand extends AbstractCommand {
           title: 'Resume',
           description: 'Resume playback',
           icon: playIcon,
+          id: 'resume',
           action: {
-            type: 'setActiveCommand',
-            parentCommandId: 'play',
-          } as SetActiveCommandAction,
+            type: 'execute',
+            parentCommandId: this.id,
+            payload: async () => {
+              await spotifyApi.player.startResumePlayback('');
+            },
+          } as ExecuteAction,
         },
       ]);
     });

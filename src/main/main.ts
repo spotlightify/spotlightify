@@ -9,30 +9,61 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import {
-  app,
-  BrowserWindow,
-  shell,
-  ipcMain,
-  IpcMainEvent,
-  utilityProcess,
-} from 'electron';
+import { app, BrowserWindow, shell, ipcMain, IpcMainEvent } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 // import MenuBuilder from './menu';
-import { AccessToken, SpotifyApi } from '@spotify/web-api-ts-sdk';
+// import { AccessToken, SpotifyApi } from '@spotify/web-api-ts-sdk';
+import { spawn } from 'child_process';
 import { resolveHtmlPath } from './util';
 import { DatabaseQuery } from './database/db';
-import authResponse from './spotify';
-import { spawn } from 'child_process';
+// import authResponse from './spotify';
 
-// const child = utilityProcess.fork(path.join(__dirname, 'server.js'));
-// let accessToken: AccessToken;
+interface Message {
+  event: string;
+  payload: string;
+}
 
-// child.stdout!.on('data', (data) => {
-//   accessToken = JSON.parse(data.toString());
-//   console.log(accessToken);
-// });
+const authServerOnSuccessHandler = (message: Message) => {
+  const { payload } = message;
+  const json = JSON.parse(payload.toString());
+  if (json.status && json.status === 'Server running') {
+    console.log('Received status from server:', json);
+    // You can now use the JSON object as needed
+  }
+};
+
+function startServer() {
+  const server = spawn(
+    'node',
+    [
+      'C:\\Users\\Peter Murphy\\Documents\\GitHub\\electron-spot\\your-project-name\\src\\main\\server.mjs',
+    ],
+    { stdio: ['inherit', 'inherit', 'inherit', 'ipc'] },
+  );
+
+  server.on('error', (error) => {
+    console.error('Server subprocess error:', error);
+  });
+
+  server.on('message', (message: Message) => {
+    try {
+      if (message.event === 'success') {
+        authServerOnSuccessHandler(message);
+      }
+    } catch (error) {
+      console.error('Error parsing JSON from server:', error);
+    }
+  });
+
+  // server.on('close', (code) => {
+  //   console.log(`Server subprocess exited with code ${code}`);
+  // });
+
+  // server.stderr!.on('data', (data) => {
+  //   console.error(`Server subprocess stderr: ${data}`);
+  // });
+}
 
 const height = 72.0;
 const width = 600.0;
@@ -192,5 +223,6 @@ app
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
+    startServer();
   })
   .catch(console.log);

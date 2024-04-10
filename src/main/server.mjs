@@ -1,5 +1,4 @@
-/* eslint-disable camelcase */
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { stringify } from 'querystring';
 import fetch from 'node-fetch';
 import * as crypto from 'crypto';
@@ -16,31 +15,15 @@ const scopes = [
   'playlist-modify-public',
   'playlist-modify-private',
 ];
-
-const app: express.Application = express();
-const port: number = 51234;
-const clientId: string = 'd62cd165329a42bc9b35c4683ca8df3e';
-const redirectUri: string = `http://localhost:${port}/callback`;
+const app = express();
+const port = 5000;
+const clientId = 'd62cd165329a42bc9b35c4683ca8df3e';
+const redirectUri = `http://localhost:${port}/callback`;
 const authorizationEndpoint = 'https://accounts.spotify.com/authorize';
 const tokenEndpoint = 'https://accounts.spotify.com/api/token';
-let code_verifier: string;
+let code_verifier;
 
-app.get('/login', (req: Request, res: Response) => {
-  const state = 'spotlightify-state';
-  const scope = scopes.join(' ');
-
-  res.redirect(
-    `https://accounts.spotify.com/authorize?${stringify({
-      response_type: 'code',
-      client_id: clientId,
-      scope,
-      redirect_uri: redirectUri,
-      state,
-    })}`,
-  );
-});
-
-async function getToken(code: string) {
+async function getToken(code) {
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: {
@@ -54,55 +37,50 @@ async function getToken(code: string) {
       code_verifier,
     }),
   });
-
   return response.json();
 }
 
 app.get('/auth', async function redirectToSpotifyAuthorize(req, res) {
   const possible =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const randomValues = crypto.getRandomValues(new Uint8Array(64));
-  const randomString = randomValues.reduce(
-    (acc, x) => acc + possible[x % possible.length],
-    '',
-  );
-
+  let randomString = '';
+  const randomBytes = crypto.randomBytes(64);
+  for (let i = 0; i < randomBytes.length; ++i) {
+    randomString += possible.charAt(randomBytes[i] % possible.length);
+  }
   const codeVerifier = randomString;
-  const data = new TextEncoder().encode(codeVerifier);
-  const hashed = await crypto.subtle.digest('SHA-256', data);
-
-  const codeChallengeBase64 = btoa(
-    String.fromCharCode(...new Uint8Array(hashed)),
-  )
-    .replace(/=/g, '')
+  // Use Node.js crypto to create the hash
+  const hash = crypto
+    .createHash('sha256')
+    .update(codeVerifier)
+    .digest('base64');
+  const codeChallenge = hash
     .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 
-  code_verifier = codeVerifier;
-
+  code_verifier = codeVerifier; // Make sure this value is accessible for the token exchange
   const authUrl = new URL(authorizationEndpoint);
   const params = {
     response_type: 'code',
     client_id: clientId,
     scope: scopes.join(' '),
     code_challenge_method: 'S256',
-    code_challenge: codeChallengeBase64,
+    code_challenge: codeChallenge,
     redirect_uri: redirectUri,
   };
-
   authUrl.search = new URLSearchParams(params).toString();
   res.redirect(authUrl.toString()); // Redirect the user to the authorization server for login
 });
 
 app.get('/callback', async (req, res) => {
   const { code } = req.query;
-
   try {
-    const token = await getToken(code as string);
+    const token = await getToken(code);
     if (token.error) {
       throw token.error;
     }
-
+    console.log(token);
     res.send(
       '<h1>Auth complete!</h1><p>You can now close this browser tab and return to Spotlightify.</p>',
     );
@@ -112,5 +90,6 @@ app.get('/callback', async (req, res) => {
     );
   }
 });
-
-app.listen(port);
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+});

@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import logo from 'assets/svg/spotify-logo.svg';
 import Prompt from './components/Prompt';
 import { SuggestionData } from './components/Suggestion/Suggestion';
 import SuggestionsContainer from './components/Suggestion/SuggestionsContainer';
-import { Action } from './Action/Action';
-import useCommands from './Command/CommandsHook';
+import useCommands from './Command/useCommand';
+import { useActionHandler } from './Action/useActionHandler';
 
 function Spotlightify() {
   const [promptText, setPromptText] = useState('');
   const [suggestions, setSuggestions] = useState<SuggestionData[]>([]);
-  const { activeCommand, setActiveCommandID, fetchSuggestions } = useCommands();
+  const { activeCommand, setActiveCommandID, fetchSuggestions } =
+    useCommands(setSuggestions);
 
   const onPromptChange = (event: { target: { value: any } }) => {
     const { value } = event.target;
@@ -38,56 +39,31 @@ function Spotlightify() {
   }, [activeCommand, promptText.length, setActiveCommandID]);
 
   useEffect(() => {
-    const fetchAndSetSuggestions = async () => {
-      try {
-        const result = await fetchSuggestions(promptText);
-        setSuggestions(result);
-      } catch (error) {
-        console.error('Fetch error:', error);
-      }
-    };
-
-    fetchAndSetSuggestions();
-  }, [activeCommand, promptText, fetchSuggestions]);
+    fetchSuggestions(promptText);
+  }, [promptText, fetchSuggestions]);
 
   useEffect(() => {
     window.electron.setNumberOfSuggestions(suggestions.length);
   }, [suggestions.length]);
 
-  const actionHandler = useCallback(
-    (action: Action) => {
-      switch (action.type) {
-        case 'fill':
-          setPromptText(action.payload);
-          break;
-        case 'setActiveCommand':
-          setActiveCommandID(action.parentCommandId);
-          setPromptText('');
-          break;
-        case 'execute':
-          action.payload();
-          setPromptText('');
-          setActiveCommandID(undefined);
-          break;
-        default:
-          break;
-      }
-    },
-    [setActiveCommandID],
-  );
+  const actionHandler = useActionHandler({
+    setPromptText,
+    setActiveCommandID,
+    setSuggestions,
+  });
 
   return (
     <div className="base">
       <div className="input-wrapper">
         <img className="spotify-logo" src={logo} alt="spotify logo" />
         {activeCommand && (
-          <div className="active-command">{activeCommand.id}</div>
+          <div className="active-command">{activeCommand.title}</div>
         )}
         <Prompt value={promptText} onChange={onPromptChange} />
       </div>
       <SuggestionsContainer
         suggestions={suggestions}
-        actionHandler={(action: Action) => actionHandler(action)}
+        actionHandler={actionHandler}
       />
     </div>
   );
