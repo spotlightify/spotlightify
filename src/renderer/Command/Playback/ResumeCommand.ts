@@ -2,8 +2,8 @@
 import playIcon from 'assets/svg/play.svg';
 
 import { ExecuteAction } from '../../Action/Action';
-import { SuggestionData } from '../../components/Suggestion/Suggestion';
-import { AbstractCommand } from '../Command';
+import { SuggestionData } from '../interfaces';
+import { AbstractCommand } from '../interfaces';
 import spotifyApi from '../Spotify';
 
 export default class ResumeCommand extends AbstractCommand {

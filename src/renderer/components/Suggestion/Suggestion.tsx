@@ -1,12 +1,4 @@
-import { Action } from '../../Action/Action';
-
-export interface SuggestionData {
-  title: string;
-  description: string;
-  icon: string | undefined;
-  id: string;
-  action: Action;
-}
+import { SuggestionData } from '../../Command/interfaces';
 
 interface SuggestionProps {
   suggestion: SuggestionData;

@@ -1,7 +1,7 @@
 import queueIcon from 'assets/svg/queue.svg';
-import { AbstractCommand } from '../Command';
+import { AbstractCommand } from '../interfaces';
 import { NullAction, SetActiveCommandAction } from '../../Action/Action';
-import { SuggestionData } from '../../components/Suggestion/Suggestion';
+import { SuggestionData } from '../interfaces';
 import { Song } from '../../../main/database/structs';
 import { matchStrings } from '../../utils';
 import spotifyApi from '../Spotify';
@@ -24,7 +24,7 @@ class QueueCommand extends AbstractCommand {
           id: 'queue',
           action: {
             type: 'setActiveCommand',
-            parentCommandId: this.id,
+            commandId: this.id,
           } as SetActiveCommandAction,
         },
       ]);

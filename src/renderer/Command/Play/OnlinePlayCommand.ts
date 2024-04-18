@@ -1,7 +1,7 @@
 import playIcon from 'assets/svg/play.svg';
-import { AbstractCommand } from '../Command';
+import { AbstractCommand } from '../interfaces';
 import { NullAction, SetActiveCommandAction } from '../../Action/Action';
-import { SuggestionData } from '../../components/Suggestion/Suggestion';
+import { SuggestionData } from '../interfaces';
 import spotifyApi from '../Spotify';
 
 class OnlinePlayCommand extends AbstractCommand {

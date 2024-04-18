@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import logo from 'assets/svg/spotify-logo.svg';
 import Prompt from './components/Prompt';
-import { SuggestionData } from './components/Suggestion/Suggestion';
+import { SuggestionData } from './Command/interfaces';
 import SuggestionsContainer from './components/Suggestion/SuggestionsContainer';
 import useCommands from './Command/useCommand';
 import { useActionHandler } from './Action/useActionHandler';
