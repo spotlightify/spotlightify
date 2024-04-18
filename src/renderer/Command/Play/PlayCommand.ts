@@ -8,8 +8,11 @@ import {
   createSetActiveCommandAction,
 } from '../../Action/Action';
 
-async function getSuggestions(state: inputState): Promise<SuggestionData[]> {
-  if (!state.isActiveCommand) {
+async function getSuggestions({
+  input,
+  isActiveCommand,
+}: inputState): Promise<SuggestionData[]> {
+  if (!isActiveCommand) {
     return [
       {
         title: 'Play',
@@ -21,37 +24,45 @@ async function getSuggestions(state: inputState): Promise<SuggestionData[]> {
     ];
   }
 
-  const { input } = state;
   try {
     const songs = (await window.database.querySongs(input)) as Song[];
 
-    if (songs.length === 0) {
-      return [
-        {
-          title: `Search online for ${input}`,
-          description: 'Click to search online for this song',
-          icon: searchIcon,
-          id: 'search-online',
-          action: createSetActiveCommandAction('online-play', {
-            preservePromptText: true,
-          }),
-        },
-      ];
-    }
+    const suggestions = [
+      {
+        title: `Search online for ${input}`,
+        description: 'Click to search online for this song',
+        icon: searchIcon,
+        id: 'search-online',
+        action: createSetActiveCommandAction('online-play', {
+          preservePromptText: true,
+        }),
+      },
+    ];
 
-    return songs.map<SuggestionData>((song) => ({
-      title: song.name,
-      description: `by ${song.artist_names}`,
-      icon: playIcon,
-      id: song.spotify_id,
-      action: createExecuteAction(async () => {
-        await spotifyApi.player.startResumePlayback('', undefined, [
-          `spotify:track:${song.spotify_id}`,
-        ]);
+    songs.forEach((song) =>
+      suggestions.push({
+        title: song.name,
+        description: `by ${song.artist_names}`,
+        icon: playIcon,
+        id: song.spotify_id,
+        action: createExecuteAction(async () => {
+          await spotifyApi.player.startResumePlayback('', undefined, [
+            `spotify:track:${song.spotify_id}`,
+          ]);
+        }),
       }),
-    }));
+    );
+    return suggestions;
   } catch (e) {
-    return [];
+    return [
+      {
+        title: 'An error occurred while searching',
+        description: 'Please try again later',
+        icon: playIcon,
+        id: 'error',
+        action: { preservePromptText: true },
+      },
+    ];
   }
 }
 

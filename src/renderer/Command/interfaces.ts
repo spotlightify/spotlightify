@@ -18,7 +18,7 @@ interface Command {
   id: string;
   title: string;
   getSuggestions(state: inputState): Promise<SuggestionData[]>;
-  debounce?: boolean;
+  debounceMS?: number; // debounce time in milliseconds
 }
 
 export default Command;

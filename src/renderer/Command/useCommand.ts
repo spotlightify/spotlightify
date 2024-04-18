@@ -2,8 +2,9 @@ import { useCallback, useMemo, useState } from 'react';
 import { matchStrings } from '../utils';
 import Command, { SuggestionData } from './interfaces';
 import PlayCommand from './Play/PlayCommand';
+import OnlinePlayCommand from './Play/OnlinePlayCommand';
 
-export const commands = [PlayCommand];
+export const commands = [PlayCommand, OnlinePlayCommand];
 
 let debounceTimeout: number | null = null;
 
@@ -25,7 +26,7 @@ const getActiveCommandSuggestions = async (
     return;
   }
 
-  if (activeCommand.debounce) {
+  if (activeCommand.debounceMS) {
     if (debounceTimeout) {
       clearTimeout(debounceTimeout);
     }
@@ -36,7 +37,7 @@ const getActiveCommandSuggestions = async (
         isActiveCommand: true,
       });
       setSuggestions(suggestions);
-    }, 400); // 300ms debounce time
+    }, activeCommand.debounceMS);
   } else {
     const suggestions = await activeCommand.getSuggestions({
       input,
@@ -58,9 +59,6 @@ const getSuggestions = async (
 
   const suggestions: SuggestionData[] = [];
   matchedCommands.forEach(async (command) => {
-    if (suggestions.length > 20) {
-      return;
-    }
     const foundSuggestions = await command.getSuggestions({ input });
     suggestions.push(...foundSuggestions);
   });
