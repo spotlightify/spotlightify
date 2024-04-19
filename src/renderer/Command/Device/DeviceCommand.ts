@@ -1,8 +1,8 @@
 import deviceIcon from 'assets/svg/device.svg';
-import { AbstractCommand } from '../Command';
+import { AbstractCommand } from '../interfaces';
 import spotifyApi from '../Spotify';
 import { ExecuteAction, SetActiveCommandAction } from '../../Action/Action';
-import { SuggestionData } from '../../components/Suggestion/Suggestion';
+import { SuggestionData } from '../interfaces';
 
 export default class DeviceCommand extends AbstractCommand {
   constructor() {
@@ -22,7 +22,7 @@ export default class DeviceCommand extends AbstractCommand {
           id: this.id,
           action: {
             type: 'setActiveCommand',
-            parentCommandId: this.id,
+            commandId: this.id,
           } as SetActiveCommandAction,
         },
       ];
@@ -40,7 +40,7 @@ export default class DeviceCommand extends AbstractCommand {
           id: 'error',
           action: {
             type: 'setActiveCommand',
-            parentCommandId: this.id,
+            commandId: this.id,
           } as SetActiveCommandAction,
         },
       ];
@@ -57,7 +57,7 @@ export default class DeviceCommand extends AbstractCommand {
           id: 'no-devices',
           action: {
             type: 'setActiveCommand',
-            parentCommandId: this.id,
+            commandId: this.id,
           } as SetActiveCommandAction,
         },
       ];

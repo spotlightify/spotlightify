@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import Suggestion, { SuggestionData } from './Suggestion';
+import Suggestion from './Suggestion';
+import { SuggestionData } from '../../Command/interfaces';
 import { Action } from '../../Action/Action';
 
 interface SuggestionContainerProps {

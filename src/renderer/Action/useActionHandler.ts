@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import errorIcon from 'assets/svg/exit.svg';
-import { Action, ExecuteError } from './Action';
-import { SuggestionData } from '../components/Suggestion/Suggestion';
+import { Action } from './Action';
+import { SuggestionData } from '../Command/interfaces';
 
 export interface ActionSetters {
   setPrompt: (text: string) => void;
@@ -23,6 +22,7 @@ export function useActionHandler({
   const [actionToRun, setActionToRun] = useState<undefined | Action>(undefined);
 
   const runAction = (action: Action) => {
+    // TODO Actions should be queued
     if (actionToRun) {
       // If there's already an action to run, don't run another one
       return;
@@ -30,70 +30,52 @@ export function useActionHandler({
     setActionToRun(action);
   };
 
-  const actionErrorHandler = useCallback(
-    (error: unknown) => {
-      const executeError = error as ExecuteError;
-
-      if (!executeError.errorTitle) {
-        setSuggestions([
-          {
-            title: 'Error',
-            description: 'An error occurred',
-            icon: errorIcon,
-            id: 'error',
-            action: { type: 'nullAction' },
-          },
-        ]);
-        return;
-      }
-
-      setSuggestions([
-        {
-          title: executeError.errorTitle,
-          description: executeError.errorDescription,
-          icon: executeError.icon,
-          id: 'error',
-          action: executeError.action,
-        },
-      ]);
-      if (executeError.clearPrompt) {
-        setPromptText('');
-      }
-      if (executeError.clearActiveCommand) {
-        setActiveCommandID(undefined);
-      }
-    },
-    [setSuggestions, setPromptText, setActiveCommandID],
-  );
-
   const actionHandler = useCallback(
     async (action: Action) => {
-      switch (action.type) {
-        case 'fill':
-          setPromptText(action.payload);
-          break;
-        case 'setActiveCommand':
-          setActiveCommandID(action.parentCommandId);
-          if (!action.preserveInput) {
-            setPromptText('');
-          }
-          break;
-        case 'execute':
-          try {
-            await action.payload();
-          } catch (error) {
-            actionErrorHandler(error);
-            break;
-          }
-          setPromptText('');
-          setActiveCommandID(undefined);
-          break;
-        default:
-          break;
+      if (action.executeOnEnter) {
+        try {
+          await action.executeOnEnter();
+        } catch (e) {
+          console.error(e); // TODO handle error properly
+        }
       }
+
+      if (action.activeCommandId) {
+        setActiveCommandID(action.activeCommandId);
+      }
+
+      if (action.clearActiveCommand) {
+        if (action.activeCommandId) {
+          console.warn(
+            "Conflict: clearActiveCommand and activeCommandId can't both be set",
+          ); // TODO handle conflict properly
+        } else {
+          setActiveCommandID(undefined);
+        }
+      }
+
+      if (action.closePrompt) {
+        // TODO write code for closePrompt
+      }
+
+      if (action.setPromptText) {
+        // Insert your code here for setPromptText
+        // Check for conflict with preservePromptText
+        if (action.preservePromptText) {
+          console.warn(
+            "Conflict: setPromptText and preservePromptText can't both be set",
+          ); // TODO handle conflict properly
+        }
+        setPromptText(action.setPromptText);
+      }
+
+      if (!action.preservePromptText) {
+        setPromptText('');
+      }
+
       setActionToRun(undefined);
     },
-    [setPromptText, setActiveCommandID, actionErrorHandler],
+    [setActiveCommandID, setPromptText],
   );
 
   useEffect(() => {

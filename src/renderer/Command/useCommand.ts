@@ -1,37 +1,19 @@
 import { useCallback, useMemo, useState } from 'react';
-import { SuggestionData } from '../components/Suggestion/Suggestion';
 import { matchStrings } from '../utils';
-import Command from './Command';
-import QueueCommand from './Queue/QueueCommand';
-import ResumeCommand from './Playback/ResumeCommand';
-import NextCommand from './Playback/NextCommand';
-import PreviousCommand from './Playback/PreviousCommand';
-import PauseCommand from './Playback/PauseCommand';
-import DeviceCommand from './Device/DeviceCommand';
+import Command, { SuggestionData } from './interfaces';
 import PlayCommand from './Play/PlayCommand';
 import OnlinePlayCommand from './Play/OnlinePlayCommand';
 
-export const commands = [
-  // PlayCommand,
-  // AutoPlayCommand,
-  new PlayCommand(),
-  new QueueCommand(),
-  new ResumeCommand(),
-  new PauseCommand(),
-  new NextCommand(),
-  new PreviousCommand(),
-  new DeviceCommand(),
-  new OnlinePlayCommand(),
-];
+export const commands = [PlayCommand, OnlinePlayCommand];
 
 let debounceTimeout: number | null = null;
 
-const matchCommands = (input: string) => {
+const findCommands = (input: string) => {
   const sanitizedInput = input.trim().toLowerCase();
-  const matchedCommands = commands.filter((command) =>
-    matchStrings(sanitizedInput, command.matchStrings),
+  const foundCommands = commands.filter((command) =>
+    matchStrings(sanitizedInput, command.triggerText),
   );
-  return matchedCommands;
+  return foundCommands;
 };
 
 const getActiveCommandSuggestions = async (
@@ -44,17 +26,23 @@ const getActiveCommandSuggestions = async (
     return;
   }
 
-  if (activeCommand.debounce) {
+  if (activeCommand.debounceMS) {
     if (debounceTimeout) {
       clearTimeout(debounceTimeout);
     }
 
     debounceTimeout = window.setTimeout(async () => {
-      const suggestions = await activeCommand.getSuggestions(input, true);
+      const suggestions = await activeCommand.getSuggestions({
+        input,
+        isActiveCommand: true,
+      });
       setSuggestions(suggestions);
-    }, 400); // 300ms debounce time
+    }, activeCommand.debounceMS);
   } else {
-    const suggestions = await activeCommand.getSuggestions(input, true);
+    const suggestions = await activeCommand.getSuggestions({
+      input,
+      isActiveCommand: true,
+    });
     setSuggestions(suggestions);
   }
 };
@@ -71,10 +59,7 @@ const getSuggestions = async (
 
   const suggestions: SuggestionData[] = [];
   matchedCommands.forEach(async (command) => {
-    if (suggestions.length > 20) {
-      return;
-    }
-    const foundSuggestions = await command.getSuggestions(input, false);
+    const foundSuggestions = await command.getSuggestions({ input });
     suggestions.push(...foundSuggestions);
   });
 
@@ -105,7 +90,7 @@ const useCommands = (
 
   const fetchSuggestions = useCallback(
     async (input: string) => {
-      const matchedCommands = matchCommands(input);
+      const matchedCommands = findCommands(input);
 
       if (activeCommand) {
         await getActiveCommandSuggestions(input, activeCommand, setSuggestions);

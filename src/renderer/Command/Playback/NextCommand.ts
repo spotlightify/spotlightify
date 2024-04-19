@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import nextIcon from 'assets/svg/forward.svg';
 import { ExecuteAction } from '../../Action/Action';
-import { SuggestionData } from '../../components/Suggestion/Suggestion';
-import { AbstractCommand } from '../Command';
+import { SuggestionData } from '../interfaces';
+import { AbstractCommand } from '../interfaces';
 import spotifyApi from '../Spotify';
 
 export default class NextCommand extends AbstractCommand {

@@ -1,10 +1,40 @@
+export interface Action {
+  executeOnEnter?: () => Promise<void>;
+  activeCommandId?: string;
+  clearActiveCommand?: boolean;
+  closePrompt?: boolean;
+  setPromptText?: string;
+  preservePromptText?: boolean;
+}
+
+export function createExecuteAction(
+  payload: () => Promise<void>,
+  overrides?: Action,
+): Action {
+  return {
+    executeOnEnter: payload,
+    clearActiveCommand: true,
+    closePrompt: true,
+    ...overrides,
+  };
+}
+
+export function createSetActiveCommandAction(
+  commandId: string,
+  overrides?: Action,
+): Action {
+  return {
+    activeCommandId: commandId,
+    ...overrides,
+  };
+}
+
 /**
  * Represents an action that fills a payload with a string value.
  */
 export interface FillAction {
   type: 'fill';
   payload: string;
-  parentCommandId: string;
 }
 
 /**
@@ -18,7 +48,6 @@ export interface FillAction {
 export interface ExecuteAction {
   type: 'execute';
   payload: () => Promise<void>;
-  parentCommandId: string;
 }
 
 /**
@@ -26,8 +55,8 @@ export interface ExecuteAction {
  */
 export interface SetActiveCommandAction {
   type: 'setActiveCommand';
-  parentCommandId: string;
-  preserveInput?: boolean;
+  commandId: string;
+  settings?: Action;
 }
 
 /**
@@ -40,7 +69,7 @@ export interface NullAction {
 /**
  * Represents a union type of all possible actions.
  */
-export type Action =
+export type aAction =
   | FillAction
   | ExecuteAction
   | SetActiveCommandAction
@@ -57,5 +86,5 @@ export interface ExecuteError {
   clearActiveCommand?: boolean;
   icon: string;
   /** The action to run when the error suggestion is clicked */
-  action: Action;
+  action: aAction;
 }
