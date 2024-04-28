@@ -1,107 +1,96 @@
 import { useCallback, useMemo, useState } from 'react';
-import { matchStrings } from '../utils';
-import Command, { SuggestionData } from './interfaces';
-import PlayCommand from './Play/PlayCommand';
-import OnlinePlayCommand from './Play/OnlinePlayCommand';
+import { SuggestionList } from './interfaces';
+import { CommandNew } from '../Action/Action';
 
-export const commands = [PlayCommand, OnlinePlayCommand];
+const baseUrl = 'http://localhost:5000';
 
-let debounceTimeout: number | null = null;
-
-const findCommands = (input: string) => {
-  const sanitizedInput = input.trim().toLowerCase();
-  const foundCommands = commands.filter((command) =>
-    matchStrings(sanitizedInput, command.triggerText),
-  );
-  return foundCommands;
-};
-
-const getActiveCommandSuggestions = async (
-  input: string,
-  activeCommand: Command,
-  setSuggestions: (suggestions: SuggestionData[]) => void,
-): Promise<void> => {
-  if (input === '') {
-    setSuggestions([]);
-    return;
-  }
-
-  if (activeCommand.debounceMS) {
-    if (debounceTimeout) {
-      clearTimeout(debounceTimeout);
-    }
-
-    debounceTimeout = window.setTimeout(async () => {
-      const suggestions = await activeCommand.getSuggestions({
-        input,
-        isActiveCommand: true,
-      });
-      setSuggestions(suggestions);
-    }, activeCommand.debounceMS);
-  } else {
-    const suggestions = await activeCommand.getSuggestions({
-      input,
-      isActiveCommand: true,
-    });
-    setSuggestions(suggestions);
-  }
-};
-
-const getSuggestions = async (
-  input: string,
-  matchedCommands: Command[],
-  setSuggestions: (suggestions: SuggestionData[]) => void,
-): Promise<void> => {
-  if (input === '') {
-    setSuggestions([]);
-    return;
-  }
-
-  const suggestions: SuggestionData[] = [];
-  matchedCommands.forEach(async (command) => {
-    const foundSuggestions = await command.getSuggestions({ input });
-    suggestions.push(...foundSuggestions);
-  });
-
-  setSuggestions(suggestions);
-};
-
-const useCommands = (
-  setSuggestions: (suggestions: SuggestionData[]) => void,
-) => {
-  const [activeCommand, setActiveCommand] = useState<undefined | Command>(
-    undefined,
+function useCommand(promptText: string) {
+  const [commandStack, setCommandStack] = useState<CommandNew[]>([]);
+  const activeCommand = commandStack[commandStack.length - 1];
+  const fullCommandPath = useMemo(
+    () => commandStack.map((command) => command.id).join('/'),
+    [commandStack],
   );
 
-  const commandMap = useMemo(() => {
-    const map = new Map<string, Command>();
-    commands.forEach((command) => {
-      map.set(command.id, command);
-    });
-    return map;
-  }, []);
+  const getCommandSuggestions = async (input: string) => {
+    const response = await fetch(`${baseUrl}/command?search=${input}`);
+    const data = await response.json();
+    return data as SuggestionList;
+  };
 
-  const setActiveCommandID = useCallback(
-    (id: string | undefined) => {
-      setActiveCommand(id ? commandMap.get(id) : undefined);
+  const getSuggestionsByCommand = useCallback(
+    async (commandId: string, input: string) => {
+      const response = await fetch(
+        `${baseUrl}/command/${fullCommandPath}?op=get-suggestions&input=${input}`,
+      );
+      const data = await response.json();
+      return data as SuggestionList;
     },
-    [commandMap],
+    [fullCommandPath],
   );
+
+  const pushCommand = (command: CommandNew, preserveInput: boolean) => {
+    const newCommandStack = [...commandStack];
+    if (commandStack.length > 0) {
+      newCommandStack[newCommandStack.length - 1].input = promptText;
+    }
+    if (preserveInput) {
+      command.input = promptText;
+    } else {
+      command.input = ''; // must be explicitly set to empty string
+    }
+    newCommandStack.push(command);
+    setCommandStack(newCommandStack);
+  };
+
+  const popCommand = () => {
+    const newStack = [...commandStack];
+    newStack.pop();
+    setCommandStack(newStack);
+  };
+
+  const clearCommands = () => {
+    setCommandStack([]);
+  };
 
   const fetchSuggestions = useCallback(
     async (input: string) => {
-      const matchedCommands = findCommands(input);
+      try {
+        let suggestions: SuggestionList;
+        if (!activeCommand) {
+          suggestions = await getCommandSuggestions(input);
+        } else {
+          suggestions = await getSuggestionsByCommand(activeCommand.id, input);
+        }
 
-      if (activeCommand) {
-        await getActiveCommandSuggestions(input, activeCommand, setSuggestions);
-        return;
+        return suggestions;
+      } catch (error) {
+        return {
+          items: [
+            {
+              title: 'Error',
+              description:
+                'Failed to fetch suggestions, please restart Spotlightify.',
+              icon: 'error',
+              id: 'error',
+              action: {},
+            },
+          ],
+          filter: false,
+        };
       }
-      await getSuggestions(input, matchedCommands, setSuggestions);
     },
-    [activeCommand, setSuggestions],
+    [activeCommand, getSuggestionsByCommand],
   );
 
-  return { activeCommand, setActiveCommandID, fetchSuggestions };
-};
+  return {
+    activeCommand,
+    fetchSuggestions,
+    pushCommand,
+    popCommand,
+    clearCommands,
+    fullCommandPath,
+  };
+}
 
-export default useCommands;
+export default useCommand;

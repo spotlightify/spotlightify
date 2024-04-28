@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Action } from './Action';
-import { SuggestionData } from '../Command/interfaces';
+import { Action, CommandNew, ExecutionResponse } from './Action';
+import { SuggestionData, SuggestionList } from '../Command/interfaces';
+import useTaskQueue, { Task } from './useTaskQueue';
 
 export interface ActionSetters {
   setPrompt: (text: string) => void;
@@ -8,81 +8,70 @@ export interface ActionSetters {
   setActiveCommand: (commandId: string | undefined) => void;
 }
 
-interface useActionHandlerControls {
+interface useActionHandlerNewProps {
+  pushCommand: (command: CommandNew, preserveInput: boolean) => void;
+  popCommand: () => void;
+  clearCommands: () => void;
   setPromptText: (text: string) => void;
-  setSuggestions: (suggestions: SuggestionData[]) => void;
-  setActiveCommandID: (commandId: string | undefined) => void;
+  setErrorSuggestion: (setErrorSuggestion: SuggestionData) => void;
+  fullCommandPath: string;
 }
 
-export function useActionHandler({
-  setActiveCommandID,
+export function useActionHandlerNew({
+  pushCommand,
+  popCommand,
+  clearCommands,
   setPromptText,
-  setSuggestions,
-}: useActionHandlerControls) {
-  const [actionToRun, setActionToRun] = useState<undefined | Action>(undefined);
+  setErrorSuggestion,
+  fullCommandPath,
+}: useActionHandlerNewProps) {
+  // TODO implement execution queue
+  const { addTask } = useTaskQueue({ shouldProcess: true });
 
-  const runAction = (action: Action) => {
-    // TODO Actions should be queued
-    if (actionToRun) {
-      // If there's already an action to run, don't run another one
-      return;
+  const handleAction = (action: Action) => {
+    const handleExecution: Task = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/command/${fullCommandPath}?op=action`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(action.executeAction?.data),
+          },
+        );
+
+        const body: ExecutionResponse = await response.json(); // TODO handle errors sent by the server
+        if (body?.action) {
+          handleAction(body.action);
+        }
+      } catch (error) {
+        console.log('task failed: ', error);
+      }
+    };
+
+    if (!action.preservePromptText && !action.pushCommand) {
+      setPromptText('');
     }
-    setActionToRun(action);
+
+    if (action.pushCommand) {
+      pushCommand(action.pushCommand, action.preservePromptText || false);
+    }
+
+    if (action.clearCommandStack) {
+      clearCommands();
+    }
+
+    if (action.popCommand) {
+      popCommand();
+    }
+
+    if (action.executeAction) {
+      addTask(handleExecution);
+    }
+    // TODO implement other actions
   };
 
-  const actionHandler = useCallback(
-    async (action: Action) => {
-      if (action.executeOnEnter) {
-        try {
-          await action.executeOnEnter();
-        } catch (e) {
-          console.error(e); // TODO handle error properly
-        }
-      }
-
-      if (action.activeCommandId) {
-        setActiveCommandID(action.activeCommandId);
-      }
-
-      if (action.clearActiveCommand) {
-        if (action.activeCommandId) {
-          console.warn(
-            "Conflict: clearActiveCommand and activeCommandId can't both be set",
-          ); // TODO handle conflict properly
-        } else {
-          setActiveCommandID(undefined);
-        }
-      }
-
-      if (action.closePrompt) {
-        // TODO write code for closePrompt
-      }
-
-      if (action.setPromptText) {
-        // Insert your code here for setPromptText
-        // Check for conflict with preservePromptText
-        if (action.preservePromptText) {
-          console.warn(
-            "Conflict: setPromptText and preservePromptText can't both be set",
-          ); // TODO handle conflict properly
-        }
-        setPromptText(action.setPromptText);
-      }
-
-      if (!action.preservePromptText) {
-        setPromptText('');
-      }
-
-      setActionToRun(undefined);
-    },
-    [setActiveCommandID, setPromptText],
-  );
-
-  useEffect(() => {
-    if (actionToRun) {
-      actionHandler(actionToRun);
-    }
-  }, [actionToRun, actionHandler]);
-
-  return runAction;
+  return handleAction;
 }

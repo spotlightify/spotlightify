@@ -14,56 +14,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 // import MenuBuilder from './menu';
 // import { AccessToken, SpotifyApi } from '@spotify/web-api-ts-sdk';
-import { spawn } from 'child_process';
 import { resolveHtmlPath } from './util';
-import { DatabaseQuery } from './database/db';
 // import authResponse from './spotify';
-
-interface Message {
-  event: string;
-  payload: string;
-}
-
-const authServerOnSuccessHandler = (message: Message) => {
-  const { payload } = message;
-  const json = JSON.parse(payload.toString());
-  if (json.status && json.status === 'Server running') {
-    console.log('Received status from server:', json);
-    // You can now use the JSON object as needed
-  }
-};
-
-function startServer() {
-  const server = spawn(
-    'node',
-    [
-      'C:\\Users\\Peter Murphy\\Documents\\GitHub\\electron-spot\\your-project-name\\src\\main\\server.mjs',
-    ],
-    { stdio: ['inherit', 'inherit', 'inherit', 'ipc'] },
-  );
-
-  server.on('error', (error) => {
-    console.error('Server subprocess error:', error);
-  });
-
-  server.on('message', (message: Message) => {
-    try {
-      if (message.event === 'success') {
-        authServerOnSuccessHandler(message);
-      }
-    } catch (error) {
-      console.error('Error parsing JSON from server:', error);
-    }
-  });
-
-  // server.on('close', (code) => {
-  //   console.log(`Server subprocess exited with code ${code}`);
-  // });
-
-  // server.stderr!.on('data', (data) => {
-  //   console.error(`Server subprocess stderr: ${data}`);
-  // });
-}
 
 const height = 72.0;
 const width = 600.0;
@@ -133,6 +85,23 @@ const createWindow = async () => {
     },
   });
 
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+    (details, callback) => {
+      callback({ requestHeaders: { Origin: '*', ...details.requestHeaders } });
+    },
+  );
+
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details, callback) => {
+      callback({
+        responseHeaders: {
+          'Access-Control-Allow-Origin': ['*'],
+          ...details.responseHeaders,
+        },
+      });
+    },
+  );
+
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
@@ -201,17 +170,6 @@ const minimizeWindow = () => {
   }
 };
 
-const dbInstance = new DatabaseQuery();
-
-ipcMain.handle('query-songs', async (event, input: string) => {
-  // Assuming querySongs is a method of a class that has 'database' as a member
-  return dbInstance.querySongs(input);
-});
-
-// ipcMain.handle('spotify-queue', (event, uri: string) => {
-//   Spotify.queueSong(uri);
-// });
-
 app
   .whenReady()
   .then(() => {
@@ -223,6 +181,5 @@ app
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
-    startServer();
   })
   .catch(console.log);
