@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Suggestion from './Suggestion';
-import { SuggestionData } from '../../Command/interfaces';
-import { Action } from '../../Action/Action';
+import { Action, SuggestionData } from '../../Command/interfaces';
 
 interface SuggestionContainerProps {
   suggestions: SuggestionData[];
@@ -50,7 +49,9 @@ function SuggestionsContainer({
         moveFocusedIndex('up');
       }
       if (event.key === 'Enter' && suggestions.length > 0) {
-        actionHandler(suggestions[focusedSuggestionIndex].action);
+        if (suggestions[focusedSuggestionIndex].action) {
+          actionHandler(suggestions[focusedSuggestionIndex].action!);
+        }
       }
     };
 
@@ -66,7 +67,11 @@ function SuggestionsContainer({
       key={suggestion.id}
       suggestion={suggestion}
       isFocused={index === focusedSuggestionIndex}
-      handleAction={() => actionHandler(suggestion.action)}
+      handleAction={() => {
+        if (suggestion.action) {
+          actionHandler(suggestion.action);
+        }
+      }}
     />
   ));
 

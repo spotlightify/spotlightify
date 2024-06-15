@@ -1,20 +1,43 @@
 import { useEffect, useState } from 'react';
 import logo from 'assets/svg/spotify-logo.svg';
 import Prompt from './components/Prompt';
-import { SuggestionData } from './Command/interfaces';
 import SuggestionsContainer from './components/Suggestion/SuggestionsContainer';
-import useCommands from './Command/useCommand';
-import { useActionHandler } from './Action/useActionHandler';
+import useAction from './hooks/useAction';
+import useCommand from './hooks/useCommand';
+import useSuggestion from './hooks/useSuggestion';
 
 function Spotlightify() {
-  const [promptText, setPromptText] = useState('');
-  const [suggestions, setSuggestions] = useState<SuggestionData[]>([]);
-  const { activeCommand, setActiveCommandID, fetchSuggestions } =
-    useCommands(setSuggestions);
+  const [promptInput, setPromptInput] = useState('');
+
+  const {
+    activeCommand,
+    commandTitles,
+    popCommand,
+    pushCommand,
+    setActiveCommand,
+    clearCommands,
+  } = useCommand();
+
+  const { fetchSuggestions, setSuggestionList, suggestions, errorOccurred } =
+    useSuggestion({
+      activeCommand,
+      input: promptInput,
+    });
+
+  const { handleAction } = useAction({
+    pushCommand,
+    popCommand,
+    setActiveCommand,
+    clearCommands,
+    setPromptText: setPromptInput,
+    activeCommand,
+    promptInput,
+    setSuggestionList,
+  });
 
   const onPromptChange = (event: { target: { value: any } }) => {
     const { value } = event.target;
-    setPromptText(value);
+    setPromptInput(value);
   };
 
   useEffect(() => {
@@ -23,11 +46,11 @@ function Spotlightify() {
         if (!activeCommand) {
           window.electron.minizeWindow();
         }
-        setActiveCommandID(undefined);
+        popCommand();
       }
       if (event.key === 'Backspace') {
-        if (promptText.length === 0 && activeCommand) {
-          setActiveCommandID(undefined);
+        if (promptInput.length === 0 && activeCommand) {
+          popCommand();
         }
       }
     };
@@ -36,34 +59,38 @@ function Spotlightify() {
 
     // Remove the event listener on cleanup
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeCommand, promptText.length, setActiveCommandID]);
+  }, [activeCommand, popCommand, promptInput.length]);
 
   useEffect(() => {
-    fetchSuggestions(promptText);
-  }, [promptText, fetchSuggestions]);
+    fetchSuggestions();
+  }, [fetchSuggestions, promptInput]);
+
+  useEffect(() => {
+    setPromptInput(activeCommand ? activeCommand.input : '');
+  }, [activeCommand]);
 
   useEffect(() => {
     window.electron.setNumberOfSuggestions(suggestions.length);
   }, [suggestions.length]);
 
-  const actionHandler = useActionHandler({
-    setPromptText,
-    setActiveCommandID,
-    setSuggestions,
-  });
-
   return (
     <div className="base">
       <div className="input-wrapper">
         <img className="spotify-logo" src={logo} alt="spotify logo" />
-        {activeCommand && (
-          <div className="active-command">{activeCommand.title}</div>
+        {commandTitles.length !== 0 && (
+          <div className="command-title-container">
+            <div
+              className={`command-title-container__title${errorOccurred ? '--error' : ''}`}
+            >
+              {commandTitles.join('/')}
+            </div>
+          </div>
         )}
-        <Prompt value={promptText} onChange={onPromptChange} />
+        <Prompt value={promptInput} onChange={onPromptChange} />
       </div>
       <SuggestionsContainer
         suggestions={suggestions}
-        actionHandler={actionHandler}
+        actionHandler={handleAction}
       />
     </div>
   );

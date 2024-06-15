@@ -54,12 +54,25 @@ body {
   -webkit-app-region: drag;
 }
 
-.active-command {
-  font-size: 14px;
-  border-radius: 5px;
-  padding: 4px;
-  border: 2px solid #1db954;
-  color: #1db954;
+.command-title-container {
+  display: flex;
+  gap: 4px;
+
+  .command-title-container__title {
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 4px;
+    border: 2px solid #1db954;
+    color: #1db954;
+  }
+
+  .command-title-container__title--error {
+    border: 2px solid #e62525;
+    color: #e62525;
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 4px;
+  }
 }
 
 .input-prompt {
