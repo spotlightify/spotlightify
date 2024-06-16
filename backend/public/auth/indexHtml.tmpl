@@ -60,5 +60,15 @@
     </div>
 
     <script src="/public/auth/script.js"></script>
+    <script>
+document
+  .getElementById('auth_form')
+  .addEventListener('submit', async function authenticate(e) {
+    // Prevent the default form submission
+    e.preventDefault();
+
+    window.location = {{ .AuthUrl }};
+  });
+    </script>
   </body>
 </html>

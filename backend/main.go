@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/spotlightify/spotlightify/configs"
 	"github.com/spotlightify/spotlightify/internal/command/play"
 
 	"github.com/gorilla/handlers"
@@ -16,7 +18,14 @@ func registerCommands() {
 }
 
 func main() {
-	// TODO load config
+	var port string
+	if len(os.Args) > 1 {
+		port = ":" + os.Args[1]
+	} else {
+		port = ":5000"
+	}
+
+	configs.SetConfigValue(configs.ConfigServerUrlKey, "http://localhost"+port)
 
 	// TODO connect to db
 
@@ -34,6 +43,6 @@ func main() {
 	originsOk := handlers.AllowedOrigins([]string{"*"}) // TODO: restrict to specific origin of electron server
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
-	log.Println("Starting server on :5000...")
-	log.Fatal(http.ListenAndServe(":5000", handlers.CORS(originsOk, headersOk, methodsOk)(router)))
+	log.Println("Starting server on " + port + "...")
+	log.Fatal(http.ListenAndServe(port, handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }

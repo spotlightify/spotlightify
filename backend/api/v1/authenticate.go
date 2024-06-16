@@ -10,14 +10,39 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/spotlightify/spotlightify/configs"
+	"github.com/spotlightify/spotlightify/internal/spotify"
 )
 
 func SetupAuthenticationRoutes(r *mux.Router) {
+	r.HandleFunc("/auth/check", checkAuthHandler)
 	r.HandleFunc("/auth/login", loginHandler)
 	r.HandleFunc("/auth/post-credentials", postCredentialsHandler)
-	r.HandleFunc("/auth/callback", callbackHandler)
+	r.HandleFunc(callbackPath, callbackHandler)
 	fs := http.FileServer(http.Dir("./public/"))
 	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
+}
+
+func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
+	// Check if the user is authenticated
+	isRequired := configs.GetConfigValue(configs.ConfigRequiresSpotifyAuthKey)
+	if isRequired == nil {
+		http.Error(w, "Failed to get config value", http.StatusInternalServerError)
+		return
+	}
+
+	isRequiredBool, ok := isRequired.(bool)
+	if !ok {
+		http.Error(w, "Failed to convert config value to bool", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if isRequiredBool {
+		w.Write([]byte(`{"requiresAuth": true}`))
+	} else {
+		w.Write([]byte(`{"requiresAuth": false}`))
+	}
 }
 
 type AccessToken struct {
@@ -32,11 +57,13 @@ type TemplateVars struct {
 	WasRedirected bool // Whether the user was redirected from the /callback endpoint
 	IsSuccess     bool
 	ErrorMessage  string
+	AuthUrl       string
 }
 
 const (
-	port  = 5000
-	state = "spotlightify-state"
+	port         = 5000
+	state        = "spotlightify-state"
+	callbackPath = "/auth/callback"
 )
 
 var redirectUri = fmt.Sprintf("http://localhost:%d/auth/callback", port)
@@ -80,6 +107,8 @@ func loadLoginPage(w http.ResponseWriter, r *http.Request, isPreAuth bool, err e
 	} else if err != nil {
 		templateVars = TemplateVars{WasRedirected: true, IsSuccess: false, ErrorMessage: err.Error()}
 	}
+
+	templateVars.AuthUrl = spotify.GetSpotifyAuthURL(callbackPath, state)
 
 	loginTemplate.Execute(w, templateVars)
 }

@@ -1,38 +1,120 @@
 package configs
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"sync"
+
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+	"github.com/spotlightify/spotlightify/internal/utils"
 )
 
-// Config represents the application configuration.
-type Config struct {
-	SpotifyAccessToken string `mapstructure:"spotify_access_token"`
+const (
+	ConfigRefreshTokenKey        = "spotifyRefreshToken"
+	ConfigRequiresSpotifyAuthKey = "requiresSpotifyAuth"
+	ConfigServerUrlKey           = "serverUrl"
+)
+
+const (
+	ReadConfigError  = "failed to read config file at location=%s"
+	WriteConfigError = "failed to write config file to location=%s"
+)
+
+var (
+	mu       sync.Mutex
+	instance *viper.Viper
+	once     sync.Once
+)
+
+type configDefaultSetter interface {
+	SetDefault(key string, value any)
 }
 
-// LoadConfig loads the configuration from a file.
-func LoadConfig() (*Config, error) {
-	// Set the default values for the configuration
-	viper.SetDefault("spotify_access_token", "")
+func setDefaultConfigValues(config configDefaultSetter) {
+	config.SetDefault(ConfigRequiresSpotifyAuthKey, true)
+	config.SetDefault(ConfigRefreshTokenKey, "")
+	config.SetDefault(ConfigServerUrlKey, "")
+}
 
-	// Set the name of the config file (e.g., config.yaml)
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
+type configWriter interface {
+	WriteConfig() error
+}
 
-	// Add the path to the directory where the config file is located
-	viper.AddConfigPath("/path/to/config/directory")
+type writeConfigFileOptions struct {
+	fileName     string
+	dirPath      string
+	configWriter configWriter
+	fs           afero.Fs
+}
 
-	// Read the configuration file
-	err := viper.ReadInConfig()
-	if err != nil {
-		return nil, err
+func writeConfigFile(opts writeConfigFileOptions) error {
+	filePath := filepath.Join(opts.dirPath, opts.fileName)
+	if _, err := opts.fs.Stat(filePath); os.IsNotExist(err) {
+		log.Printf("config file path does not exist: %v", opts.dirPath)
+		err := opts.fs.MkdirAll(opts.dirPath, os.ModePerm)
+		if err != nil {
+			panic(fmt.Sprintf("failed to create config file path at location= %v", err))
+		}
+
+		_, err = opts.fs.Create(filePath)
+		if err != nil {
+			log.Fatalf(WriteConfigError, opts.dirPath)
+		}
+		log.Printf("created config file at location= %v", filePath)
 	}
 
-	// Unmarshal the configuration into a struct
-	var config Config
-	err = viper.Unmarshal(&config)
+	err := opts.configWriter.WriteConfig()
 	if err != nil {
-		return nil, err
+		log.Fatalf(WriteConfigError, opts.dirPath)
 	}
+	return err
+}
 
-	return &config, nil
+func InitialiseViper(fs afero.Fs) {
+	once.Do(func() {
+		instance = viper.New()
+		fileName := "config.json"
+		instance.SetConfigName(fileName)
+		instance.SetConfigType("json")
+		instance.SetFs(fs)
+
+		setDefaultConfigValues(instance)
+
+		configFileDir, err := utils.GetConfigFileDir(utils.RealEnvironment{})
+		if err != nil {
+			panic(fmt.Sprintf("failed to get config file path: %v", err))
+		}
+		instance.AddConfigPath(configFileDir) // TODO ensure correct path
+
+		err = instance.ReadInConfig()
+		if err != nil {
+			log.Printf(ReadConfigError, configFileDir)
+			err = writeConfigFile(writeConfigFileOptions{fileName: fileName, dirPath: configFileDir, configWriter: instance, fs: fs})
+			if err != nil {
+				log.Fatalf("failed to write config file: %v", err)
+			}
+		}
+		log.Printf("successfully read config file at location=%s", configFileDir)
+	})
+}
+
+func getViperInstance() *viper.Viper {
+	if instance == nil {
+		InitialiseViper(afero.NewOsFs())
+	}
+	return instance
+}
+
+func GetConfigValue(key string) any {
+	return getViperInstance().Get(key)
+}
+
+func SetConfigValue(key string, value any) {
+	mu.Lock()
+	defer mu.Unlock()
+	getViperInstance().Set(key, value)
+	instance.WriteConfig()
 }
