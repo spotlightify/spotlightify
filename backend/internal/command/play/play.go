@@ -1,14 +1,16 @@
 package play
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/spotlightify/spotlightify/internal/command"
+	"github.com/spotlightify/spotlightify/internal/spotify"
 
+	"github.com/spotlightify/spotlightify/internal/builders"
 	"github.com/spotlightify/spotlightify/internal/cache"
 	"github.com/spotlightify/spotlightify/internal/model"
-	u "github.com/spotlightify/spotlightify/internal/utils"
 )
 
 const playCommandId = "play"
@@ -21,8 +23,18 @@ var commandProperties = model.CommandProperties{
 	ShorthandPersistOnUI: true,
 }
 
+type spotifyPlayer interface {
+	Play(ctx context.Context) error
+}
+
+type cachedTrackGetter interface {
+	GetTrack(key string) ([]model.Track, error)
+}
+
 type playCommand struct {
 	model.CommandProperties
+	spotifyPlayer spotifyPlayer
+	cacheGetter   cachedTrackGetter
 }
 
 func (c playCommand) GetTriggerWord() string {
@@ -35,7 +47,7 @@ func (c playCommand) GetPlaceholderSuggestion() model.Suggestion {
 		Description: "This is a play command",
 		Icon:        "play",
 		ID:          "play-command",
-		Action: u.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
+		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCommand: &model.SetCommand{
 				Id:         playCommandId,
 				Properties: commandProperties,
@@ -44,10 +56,10 @@ func (c playCommand) GetPlaceholderSuggestion() model.Suggestion {
 	}
 }
 
-func (c playCommand) GetSuggestions(input string, parameters map[string]string) *model.SuggestionList {
-	slb := u.CreateSuggestionListBuilder()
+func (c playCommand) GetSuggestions(input string, parameters map[string]string, ctx context.Context) *model.SuggestionList {
+	slb := builders.CreateSuggestionListBuilder()
 
-	tracks, err := cache.CacheManager.GetTrack(input)
+	tracks, err := c.cacheGetter.GetTrack(input)
 	if err != nil {
 		return slb.AddSuggestion(
 			model.Suggestion{
@@ -66,7 +78,7 @@ func (c playCommand) GetSuggestions(input string, parameters map[string]string) 
 			Description: "Search Spotify for a track ",
 			Icon:        "play",
 			ID:          "play-command",
-			Action: u.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
+			Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 				PushCommand: &model.PushCommand{
 					Id:         playCommandId,
 					Properties: onlineCommandModel,
@@ -85,7 +97,7 @@ func (c playCommand) GetSuggestions(input string, parameters map[string]string) 
 			Description: track.ArtistNames,
 			Icon:        "play",
 			ID:          track.SpotifyID,
-			Action: u.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
+			Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
 				CommandId:           playCommandId,
 				ExecutionParameters: params,
 				WaitTillComplete:    false,
@@ -97,13 +109,13 @@ func (c playCommand) GetSuggestions(input string, parameters map[string]string) 
 	return slb.Build()
 }
 
-func (c playCommand) Execute(parameters map[string]string) *model.ExecuteActionOutput {
+func (c playCommand) Execute(parameters map[string]string, ctx context.Context) *model.ExecuteActionOutput {
 	spotifyTrackId := parameters["spotifyId"]
 
 	if spotifyTrackId == "" {
 		log.Println("Failed to play track")
 		return &model.ExecuteActionOutput{
-			Suggestions: u.CreateSuggestionListBuilder().AddSuggestion(model.Suggestion{
+			Suggestions: builders.CreateSuggestionListBuilder().AddSuggestion(model.Suggestion{
 				Title:       "Error playing track",
 				Description: "Please try again",
 				Icon:        "errorCmd",
@@ -115,8 +127,23 @@ func (c playCommand) Execute(parameters map[string]string) *model.ExecuteActionO
 	return nil
 }
 
-func RegisterPlayCommand() {
-	playCommand := playCommand{}
-	command.GlobalCommandManager.RegisterCommandKeyword("play", playCommand)
-	command.GlobalCommandManager.RegisterCommand(playCommandId, playCommand)
+type spotifyPlayBridge struct {
+	holder *spotify.SpotifyClientHolder
+}
+
+func (s *spotifyPlayBridge) Play(ctx context.Context) error {
+	client, err := s.holder.GetSpotifyInstance()
+	if err != nil {
+		return err
+	}
+
+	return client.Play(ctx)
+}
+
+func RegisterPlayCommand(commandManager *command.Manager, spotifyHolder *spotify.SpotifyClientHolder, cacheManager *cache.CacheManager) {
+	player := &spotifyPlayBridge{holder: spotifyHolder}
+
+	playCommand := playCommand{spotifyPlayer: player, cacheGetter: cacheManager}
+	commandManager.RegisterCommandKeyword("play", playCommand)
+	commandManager.RegisterCommand(playCommandId, playCommand)
 }

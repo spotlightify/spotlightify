@@ -1,19 +1,33 @@
 package command
 
 import (
+	"sync"
+
 	"github.com/spotlightify/spotlightify/internal/interfaces"
 )
 
-var GlobalCommandManager = NewManager()
+// type CommandManager interface {
+// 	RegisterCommand(commandId string, command interfaces.Command)
+// 	RegisterCommandKeyword(keyword string, command interfaces.Command)
+// 	GetCommandById(commandId string) interfaces.Command
+// 	FindCommands(search string) []interfaces.Command
+// }
 
-type RouteManager map[string]interfaces.Command
+type RouteManager struct {
+	commandMap map[string]interfaces.Command
+	mu         *sync.RWMutex
+}
 
 func (r RouteManager) RegisterRoute(path string, command interfaces.Command) {
-	r[path] = command
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.commandMap[path] = command
 }
 
 func (r RouteManager) GetCommand(path string) interfaces.Command {
-	return r[path]
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.commandMap[path]
 }
 
 // Manager Manages commands and subcommands, and their routes
@@ -40,7 +54,7 @@ func (m *Manager) FindCommands(search string) []interfaces.Command {
 
 func NewManager() *Manager {
 	return &Manager{
-		routes:          &RouteManager{},
+		routes:          &RouteManager{make(map[string]interfaces.Command), &sync.RWMutex{}},
 		keywordRegistry: &Registry{},
 	}
 }

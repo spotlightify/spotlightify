@@ -10,14 +10,32 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/spotlightify/spotlightify/configs"
 )
 
-func SetupAuthenticationRoutes(r *mux.Router) {
-	r.HandleFunc("/auth/login", loginHandler)
-	r.HandleFunc("/auth/post-credentials", postCredentialsHandler)
-	r.HandleFunc("/auth/callback", callbackHandler)
+type AuthenticationHandlers struct {
+	Config *configs.SpotlightifyConfig
+}
+
+func SetupAuthenticationRoutes(r *mux.Router, handlers *AuthenticationHandlers) {
+	r.HandleFunc("/auth/check", handlers.checkAuthHandler)
+	r.HandleFunc("/auth/login", handlers.loginHandler)
+	r.HandleFunc("/auth/post-credentials", handlers.postCredentialsHandler)
+	r.HandleFunc(callbackPath, handlers.callbackHandler)
 	fs := http.FileServer(http.Dir("./public/"))
 	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
+}
+
+func (a *AuthenticationHandlers) checkAuthHandler(w http.ResponseWriter, r *http.Request) {
+	// Check if the user is authenticated
+	isRequired := a.Config.GetRequiresSpotifyAuthKey()
+
+	w.Header().Set("Content-Type", "application/json")
+	if isRequired {
+		w.Write([]byte(`{"requiresAuth": true}`))
+	} else {
+		w.Write([]byte(`{"requiresAuth": false}`))
+	}
 }
 
 type AccessToken struct {
@@ -32,11 +50,13 @@ type TemplateVars struct {
 	WasRedirected bool // Whether the user was redirected from the /callback endpoint
 	IsSuccess     bool
 	ErrorMessage  string
+	AuthUrl       string
 }
 
 const (
-	port  = 5000
-	state = "spotlightify-state"
+	port         = 5000
+	state        = "spotlightify-state"
+	callbackPath = "/auth/callback"
 )
 
 var redirectUri = fmt.Sprintf("http://localhost:%d/auth/callback", port)
@@ -63,11 +83,11 @@ var scopes = []string{
 	"playlist-modify-private",
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	loadLoginPage(w, r, true, nil)
+func (a *AuthenticationHandlers) loginHandler(w http.ResponseWriter, r *http.Request) {
+	a.loadLoginPage(w, r, true, nil)
 }
 
-func loadLoginPage(w http.ResponseWriter, r *http.Request, isPreAuth bool, err error) {
+func (a *AuthenticationHandlers) loadLoginPage(w http.ResponseWriter, r *http.Request, isPreAuth bool, err error) {
 	loginTemplate, tmplErr := template.ParseFiles("public/auth/indexHtml.tmpl")
 	if tmplErr != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -81,10 +101,12 @@ func loadLoginPage(w http.ResponseWriter, r *http.Request, isPreAuth bool, err e
 		templateVars = TemplateVars{WasRedirected: true, IsSuccess: false, ErrorMessage: err.Error()}
 	}
 
+	templateVars.AuthUrl = "a" // TODO UNCOMMENT spotify.GetSpotifyAuthURL(callbackPath, state)
+
 	loginTemplate.Execute(w, templateVars)
 }
 
-func postCredentialsHandler(w http.ResponseWriter, r *http.Request) {
+func (a *AuthenticationHandlers) postCredentialsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -101,7 +123,7 @@ func postCredentialsHandler(w http.ResponseWriter, r *http.Request) {
 	client = clientDetailsResponse
 }
 
-func callbackHandler(w http.ResponseWriter, r *http.Request) {
+func (a *AuthenticationHandlers) callbackHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
 		http.Error(w, "Code query parameter not found", http.StatusBadRequest)
@@ -131,7 +153,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	req, err := http.NewRequest("POST", "https://accounts.spotify.com/api/token", strings.NewReader(data.Encode()))
 	if err != nil {
 		err = fmt.Errorf("Error creating request: %s", err)
-		redirectToLogin(w, r, err)
+		a.redirectToLogin(w, r, err)
 		return
 	}
 
@@ -143,7 +165,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := client.Do(req)
 	if err != nil {
 		err = fmt.Errorf("Error fetching token: %s", err)
-		redirectToLogin(w, r, err)
+		a.redirectToLogin(w, r, err)
 		return
 	}
 	defer resp.Body.Close()
@@ -151,7 +173,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	// Check if the response is successful
 	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("Error fetching token: %s", resp.Status)
-		redirectToLogin(w, r, err)
+		a.redirectToLogin(w, r, err)
 		return
 	}
 
@@ -160,16 +182,16 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	// Read the response body
 	err = json.NewDecoder(resp.Body).Decode(&accessToken)
 	if err != nil {
-		redirectToLogin(w, r, err)
+		a.redirectToLogin(w, r, err)
 		return
 	}
 
 	fmt.Printf("Access token struct: %+v\n", accessToken)
 
 	// Redirect to the frontend
-	redirectToLogin(w, r, nil)
+	a.redirectToLogin(w, r, nil)
 }
 
-func redirectToLogin(w http.ResponseWriter, r *http.Request, err error) {
-	loadLoginPage(w, r, false, err)
+func (a *AuthenticationHandlers) redirectToLogin(w http.ResponseWriter, r *http.Request, err error) {
+	a.loadLoginPage(w, r, false, err)
 }

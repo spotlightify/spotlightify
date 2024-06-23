@@ -1,4 +1,4 @@
-package utils
+package builders
 
 import "github.com/spotlightify/spotlightify/internal/model"
 

@@ -9,13 +9,11 @@ import (
 	m "github.com/spotlightify/spotlightify/internal/model"
 )
 
-var CacheManager = NewCacheManager()
-
-type cacheManager struct {
+type CacheManager struct {
 	db *sql.DB
 }
 
-func (c *cacheManager) GetTrack(key string) ([]m.Track, error) {
+func (c *CacheManager) GetTrack(key string) ([]m.Track, error) {
 	var songs []m.Track
 	rows, err := c.db.Query("SELECT * FROM Songs WHERE name LIKE ? LIMIT 20", "%"+key+"%")
 	if err != nil {
@@ -40,13 +38,13 @@ func (c *cacheManager) GetTrack(key string) ([]m.Track, error) {
 	return songs, nil
 }
 
-func NewCacheManager() *cacheManager {
+func NewCacheManager() *CacheManager {
 	db, err := sql.Open("sqlite3", "../db/cache.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return &cacheManager{
+	return &CacheManager{
 		db: db,
 	}
 }
