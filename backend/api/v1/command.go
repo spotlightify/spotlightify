@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/spotlightify/spotlightify/configs"
 	cmd "github.com/spotlightify/spotlightify/internal/command"
 	"github.com/spotlightify/spotlightify/internal/model"
 	"github.com/spotlightify/spotlightify/internal/utils"
@@ -14,21 +15,26 @@ const (
 	commandIdSegment = "commandId"
 )
 
-func SetupCommandRoutes(r *mux.Router) {
-	r.HandleFunc("/command", handleKeywordSearch)
-	r.HandleFunc("/command/{command_id}/get-suggestions", handleCommandSuggestions)
-	r.HandleFunc("/command/{command_id}/action", handleCommandAction)
+func SetupCommandRoutes(r *mux.Router, handlers *CommandHandler) {
+	r.HandleFunc("/command", handlers.handleKeywordSearch)
+	r.HandleFunc("/command/{command_id}/get-suggestions", handlers.handleCommandSuggestions)
+	r.HandleFunc("/command/{command_id}/action", handlers.handleCommandAction)
 }
 
-func handleCommandSuggestions(w http.ResponseWriter, r *http.Request) {
+type CommandHandler struct {
+	Config         *configs.SpotlightifyConfig
+	CommandManager *cmd.Manager
+}
+
+func (c *CommandHandler) handleCommandSuggestions(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	commandId := vars["command_id"]
-	command := cmd.GlobalCommandManager.GetCommandById(commandId)
+	command := c.CommandManager.GetCommandById(commandId)
 
 	parameters := utils.SingleValueQuery(r.URL.Query())
 	input := parameters["input"]
 
-	suggestions := command.GetSuggestions(input, parameters)
+	suggestions := command.GetSuggestions(input, parameters, r.Context())
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(suggestions)
@@ -38,13 +44,13 @@ func handleCommandSuggestions(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleCommandAction(w http.ResponseWriter, r *http.Request) {
+func (c *CommandHandler) handleCommandAction(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	commandId := vars["command_id"]
-	command := cmd.GlobalCommandManager.GetCommandById(commandId)
+	command := c.CommandManager.GetCommandById(commandId)
 	parameters := utils.SingleValueQuery(r.URL.Query())
 
-	executeOutput := command.Execute(parameters)
+	executeOutput := command.Execute(parameters, r.Context())
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(executeOutput)
@@ -54,18 +60,7 @@ func handleCommandAction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func encodeEmptySuggestionList(w http.ResponseWriter) {
-	err := utils.EncodeJson(w, model.SuggestionList{
-		Items:  []model.Suggestion{},
-		Filter: false,
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-func handleKeywordSearch(w http.ResponseWriter, r *http.Request) {
+func (c *CommandHandler) handleKeywordSearch(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	search := query.Get("search")
 	if search == "" {
@@ -74,7 +69,7 @@ func handleKeywordSearch(w http.ResponseWriter, r *http.Request) {
 	}
 	var suggestions []model.Suggestion
 
-	foundCommands := cmd.GlobalCommandManager.FindCommands(search)
+	foundCommands := c.CommandManager.FindCommands(search)
 	if len(foundCommands) == 0 {
 		encodeEmptySuggestionList(w)
 		return
@@ -87,6 +82,17 @@ func handleKeywordSearch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := utils.EncodeJson(w, model.SuggestionList{
 		Items:  suggestions,
+		Filter: false,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func encodeEmptySuggestionList(w http.ResponseWriter) {
+	err := utils.EncodeJson(w, model.SuggestionList{
+		Items:  []model.Suggestion{},
 		Filter: false,
 	})
 	if err != nil {

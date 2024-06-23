@@ -3,38 +3,49 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/spf13/afero"
 	"github.com/spotlightify/spotlightify/configs"
+	"github.com/spotlightify/spotlightify/internal/cache"
+	"github.com/spotlightify/spotlightify/internal/command"
 	"github.com/spotlightify/spotlightify/internal/command/play"
+	"github.com/spotlightify/spotlightify/internal/spotify"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	v1 "github.com/spotlightify/spotlightify/api/v1"
 )
 
-func registerCommands() {
-	play.RegisterPlayCommand()
+type managers struct {
+	commandManager *command.Manager
+	spotifyHolder  *spotify.SpotifyClientHolder
+	cacheManager   *cache.CacheManager
+}
+
+func registerCommands(managers managers) {
+	play.RegisterPlayCommand(managers.commandManager, managers.spotifyHolder, managers.cacheManager)
 }
 
 func main() {
-	var port string
-	if len(os.Args) > 1 {
-		port = ":" + os.Args[1]
-	} else {
-		port = ":5000"
-	}
+	port := ":5121"
 
-	configs.SetConfigValue(configs.ConfigServerUrlKey, "http://localhost"+port)
+	spotify := spotify.NewSpotifyClientHolder()
+	commandManager := command.NewManager()
+	cacheManager := cache.NewCacheManager()
 
-	// TODO connect to db
+	registerCommands(managers{
+		commandManager: commandManager,
+		spotifyHolder:  spotify,
+		cacheManager:   cacheManager,
+	})
 
-	registerCommands()
+	fileSystem := afero.NewOsFs()
+	config := configs.InitialiseConfig(fileSystem)
 
 	router := mux.NewRouter()
 
-	v1.SetupCommandRoutes(router)
-	v1.SetupAuthenticationRoutes(router)
+	v1.SetupCommandRoutes(router, &v1.CommandHandler{Config: config, CommandManager: commandManager})
+	v1.SetupAuthenticationRoutes(router, &v1.AuthenticationHandlers{Config: config})
 
 	// TODO implement websocket handler
 	// router.HandleFunc("/ws", api.HandleConnections)

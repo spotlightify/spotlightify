@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	DefaultPort                  = ":5000"
 	ConfigRefreshTokenKey        = "spotifyRefreshToken"
 	ConfigRequiresSpotifyAuthKey = "requiresSpotifyAuth"
 	ConfigServerUrlKey           = "serverUrl"
@@ -23,98 +24,106 @@ const (
 	WriteConfigError = "failed to write config file to location=%s"
 )
 
-var (
-	mu       sync.Mutex
-	instance *viper.Viper
-	once     sync.Once
-)
-
-type configDefaultSetter interface {
-	SetDefault(key string, value any)
+type SpotlightifyConfig struct {
+	mu       sync.RWMutex
+	config   *viper.Viper
+	fs       afero.Fs
+	fileName string
+	dirPath  string
 }
 
-func setDefaultConfigValues(config configDefaultSetter) {
-	config.SetDefault(ConfigRequiresSpotifyAuthKey, true)
-	config.SetDefault(ConfigRefreshTokenKey, "")
-	config.SetDefault(ConfigServerUrlKey, "")
+func (s *SpotlightifyConfig) setConfigValue(key string, value any) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.config.Set(key, value)
+	s.config.WriteConfig()
 }
 
-type configWriter interface {
-	WriteConfig() error
+func (s *SpotlightifyConfig) getConfigValue(key string) any {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.config.Get(key)
 }
 
-type writeConfigFileOptions struct {
-	fileName     string
-	dirPath      string
-	configWriter configWriter
-	fs           afero.Fs
+func (s *SpotlightifyConfig) GetRefreshTokenKey() string {
+	return s.getConfigValue(ConfigRefreshTokenKey).(string)
 }
 
-func writeConfigFile(opts writeConfigFileOptions) error {
-	filePath := filepath.Join(opts.dirPath, opts.fileName)
-	if _, err := opts.fs.Stat(filePath); os.IsNotExist(err) {
-		log.Printf("config file path does not exist: %v", opts.dirPath)
-		err := opts.fs.MkdirAll(opts.dirPath, os.ModePerm)
+func (s *SpotlightifyConfig) GetRequiresSpotifyAuthKey() bool {
+	return s.getConfigValue(ConfigRequiresSpotifyAuthKey).(bool)
+}
+
+func (s *SpotlightifyConfig) GetServerUrl() string {
+	return s.getConfigValue(ConfigServerUrlKey).(string)
+}
+
+func (s *SpotlightifyConfig) SetRefreshTokenKey(value string) {
+	s.setConfigValue(ConfigRefreshTokenKey, value)
+}
+
+func (s *SpotlightifyConfig) SetRequiresSpotifyAuthKey(value bool) {
+	s.setConfigValue(ConfigRequiresSpotifyAuthKey, value)
+}
+
+func (s *SpotlightifyConfig) SetServerUrl(value string) {
+	s.setConfigValue(ConfigServerUrlKey, value)
+}
+
+func (s *SpotlightifyConfig) setDefaultConfigValues() {
+	s.config.SetDefault(ConfigRequiresSpotifyAuthKey, true)
+	s.config.SetDefault(ConfigRefreshTokenKey, "")
+	s.config.SetDefault(ConfigServerUrlKey, "")
+}
+
+func (s *SpotlightifyConfig) createConfigFile() error {
+	filePath := filepath.Join(s.dirPath, s.fileName)
+	if _, err := s.fs.Stat(filePath); os.IsNotExist(err) {
+		log.Printf("config file path does not exist: %v", s.dirPath)
+		err := s.fs.MkdirAll(s.dirPath, os.ModePerm)
 		if err != nil {
 			panic(fmt.Sprintf("failed to create config file path at location= %v", err))
 		}
 
-		_, err = opts.fs.Create(filePath)
+		_, err = s.fs.Create(filePath)
 		if err != nil {
-			log.Fatalf(WriteConfigError, opts.dirPath)
+			log.Fatalf(WriteConfigError, s.dirPath)
 		}
 		log.Printf("created config file at location= %v", filePath)
 	}
 
-	err := opts.configWriter.WriteConfig()
+	err := s.config.WriteConfig()
 	if err != nil {
-		log.Fatalf(WriteConfigError, opts.dirPath)
+		log.Fatalf(WriteConfigError, s.dirPath)
 	}
 	return err
 }
 
-func InitialiseViper(fs afero.Fs) {
-	once.Do(func() {
-		instance = viper.New()
-		fileName := "config.json"
-		instance.SetConfigName(fileName)
-		instance.SetConfigType("json")
-		instance.SetFs(fs)
+func InitialiseConfig(fs afero.Fs) *SpotlightifyConfig {
+	config := viper.New()
+	fileName := "config.json"
+	config.SetConfigName(fileName)
+	config.SetConfigType("json")
+	config.SetFs(fs)
 
-		setDefaultConfigValues(instance)
-
-		configFileDir, err := utils.GetConfigFileDir(utils.RealEnvironment{})
-		if err != nil {
-			panic(fmt.Sprintf("failed to get config file path: %v", err))
-		}
-		instance.AddConfigPath(configFileDir) // TODO ensure correct path
-
-		err = instance.ReadInConfig()
-		if err != nil {
-			log.Printf(ReadConfigError, configFileDir)
-			err = writeConfigFile(writeConfigFileOptions{fileName: fileName, dirPath: configFileDir, configWriter: instance, fs: fs})
-			if err != nil {
-				log.Fatalf("failed to write config file: %v", err)
-			}
-		}
-		log.Printf("successfully read config file at location=%s", configFileDir)
-	})
-}
-
-func getViperInstance() *viper.Viper {
-	if instance == nil {
-		InitialiseViper(afero.NewOsFs())
+	configFileDir, err := utils.GetConfigFileDir(utils.RealEnvironment{})
+	if err != nil {
+		panic(fmt.Sprintf("failed to get config file path: %v", err))
 	}
-	return instance
-}
+	config.AddConfigPath(configFileDir) // TODO ensure correct path
 
-func GetConfigValue(key string) any {
-	return getViperInstance().Get(key)
-}
+	spotlightifyConfig := &SpotlightifyConfig{config: config, fileName: fileName, dirPath: configFileDir, mu: sync.RWMutex{}, fs: fs}
 
-func SetConfigValue(key string, value any) {
-	mu.Lock()
-	defer mu.Unlock()
-	getViperInstance().Set(key, value)
-	instance.WriteConfig()
+	spotlightifyConfig.setDefaultConfigValues()
+
+	err = config.ReadInConfig()
+	if err != nil {
+		log.Printf(ReadConfigError, configFileDir)
+		err = spotlightifyConfig.createConfigFile()
+		if err != nil {
+			log.Fatalf("failed to write config file: %v", err)
+		}
+	}
+	log.Printf("successfully read config file at location=%s", configFileDir)
+
+	return spotlightifyConfig
 }
