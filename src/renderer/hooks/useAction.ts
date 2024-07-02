@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Action,
   Command,
+  CommandParameters,
   ExecuteAction,
+  ExecutionParameters,
   ExecutionResponse,
   SuggestionList,
 } from '../Command/interfaces';
@@ -16,7 +18,16 @@ interface useActionHandlerProps {
   setSuggestionList: (setSuggestionList: SuggestionList) => void;
   activeCommand: Command | undefined;
   promptInput: string;
+  setCurrentCommandParameters: (parameters: CommandParameters) => void;
 }
+
+export const buildQueryParameters = (parameters: ExecutionParameters) => {
+  const queryParams = new URLSearchParams();
+  Object.keys(parameters).forEach((key) => {
+    queryParams.append(key, parameters![key]);
+  });
+  return queryParams;
+};
 
 function useAction({
   pushCommand,
@@ -27,6 +38,7 @@ function useAction({
   setSuggestionList,
   activeCommand,
   promptInput,
+  setCurrentCommandParameters,
 }: useActionHandlerProps) {
   const [actionsToExecute, setActionsToExecute] = useState<ExecuteAction[]>([]);
   const [actionExecuting, setActionExecuting] = useState<
@@ -44,6 +56,10 @@ function useAction({
         !action.promptState?.preservePromptText
       ) {
         setPromptText('');
+      }
+
+      if (action.promptState?.setPromptText) {
+        setPromptText(action.promptState.setPromptText);
       }
 
       if (action.commandOptions?.pushCommand) {
@@ -75,6 +91,12 @@ function useAction({
       if (action.executeAction) {
         addActionToExecute(action.executeAction);
       }
+
+      if (action.commandOptions?.setCurrentCommandParameters) {
+        setCurrentCommandParameters(
+          action.commandOptions.setCurrentCommandParameters,
+        );
+      }
       // TODO implement other actions
     },
     [
@@ -83,6 +105,7 @@ function useAction({
       promptInput,
       pushCommand,
       setActiveCommand,
+      setCurrentCommandParameters,
       setPromptText,
     ],
   );
@@ -103,8 +126,10 @@ function useAction({
 
     const handleExecution = async (executableAction: ExecuteAction) => {
       try {
+        const queryParams = buildQueryParameters(executableAction.data);
+
         const response = await fetch(
-          `http://localhost:5000/command/${executableAction.commandId}/action`,
+          `http://localhost:49264/command/${executableAction.commandId}/action?${queryParams.toString()}`,
           {
             method: 'POST',
             headers: {

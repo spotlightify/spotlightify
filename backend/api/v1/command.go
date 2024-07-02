@@ -2,7 +2,9 @@ package v1
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/spotlightify/spotlightify/configs"
@@ -21,6 +23,20 @@ func SetupCommandRoutes(r *mux.Router, handlers *CommandHandler) {
 	r.HandleFunc("/command/{command_id}/action", handlers.handleCommandAction)
 }
 
+// Prevents client_secret from being logged
+func SanitizedParameters(parameters map[string]string) map[string]string {
+	clientSecret, ok := parameters["client_secret"]
+	if ok {
+		sanitizeParameters := make(map[string]string)
+		for key, value := range parameters {
+			sanitizeParameters[key] = value
+		}
+		sanitizeParameters["client_secret"] = strings.Repeat("*", len(clientSecret))
+		return sanitizeParameters
+	}
+	return parameters
+}
+
 type CommandHandler struct {
 	Config         *configs.SpotlightifyConfig
 	CommandManager *cmd.Manager
@@ -33,7 +49,9 @@ func (c *CommandHandler) handleCommandSuggestions(w http.ResponseWriter, r *http
 
 	parameters := utils.SingleValueQuery(r.URL.Query())
 	input := parameters["input"]
+	delete(parameters, "input") // Delete item so no duplicate 'input' when fetching suggetions
 
+	log.Printf("Getting suggestions from '%s' command with parameters: %s, input: %s", commandId, SanitizedParameters(parameters), input)
 	suggestions := command.GetSuggestions(input, parameters, r.Context())
 
 	w.Header().Set("Content-Type", "application/json")
@@ -50,6 +68,7 @@ func (c *CommandHandler) handleCommandAction(w http.ResponseWriter, r *http.Requ
 	command := c.CommandManager.GetCommandById(commandId)
 	parameters := utils.SingleValueQuery(r.URL.Query())
 
+	log.Printf("Executing command '%s' with parameters: %s", commandId, SanitizedParameters(parameters))
 	executeOutput := command.Execute(parameters, r.Context())
 
 	w.Header().Set("Content-Type", "application/json")

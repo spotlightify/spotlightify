@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Command } from '../Command/interfaces';
+import { Command, CommandParameters } from '../Command/interfaces';
 
 function useCommand() {
   const [commandHistory, setCommandHistory] = useState([] as Command[]);
@@ -27,7 +27,7 @@ function useCommand() {
       if (activeCommand) {
         const activeCommandCopy = { ...activeCommand };
         activeCommandCopy.input = currentPromptInput;
-        setCommandHistory((prev) => [...prev, activeCommand]);
+        setCommandHistory((prev) => [...prev, activeCommandCopy]);
       }
       setActiveCommand(newCommand);
     },
@@ -45,6 +45,23 @@ function useCommand() {
     setCommandHistory([]);
   }, []);
 
+  const setCurrentCommandParameters = useCallback(
+    (parameters: CommandParameters) => {
+      setActiveCommand((prev) => {
+        if (prev) {
+          return {
+            ...prev,
+            parameters: {
+              ...parameters,
+            },
+          };
+        }
+        return prev;
+      });
+    },
+    [],
+  );
+
   const setActiveCommandFunction = useCallback((command: Command) => {
     setActiveCommand(command);
     setCommandHistory([]);
@@ -57,6 +74,7 @@ function useCommand() {
     popCommand,
     clearCommands,
     setActiveCommand: setActiveCommandFunction,
+    setCurrentCommandParameters,
   };
 }
 

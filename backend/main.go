@@ -8,7 +8,9 @@ import (
 	"github.com/spotlightify/spotlightify/configs"
 	"github.com/spotlightify/spotlightify/internal/cache"
 	"github.com/spotlightify/spotlightify/internal/command"
+	"github.com/spotlightify/spotlightify/internal/command/authenticate"
 	"github.com/spotlightify/spotlightify/internal/command/play"
+	"github.com/spotlightify/spotlightify/internal/constants"
 	"github.com/spotlightify/spotlightify/internal/spotify"
 
 	"github.com/gorilla/handlers"
@@ -20,16 +22,20 @@ type managers struct {
 	commandManager *command.Manager
 	spotifyHolder  *spotify.SpotifyClientHolder
 	cacheManager   *cache.CacheManager
+	config         *configs.SpotlightifyConfig
 }
 
 func registerCommands(managers managers) {
 	play.RegisterPlayCommand(managers.commandManager, managers.spotifyHolder, managers.cacheManager)
+	authenticate.RegisterAuthCommand(managers.commandManager, managers.spotifyHolder, managers.config)
 }
 
 func main() {
-	port := ":5121"
+	fileSystem := afero.NewOsFs()
+	config := configs.InitialiseConfig(fileSystem)
 
-	spotify := spotify.NewSpotifyClientHolder()
+	spotify := spotify.NewSpotifyClientHolder(config)
+	spotify.LoadSpotifyTokenFromConfig(config)
 	commandManager := command.NewManager()
 	cacheManager := cache.NewCacheManager()
 
@@ -37,15 +43,13 @@ func main() {
 		commandManager: commandManager,
 		spotifyHolder:  spotify,
 		cacheManager:   cacheManager,
+		config:         config,
 	})
-
-	fileSystem := afero.NewOsFs()
-	config := configs.InitialiseConfig(fileSystem)
 
 	router := mux.NewRouter()
 
 	v1.SetupCommandRoutes(router, &v1.CommandHandler{Config: config, CommandManager: commandManager})
-	v1.SetupAuthenticationRoutes(router, &v1.AuthenticationHandlers{Config: config})
+	v1.SetupAuthenticationRoutes(router, &v1.AuthenticationHandlers{Config: config, ClientHolder: spotify})
 
 	// TODO implement websocket handler
 	// router.HandleFunc("/ws", api.HandleConnections)
@@ -54,6 +58,6 @@ func main() {
 	originsOk := handlers.AllowedOrigins([]string{"*"}) // TODO: restrict to specific origin of electron server
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
-	log.Println("Starting server on " + port + "...")
-	log.Fatal(http.ListenAndServe(port, handlers.CORS(originsOk, headersOk, methodsOk)(router)))
+	log.Println("Starting server on " + constants.ServerURL + "...")
+	log.Fatal(http.ListenAndServe(constants.Port, handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }

@@ -16,6 +16,7 @@ function Spotlightify() {
     pushCommand,
     setActiveCommand,
     clearCommands,
+    setCurrentCommandParameters,
   } = useCommand();
 
   const { fetchSuggestions, setSuggestionList, suggestions, errorOccurred } =
@@ -33,6 +34,7 @@ function Spotlightify() {
     activeCommand,
     promptInput,
     setSuggestionList,
+    setCurrentCommandParameters,
   });
 
   const onPromptChange = (event: { target: { value: any } }) => {
@@ -65,9 +67,10 @@ function Spotlightify() {
     fetchSuggestions();
   }, [fetchSuggestions, promptInput]);
 
-  useEffect(() => {
-    setPromptInput(activeCommand ? activeCommand.input : '');
-  }, [activeCommand]);
+  // Disabled for now
+  // useEffect(() => {
+  //   setPromptInput(activeCommand ? activeCommand.input : '');
+  // }, [activeCommand]);
 
   useEffect(() => {
     window.electron.setNumberOfSuggestions(suggestions.length);

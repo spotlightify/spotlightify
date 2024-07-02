@@ -11,22 +11,22 @@ type ExecuteAction struct {
 
 type PushCommand struct {
 	Id         string            `json:"id"`
-	Parameters CommandParameters `json:"parameters,omitempty"`
+	Parameters map[string]string `json:"parameters,omitempty"`
 	Properties CommandProperties `json:"properties"`
 }
 
 type SetCommand struct {
 	Id         string            `json:"id"`
-	Parameters CommandParameters `json:"parameters"`
+	Parameters map[string]string `json:"parameters"`
 	Properties CommandProperties `json:"properties"`
 }
 
 type CommandOptions struct {
-	PushCommand                 *PushCommand       `json:"pushCommand,omitempty"`
-	SetCommand                  *SetCommand        `json:"setCommand,omitempty"`
-	SetCurrentCommandParameters *CommandParameters `json:"setCurrentCommandParameters,omitempty"`
-	PopCommand                  bool               `json:"popCommand"`
-	ClearCommandStack           bool               `json:"clearCommandStack"`
+	PushCommand                 *PushCommand      `json:"pushCommand,omitempty"`
+	SetCommand                  *SetCommand       `json:"setCommand,omitempty"`
+	SetCurrentCommandParameters map[string]string `json:"setCurrentCommandParameters,omitempty"`
+	PopCommand                  bool              `json:"popCommand"`
+	ClearCommandStack           bool              `json:"clearCommandStack"`
 }
 
 type PromptState struct {
