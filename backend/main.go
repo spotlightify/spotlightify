@@ -50,6 +50,7 @@ func main() {
 
 	v1.SetupCommandRoutes(router, &v1.CommandHandler{Config: config, CommandManager: commandManager})
 	v1.SetupAuthenticationRoutes(router, &v1.AuthenticationHandlers{Config: config, ClientHolder: spotify})
+  v1.SetupAssetRoutes(router, fileSystem)
 
 	// TODO implement websocket handler
 	// router.HandleFunc("/ws", api.HandleConnections)

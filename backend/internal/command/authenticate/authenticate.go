@@ -123,7 +123,7 @@ func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters ma
 	slb.AddSuggestion(model.Suggestion{
 		Title:       "Open authentication instructions",
 		Description: "Open a new browser window with instructions on how to authenticate with Spotify",
-		Icon:        "info",
+		Icon:        constants.GetIconAddress(constants.IconEllipsis),
 		ID:          "open-authentication-instructions",
 		Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
 			CommandId:           "authenticate",
@@ -151,7 +151,7 @@ func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters ma
 		slb.AddSuggestion(model.Suggestion{
 			Title:       AddSpotifyClientIDTitle,
 			Description: AddSpotifyClientIDDescription,
-			Icon:        "error",
+			Icon:        constants.GetIconAddress(constants.IconPlus),
 			ID:          "add-spotify-client-id",
 			Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 				SetCurrentCommandParameters: newClientIdParams,
@@ -161,7 +161,7 @@ func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters ma
 		slb.AddSuggestion(model.Suggestion{
 			Title:       ChangeClientIDTitle,
 			Description: fmt.Sprintf(ChangeClientIDDescription, clientId),
-			Icon:        "error",
+			Icon:        constants.GetIconAddress(constants.IconPlus),
 			ID:          "change-spotify-client-Id",
 			Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 				SetCurrentCommandParameters: newClientIdParams,
@@ -181,7 +181,7 @@ func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters ma
 		slb.AddSuggestion(model.Suggestion{
 			Title:       AddSpotifyClientSecretTitle,
 			Description: AddSpotifyClientSecretDescription,
-			Icon:        "error",
+			Icon:        constants.GetIconAddress(constants.IconPlus),
 			ID:          "add-spotify-client-secret",
 			Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 				SetCurrentCommandParameters: newClientSecretParams,
@@ -191,7 +191,7 @@ func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters ma
 		slb.AddSuggestion(model.Suggestion{
 			Title:       ChangeClientSecretTitle,
 			Description: fmt.Sprintf(ChangeClientSecretDescription, clientSecret),
-			Icon:        "error",
+			Icon:        constants.GetIconAddress(constants.IconPlus),
 			ID:          "change-spotify-client-secret",
 			Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 				SetCurrentCommandParameters: newClientSecretParams,
@@ -205,7 +205,7 @@ func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters ma
 	slb.AddSuggestion(model.Suggestion{
 		Title:       AuthenticateWithSpotifyTitle,
 		Description: AuthenticateWithSpotifyDescription,
-		Icon:        "spotify",
+		Icon:        constants.GetIconAddress(constants.IconAuthenticate),
 		ID:          "authenticate-spotify",
 		Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
 			CommandId:           "authenticate",
@@ -232,7 +232,7 @@ func getClientIdSuggestions(input string, parameters map[string]string) *model.S
 	slb.AddSuggestion(model.Suggestion{
 		Title:       InputClientIDTitle,
 		Description: fmt.Sprintf(InputClientIDDescription, input),
-		Icon:        "error",
+		Icon:        constants.GetIconAddress(constants.IconPlus),
 		ID:          "add-spotify-client-id-field",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCurrentCommandParameters: newClientIdParams,
@@ -242,7 +242,7 @@ func getClientIdSuggestions(input string, parameters map[string]string) *model.S
 	slb.AddSuggestion(model.Suggestion{
 		Title:       BackTitle,
 		Description: BackDescription,
-		Icon:        "error",
+		Icon:        constants.GetIconAddress(constants.IconBackNav),
 		ID:          "back-to-main-menu",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCurrentCommandParameters: parameters,
@@ -267,7 +267,7 @@ func getClientSecretSuggestions(input string, parameters map[string]string) *mod
 	slb.AddSuggestion(model.Suggestion{
 		Title:       InputClientSecretTitle,
 		Description: fmt.Sprintf(InputClientSecretDescription, input),
-		Icon:        "error",
+		Icon:        constants.GetIconAddress(constants.IconPlus),
 		ID:          "add-spotify-client-secret-field",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCurrentCommandParameters: newClientSecretParams,
@@ -277,7 +277,7 @@ func getClientSecretSuggestions(input string, parameters map[string]string) *mod
 	slb.AddSuggestion(model.Suggestion{
 		Title:       BackTitle,
 		Description: BackDescription,
-		Icon:        "error",
+		Icon:        constants.GetIconAddress(constants.IconBackNav),
 		ID:          "back-to-main-menu",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCurrentCommandParameters: parameters,
@@ -291,7 +291,7 @@ func (c *authenticateCommand) GetPlaceholderSuggestion() model.Suggestion {
 	return model.Suggestion{
 		Title:       AuthenticatePlaceholderTitle,
 		Description: AuthenticatePlaceholderDescription,
-		Icon:        "spotify",
+		Icon:        constants.GetIconAddress(constants.IconAuthenticate),
 		ID:          "authenticate-spotify",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCommand: &model.SetCommand{

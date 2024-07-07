@@ -30,6 +30,7 @@ type AuthenticationHandlers struct {
 }
 
 func SetupAuthenticationRoutes(r *mux.Router, handlers *AuthenticationHandlers) {
+  log.Println("Setting up authentication routes")
 	redirectURI = constants.ServerURL + callbackPath
 	auth = spotifyauth.New(spotifyauth.WithRedirectURL(redirectURI), spotifyauth.WithScopes(constants.SpotifyScopes()...))
 	log.Println("Redirect URI: ", redirectURI)
@@ -40,6 +41,7 @@ func SetupAuthenticationRoutes(r *mux.Router, handlers *AuthenticationHandlers) 
 	r.HandleFunc(callbackPath, handlers.callbackHandler)
 	fs := http.FileServer(http.Dir("./public/"))
 	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
+  log.Println("Finished setting up authentication routes")
 }
 
 func (a *AuthenticationHandlers) checkAuthHandler(w http.ResponseWriter, r *http.Request) { // TODO This should be polled from the client side
