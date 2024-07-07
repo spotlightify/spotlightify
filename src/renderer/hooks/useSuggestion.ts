@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Command, SuggestionList } from '../Command/interfaces';
 
-const baseUrl = 'http://localhost:5000';
+const baseUrl = 'http://localhost:49264';
 
-const buildQueryParameters = (input: string, command: Command) => {
+export const buildQueryParameters = (input: string, command: Command) => {
   const queryParams = new URLSearchParams();
   queryParams.append('input', input);
   if (!command.parameters) {
@@ -51,11 +51,6 @@ function useSuggestion({ activeCommand, input }: useSuggestionProps) {
       item.title.includes(input),
     );
   }
-
-  // When the active command changes, reset the suggestion list
-  useEffect(() => {
-    setSuggestionList({ items: [] });
-  }, [activeCommand]);
 
   const fetchSuggestions = useCallback(async () => {
     if (suggestionList.filter || suggestionList.static) {

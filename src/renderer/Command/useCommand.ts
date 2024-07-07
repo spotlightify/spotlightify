@@ -1,11 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
-import { SuggestionList } from './interfaces';
-import { CommandNew } from '../Action/Action';
+import { Command, SuggestionList } from './interfaces';
 
-const baseUrl = 'http://localhost:5000';
+const baseUrl = 'http://localhost:49264';
 
 function useCommand(promptText: string) {
-  const [commandStack, setCommandStack] = useState<CommandNew[]>([]);
+  const [commandStack, setCommandStack] = useState<Command[]>([]);
   const activeCommand = commandStack[commandStack.length - 1];
   const fullCommandPath = useMemo(
     () => commandStack.map((command) => command.id).join('/'),
@@ -29,7 +28,7 @@ function useCommand(promptText: string) {
     [fullCommandPath],
   );
 
-  const pushCommand = (command: CommandNew, preserveInput: boolean) => {
+  const pushCommand = (command: Command, preserveInput: boolean) => {
     const newCommandStack = [...commandStack];
     if (commandStack.length > 0) {
       newCommandStack[newCommandStack.length - 1].input = promptText;

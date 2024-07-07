@@ -153,12 +153,12 @@ const setNumberOfSuggestionsHandler = (event: IpcMainEvent, length: number) => {
     return;
   }
 
-  const { x, y } = win.getBounds();
+  // const { x, y } = win.getBounds();
   const windowSize = {
     width,
     height: height + adjustedLength * suggestionHeight,
-    x: Math.round(x + 0.88),
-    y: Math.round(y + 0.88),
+    // x: Math.round(x + 0.87), When this is ommitted the window does not move on MacOS, it might be needed for Windows though
+    // y: Math.round(y + 0.87),
   };
   win.setBounds(windowSize);
 };

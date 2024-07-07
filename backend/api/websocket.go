@@ -40,7 +40,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 
 func handleMessage(ws *websocket.Conn, msg map[string]interface{}) {
 	switch msg["type"] {
-	case "get-suggestio:
+	case "get-suggestio":
 		input := msg["input"].(string)
 		parameters := msg["parameters"].(map[string]string)
 

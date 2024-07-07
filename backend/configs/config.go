@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"github.com/spotlightify/spotlightify/internal/utils"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -17,6 +19,9 @@ const (
 	ConfigRefreshTokenKey        = "spotifyRefreshToken"
 	ConfigRequiresSpotifyAuthKey = "requiresSpotifyAuth"
 	ConfigServerUrlKey           = "serverUrl"
+	ConfigClientIDKey            = "clientID"
+	ConfigClientSecretKey        = "clientSecret"
+	ConfigSpotifyTokenKey        = "spotifyToken"
 )
 
 const (
@@ -53,10 +58,6 @@ func (s *SpotlightifyConfig) GetRequiresSpotifyAuthKey() bool {
 	return s.getConfigValue(ConfigRequiresSpotifyAuthKey).(bool)
 }
 
-func (s *SpotlightifyConfig) GetServerUrl() string {
-	return s.getConfigValue(ConfigServerUrlKey).(string)
-}
-
 func (s *SpotlightifyConfig) SetRefreshTokenKey(value string) {
 	s.setConfigValue(ConfigRefreshTokenKey, value)
 }
@@ -65,14 +66,52 @@ func (s *SpotlightifyConfig) SetRequiresSpotifyAuthKey(value bool) {
 	s.setConfigValue(ConfigRequiresSpotifyAuthKey, value)
 }
 
-func (s *SpotlightifyConfig) SetServerUrl(value string) {
-	s.setConfigValue(ConfigServerUrlKey, value)
+func (s *SpotlightifyConfig) GetClientID() string {
+	return s.getConfigValue(ConfigClientIDKey).(string)
+}
+
+func (s *SpotlightifyConfig) GetClientSecret() string {
+	return s.getConfigValue(ConfigClientSecretKey).(string)
+}
+
+func (s *SpotlightifyConfig) SetSpotifyToken(token oauth2.Token) error {
+	tokenBytes, err := json.Marshal(token)
+	if err != nil {
+		return err
+	}
+	s.setConfigValue(ConfigSpotifyTokenKey, string(tokenBytes))
+	return nil
+}
+
+// When getting the token
+func (s *SpotlightifyConfig) GetSpotifyToken() (*oauth2.Token, error) {
+	tokenStr, ok := s.getConfigValue(ConfigSpotifyTokenKey).(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get token from config")
+	}
+	var token oauth2.Token
+	err := json.Unmarshal([]byte(tokenStr), &token)
+	if err != nil {
+		return nil, err
+	}
+	return &token, nil
+}
+
+func (s *SpotlightifyConfig) SetClientID(value string) {
+	s.setConfigValue(ConfigClientIDKey, value)
+}
+
+func (s *SpotlightifyConfig) SetClientSecret(value string) {
+	s.setConfigValue(ConfigClientSecretKey, value)
 }
 
 func (s *SpotlightifyConfig) setDefaultConfigValues() {
 	s.config.SetDefault(ConfigRequiresSpotifyAuthKey, true)
 	s.config.SetDefault(ConfigRefreshTokenKey, "")
 	s.config.SetDefault(ConfigServerUrlKey, "")
+	s.config.SetDefault(ConfigClientIDKey, "")
+	s.config.SetDefault(ConfigClientSecretKey, "")
+	s.config.SetDefault(ConfigSpotifyTokenKey, nil)
 }
 
 func (s *SpotlightifyConfig) createConfigFile() error {

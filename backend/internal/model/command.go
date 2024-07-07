@@ -1,7 +1,5 @@
 package model
 
-type CommandParameters map[string]string
-
 type CommandProperties struct {
 	ID                   string `json:"id"`
 	Title                string `json:"title"`

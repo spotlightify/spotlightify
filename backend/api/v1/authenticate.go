@@ -1,23 +1,39 @@
 package v1
 
 import (
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/spotlightify/spotlightify/configs"
+	"github.com/spotlightify/spotlightify/internal/constants"
+	spot "github.com/spotlightify/spotlightify/internal/spotify"
+	"github.com/zmb3/spotify/v2"
+	spotifyauth "github.com/zmb3/spotify/v2/auth"
+)
+
+const (
+	callbackPath = "/auth/callback"
+)
+
+var (
+	redirectURI string
+	auth        *spotifyauth.Authenticator
 )
 
 type AuthenticationHandlers struct {
-	Config *configs.SpotlightifyConfig
+	Config       *configs.SpotlightifyConfig
+	ClientHolder *spot.SpotifyClientHolder
 }
 
 func SetupAuthenticationRoutes(r *mux.Router, handlers *AuthenticationHandlers) {
+	redirectURI = constants.ServerURL + callbackPath
+	auth = spotifyauth.New(spotifyauth.WithRedirectURL(redirectURI), spotifyauth.WithScopes(constants.SpotifyScopes()...))
+	log.Println("Redirect URI: ", redirectURI)
+
 	r.HandleFunc("/auth/check", handlers.checkAuthHandler)
 	r.HandleFunc("/auth/login", handlers.loginHandler)
 	r.HandleFunc("/auth/post-credentials", handlers.postCredentialsHandler)
@@ -26,7 +42,7 @@ func SetupAuthenticationRoutes(r *mux.Router, handlers *AuthenticationHandlers) 
 	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
 }
 
-func (a *AuthenticationHandlers) checkAuthHandler(w http.ResponseWriter, r *http.Request) {
+func (a *AuthenticationHandlers) checkAuthHandler(w http.ResponseWriter, r *http.Request) { // TODO This should be polled from the client side
 	// Check if the user is authenticated
 	isRequired := a.Config.GetRequiresSpotifyAuthKey()
 
@@ -53,34 +69,9 @@ type TemplateVars struct {
 	AuthUrl       string
 }
 
-const (
-	port         = 5000
-	state        = "spotlightify-state"
-	callbackPath = "/auth/callback"
-)
-
-var redirectUri = fmt.Sprintf("http://localhost:%d/auth/callback", port)
-
 type clientDetails struct {
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-}
-
-var (
-	client = clientDetails{}
-)
-
-var scopes = []string{
-	"streaming user-library-read",
-	"user-modify-playback-state",
-	"user-read-playback-state",
-	"user-library-modify",
-	"user-follow-read",
-	"playlist-read-private",
-	"playlist-read-collaborative",
-	"user-follow-read",
-	"playlist-modify-public",
-	"playlist-modify-private",
 }
 
 func (a *AuthenticationHandlers) loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -101,8 +92,6 @@ func (a *AuthenticationHandlers) loadLoginPage(w http.ResponseWriter, r *http.Re
 		templateVars = TemplateVars{WasRedirected: true, IsSuccess: false, ErrorMessage: err.Error()}
 	}
 
-	templateVars.AuthUrl = "a" // TODO UNCOMMENT spotify.GetSpotifyAuthURL(callbackPath, state)
-
 	loginTemplate.Execute(w, templateVars)
 }
 
@@ -120,73 +109,38 @@ func (a *AuthenticationHandlers) postCredentialsHandler(w http.ResponseWriter, r
 		return
 	}
 
-	client = clientDetailsResponse
+	a.Config.SetClientID(clientDetailsResponse.ClientId)
+	a.Config.SetClientSecret(clientDetailsResponse.ClientSecret)
 }
 
 func (a *AuthenticationHandlers) callbackHandler(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Query().Get("code")
-	if code == "" {
-		http.Error(w, "Code query parameter not found", http.StatusBadRequest)
-		return
-	}
+	spotifyID := a.Config.GetClientID()
+	spotifySecret := a.Config.GetClientSecret()
+	log.Println("Spotify ID:", spotifyID)
+	censoredSecret := strings.Repeat("*", len(spotifySecret))
+	log.Println("Spotify Secret:", censoredSecret)
 
-	state := r.URL.Query().Get("state")
-	if state == "" {
-		http.Error(w, "State query parameter not found", http.StatusBadRequest)
-		return
-	}
-
-	// Prepare the request parameters
-	data := url.Values{}
-	data.Set("code", code)
-	data.Set("redirect_uri", redirectUri)
-	data.Set("grant_type", "authorization_code")
-
-	// Prepare the Authorization header
-	auth := client.ClientId + ":" + client.ClientSecret
-	authEncoded := base64.StdEncoding.EncodeToString([]byte(auth))
-
-	// Create the HTTP client
-	client := &http.Client{}
-
-	// Create and execute the request
-	req, err := http.NewRequest("POST", "https://accounts.spotify.com/api/token", strings.NewReader(data.Encode()))
+	auth = spotifyauth.New(
+		spotifyauth.WithClientID(spotifyID),
+		spotifyauth.WithClientSecret(spotifySecret),
+		spotifyauth.WithRedirectURL(redirectURI),
+		spotifyauth.WithScopes(constants.SpotifyScopes()...),
+	)
+	tok, err := auth.Token(r.Context(), constants.SpotifyState, r)
 	if err != nil {
-		err = fmt.Errorf("Error creating request: %s", err)
-		a.redirectToLogin(w, r, err)
-		return
+		http.Error(w, "Couldn't get token", http.StatusForbidden)
+		log.Panicln(err)
+	}
+	if st := r.FormValue("state"); st != constants.SpotifyState {
+		http.NotFound(w, r)
+		log.Printf("State mismatch: %s != %s\n", st, constants.SpotifyState)
 	}
 
-	// Add headers to the request
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Authorization", "Basic "+authEncoded)
-
-	// Execute the request
-	resp, err := client.Do(req)
-	if err != nil {
-		err = fmt.Errorf("Error fetching token: %s", err)
-		a.redirectToLogin(w, r, err)
-		return
-	}
-	defer resp.Body.Close()
-
-	// Check if the response is successful
-	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("Error fetching token: %s", resp.Status)
-		a.redirectToLogin(w, r, err)
-		return
-	}
-
-	var accessToken AccessToken
-
-	// Read the response body
-	err = json.NewDecoder(resp.Body).Decode(&accessToken)
-	if err != nil {
-		a.redirectToLogin(w, r, err)
-		return
-	}
-
-	fmt.Printf("Access token struct: %+v\n", accessToken)
+	// use the token to get an authenticated client
+	log.Println("Creating spotify client with access token...")
+	client := spotify.New(auth.Client(r.Context(), tok))
+	a.ClientHolder.SetSpotifyInstance(client)
+	log.Println("Logged in successfully!")
 
 	// Redirect to the frontend
 	a.redirectToLogin(w, r, nil)

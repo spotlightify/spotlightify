@@ -1,5 +1,10 @@
-import { Action, CommandNew, ExecutionResponse } from './Action';
-import { SuggestionData, SuggestionList } from '../Command/interfaces';
+import {
+  Action,
+  Command,
+  CommandParameters,
+  SuggestionData,
+  SuggestionList,
+} from '../Command/interfaces';
 import useTaskQueue, { Task } from './useTaskQueue';
 
 export interface ActionSetters {
@@ -9,22 +14,39 @@ export interface ActionSetters {
 }
 
 interface useActionHandlerNewProps {
-  pushCommand: (command: CommandNew, preserveInput: boolean) => void;
+  pushCommand: (command: Command, preserveInput: boolean) => void;
   popCommand: () => void;
   clearCommands: () => void;
   setPromptText: (text: string) => void;
+  setCurrentCommandParameters: (parameters: CommandParameters) => void;
   setErrorSuggestion: (setErrorSuggestion: SuggestionData) => void;
   fullCommandPath: string;
 }
 
-export function useActionHandlerNew({
-  pushCommand,
-  popCommand,
-  clearCommands,
-  setPromptText,
-  setErrorSuggestion,
-  fullCommandPath,
-}: useActionHandlerNewProps) {
+function handleCommandActions(
+  action: Action,
+  stateModifiers: useActionHandlerNewProps,
+) {
+  if (action.commandOptions?.pushCommand) {
+    stateModifiers.pushCommand(
+      action.commandOptions?.pushCommand,
+      action.promptState?.preservePromptText || false,
+    );
+  }
+
+  if (action.commandOptions?.clearCommandStack) {
+    stateModifiers.clearCommands();
+  }
+
+  if (action.commandOptions?.popCommand) {
+    stateModifiers.popCommand();
+  }
+
+  if (action.commandOptions?.setCurrentCommandParameters) {
+  }
+}
+
+export function useActionHandlerNew(stateModifiers: useActionHandlerNewProps) {
   // TODO implement execution queue
   const { addTask } = useTaskQueue({ shouldProcess: true });
 
@@ -32,7 +54,7 @@ export function useActionHandlerNew({
     const handleExecution: Task = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/command/${fullCommandPath}?op=action`,
+          `http://localhost:49264/command/${fullCommandPath}?op=action`,
           {
             method: 'POST',
             headers: {
@@ -51,21 +73,7 @@ export function useActionHandlerNew({
       }
     };
 
-    if (!action.preservePromptText && !action.pushCommand) {
-      setPromptText('');
-    }
-
-    if (action.pushCommand) {
-      pushCommand(action.pushCommand, action.preservePromptText || false);
-    }
-
-    if (action.clearCommandStack) {
-      clearCommands();
-    }
-
-    if (action.popCommand) {
-      popCommand();
-    }
+    handleCommandActions(action, stateModifiers);
 
     if (action.executeAction) {
       addTask(handleExecution);

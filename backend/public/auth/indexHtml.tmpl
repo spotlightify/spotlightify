@@ -40,35 +40,8 @@
         {{ end }}
 
       {{ end }}
-
-      <div class="credentials_container">
-        <form class="credentials_container__form" id="auth_form">
-          <label for="clientId">Client ID:</label>
-          <input type="text" id="client_id" name="client_id" required />
-
-          <label for="clientSecret">Client Secret:</label>
-          <input
-            type="password"
-            id="client_secret"
-            name="client_secret"
-            required
-          />
-
-          <button {{ if .IsSuccess }} disabled {{ end }} type="submit">Authenticate</button>
-        </form>
-      </div>
     </div>
 
     <script src="/public/auth/script.js"></script>
-    <script>
-document
-  .getElementById('auth_form')
-  .addEventListener('submit', async function authenticate(e) {
-    // Prevent the default form submission
-    e.preventDefault();
-
-    window.location = {{ .AuthUrl }};
-  });
-    </script>
   </body>
 </html>
