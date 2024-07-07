@@ -18,9 +18,11 @@ const (
 )
 
 func SetupCommandRoutes(r *mux.Router, handlers *CommandHandler) {
+	log.Println("Setting up command routes")
 	r.HandleFunc("/command", handlers.handleKeywordSearch)
 	r.HandleFunc("/command/{command_id}/get-suggestions", handlers.handleCommandSuggestions)
 	r.HandleFunc("/command/{command_id}/action", handlers.handleCommandAction)
+	log.Println("Finished setting up command routes")
 }
 
 // Prevents client_secret from being logged

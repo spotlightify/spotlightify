@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/spotlightify/spotlightify/internal/command"
+	"github.com/spotlightify/spotlightify/internal/constants"
 	spot "github.com/spotlightify/spotlightify/internal/spotify"
 	"github.com/zmb3/spotify/v2"
 
@@ -46,7 +47,7 @@ func (c *playCommand) GetPlaceholderSuggestion() model.Suggestion {
 	return model.Suggestion{
 		Title:       "Play",
 		Description: "This is a play command",
-		Icon:        "play",
+		Icon:        constants.GetIconAddress(constants.IconPlay),
 		ID:          "play-command",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCommand: &model.SetCommand{
@@ -66,7 +67,7 @@ func (c *playCommand) GetSuggestions(input string, parameters map[string]string,
 			model.Suggestion{
 				Title:       "An errorCmd occurred",
 				Description: "Please try again",
-				Icon:        "errorCmd",
+				Icon:        constants.GetIconAddress(constants.IconExit),
 				ID:          "play-errorCmd",
 				Action:      nil,
 			},
@@ -77,7 +78,7 @@ func (c *playCommand) GetSuggestions(input string, parameters map[string]string,
 		model.Suggestion{
 			Title:       fmt.Sprintf("Search online for '%s'", input),
 			Description: "Search Spotify for a track ",
-			Icon:        "play",
+			Icon:        constants.GetIconAddress(constants.IconSearch),
 			ID:          "play-command",
 			Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 				PushCommand: &model.PushCommand{
@@ -95,7 +96,7 @@ func (c *playCommand) GetSuggestions(input string, parameters map[string]string,
 		slb.AddSuggestion(model.Suggestion{
 			Title:       track.Name,
 			Description: track.ArtistNames,
-			Icon:        "play",
+			Icon:        constants.GetIconAddress(constants.IconPlay),
 			ID:          track.SpotifyID,
 			Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
 				CommandId:           playCommandId,

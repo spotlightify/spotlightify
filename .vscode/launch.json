@@ -19,6 +19,13 @@
       "port": 9223,
       "webRoot": "${workspaceFolder}",
       "timeout": 15000
+    },
+    {
+      "name": "Debug backend/main.go",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/backend/main.go"
     }
   ],
   "compounds": [
