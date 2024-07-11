@@ -2,7 +2,7 @@ package command
 
 import (
 	"fmt"
-	"github.com/spotlightify/spotlightify/internal/interfaces"
+	"spotlightify-wails/backend/internal/interfaces"
 	"strings"
 )
 

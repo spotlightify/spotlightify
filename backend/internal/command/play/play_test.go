@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/spotlightify/spotlightify/internal/builders"
-	"github.com/spotlightify/spotlightify/internal/model"
+	"spotlightify-wails/backend/internal/builders"
+	"spotlightify-wails/backend/internal/model"
 )
 
 func TestPlayCommand_GetTriggerWord(t *testing.T) {
@@ -58,8 +58,8 @@ func TestPlayCommand_Execute(t *testing.T) {
 		"spotifyId": "12345",
 	}
 	ctx := context.Background()
-	expected := &model.ExecuteActionOutput{
-		Suggestions: builders.CreateSuggestionListBuilder().AddSuggestion(model.Suggestion{
+	expected := model.ExecuteActionOutput{
+		Suggestions: builders.NewSuggestionListBuilder().AddSuggestion(model.Suggestion{
 			Title:       "Error playing track",
 			Description: "Please try again",
 			Icon:        "errorCmd",

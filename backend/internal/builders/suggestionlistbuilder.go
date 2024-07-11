@@ -1,6 +1,6 @@
 package builders
 
-import "github.com/spotlightify/spotlightify/internal/model"
+import "spotlightify-wails/backend/internal/model"
 
 type SuggestionListBuilder struct {
 	suggestions  []model.Suggestion
@@ -45,6 +45,7 @@ func (slb *SuggestionListBuilder) Build() *model.SuggestionList {
 	}
 }
 
-func CreateSuggestionListBuilder() *SuggestionListBuilder {
-	return &SuggestionListBuilder{}
+func NewSuggestionListBuilder() *SuggestionListBuilder {
+	slb := &SuggestionListBuilder{suggestions: []model.Suggestion{}}
+	return slb
 }

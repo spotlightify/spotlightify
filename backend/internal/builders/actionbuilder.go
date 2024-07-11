@@ -1,6 +1,6 @@
 package builders
 
-import "github.com/spotlightify/spotlightify/internal/model"
+import "spotlightify-wails/backend/internal/model"
 
 type ActionBuilder struct {
 	action *model.Action

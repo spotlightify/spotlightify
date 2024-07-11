@@ -1,29 +1,22 @@
 package model
 
-type ExecutionParameters map[string]string
-
 type ExecuteAction struct {
-	CommandId           string              `json:"commandId"`
-	ExecutionParameters ExecutionParameters `json:"data"`
-	WaitTillComplete    bool                `json:"waitTillComplete"`
-	CloseOnSuccess      bool                `json:"closeOnSuccess"`
+	CommandId           string            `json:"commandId"`
+	ExecutionParameters map[string]string `json:"parameters"`
+	WaitTillComplete    bool              `json:"waitTillComplete"`
+	CloseOnSuccess      bool              `json:"closeOnSuccess"`
 }
 
-type PushCommand struct {
+type Command struct {
 	Id         string            `json:"id"`
 	Parameters map[string]string `json:"parameters,omitempty"`
 	Properties CommandProperties `json:"properties"`
-}
-
-type SetCommand struct {
-	Id         string            `json:"id"`
-	Parameters map[string]string `json:"parameters"`
-	Properties CommandProperties `json:"properties"`
+	PromptText string            `json:"promptText,omitempty"`
 }
 
 type CommandOptions struct {
-	PushCommand                 *PushCommand      `json:"pushCommand,omitempty"`
-	SetCommand                  *SetCommand       `json:"setCommand,omitempty"`
+	PushCommand                 *Command          `json:"pushCommand,omitempty"`
+	SetCommand                  *Command          `json:"setCommand,omitempty"`
 	SetCurrentCommandParameters map[string]string `json:"setCurrentCommandParameters,omitempty"`
 	PopCommand                  bool              `json:"popCommand"`
 	ClearCommandStack           bool              `json:"clearCommandStack"`

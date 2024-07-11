@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 	"sync"
 
+	"spotlightify-wails/backend/internal/utils"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"github.com/spotlightify/spotlightify/internal/utils"
 	"golang.org/x/oauth2"
 )
 

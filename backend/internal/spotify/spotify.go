@@ -6,7 +6,8 @@ import (
 	"log"
 	"sync"
 
-	"github.com/spotlightify/spotlightify/internal/constants"
+	"spotlightify-wails/backend/internal/constants"
+
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 
@@ -53,9 +54,9 @@ type SpotifyCredsLoader interface {
 }
 
 func (s *SpotifyClientHolder) LoadSpotifyTokenFromConfig(loader SpotifyCredsLoader) error {
-	token, error := loader.GetSpotifyToken()
-	if error != nil {
-		return error
+	token, err := loader.GetSpotifyToken()
+	if err != nil {
+		return err
 	}
 
 	clientId := loader.GetClientID()

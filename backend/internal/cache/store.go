@@ -6,7 +6,8 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	m "github.com/spotlightify/spotlightify/internal/model"
+	m "spotlightify-wails/backend/internal/model"
+	"spotlightify-wails/backend/internal/utils"
 )
 
 type CacheManager struct {
@@ -39,7 +40,12 @@ func (c *CacheManager) GetTrack(key string) ([]m.Track, error) {
 }
 
 func NewCacheManager() *CacheManager {
-	db, err := sql.Open("sqlite3", "../db/cache.db")
+	dbDir, err := utils.GetDatabaseFile(utils.RealEnvironment{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db, err := sql.Open("sqlite3", dbDir)
 	if err != nil {
 		log.Fatal(err)
 	}
