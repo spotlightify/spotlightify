@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"log"
 
+	"spotlightify-wails/backend/internal/builders"
+	"spotlightify-wails/backend/internal/command"
+	"spotlightify-wails/backend/internal/constants"
+	"spotlightify-wails/backend/internal/model"
+	"spotlightify-wails/backend/internal/spotify"
+
 	"github.com/pkg/browser"
-	"github.com/spotlightify/spotlightify/internal/builders"
-	"github.com/spotlightify/spotlightify/internal/command"
-	"github.com/spotlightify/spotlightify/internal/constants"
-	"github.com/spotlightify/spotlightify/internal/model"
-	"github.com/spotlightify/spotlightify/internal/spotify"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
@@ -67,13 +68,13 @@ type authenticateCommand struct {
 	urlOpener func(string) error
 }
 
-func (c *authenticateCommand) Execute(parameters map[string]string, ctx context.Context) *model.ExecuteActionOutput {
+func (c *authenticateCommand) Execute(parameters map[string]string, ctx context.Context) model.ExecuteActionOutput {
 	if parameters["open_instructions"] == "true" {
 		err := c.urlOpener(constants.ServerURL + "/public/auth/auth_instructions.html")
 		if err != nil {
 			log.Printf("failed to open browser: %v", err)
 		}
-		return nil
+		return model.ExecuteActionOutput{}
 	}
 
 	clientId := parameters["client_id"]
@@ -83,7 +84,7 @@ func (c *authenticateCommand) Execute(parameters map[string]string, ctx context.
 	c.config.SetClientSecret(clientSecret)
 
 	if clientId == "" || clientSecret == "" {
-		return nil
+		return model.ExecuteActionOutput{}
 	}
 
 	auth := spotifyauth.New(
@@ -100,10 +101,10 @@ func (c *authenticateCommand) Execute(parameters map[string]string, ctx context.
 	if err != nil {
 		log.Printf("failed to open browser: %v", err)
 	}
-	return nil
+	return model.ExecuteActionOutput{}
 }
 
-func (c *authenticateCommand) GetSuggestions(input string, parameters map[string]string, ctx context.Context) *model.SuggestionList {
+func (c *authenticateCommand) GetSuggestions(input string, parameters map[string]string, ctx context.Context) model.SuggestionList {
 	selectedMenu := parameters["selected-menu"]
 
 	switch selectedMenu {
@@ -117,8 +118,8 @@ func (c *authenticateCommand) GetSuggestions(input string, parameters map[string
 
 }
 
-func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters map[string]string) *model.SuggestionList {
-	slb := builders.CreateSuggestionListBuilder()
+func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters map[string]string) model.SuggestionList {
+	slb := builders.NewSuggestionListBuilder()
 
 	slb.AddSuggestion(model.Suggestion{
 		Title:       "Open authentication instructions",
@@ -214,11 +215,11 @@ func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters ma
 		}).Build(),
 	})
 
-	return slb.Build()
+	return *slb.Build()
 }
 
-func getClientIdSuggestions(input string, parameters map[string]string) *model.SuggestionList {
-	slb := builders.CreateSuggestionListBuilder()
+func getClientIdSuggestions(input string, parameters map[string]string) model.SuggestionList {
+	slb := builders.NewSuggestionListBuilder()
 
 	parameters["selected-menu"] = ""
 
@@ -249,11 +250,11 @@ func getClientIdSuggestions(input string, parameters map[string]string) *model.S
 		}).Build(),
 	})
 
-	return slb.Build()
+	return *slb.Build()
 }
 
-func getClientSecretSuggestions(input string, parameters map[string]string) *model.SuggestionList {
-	slb := builders.CreateSuggestionListBuilder()
+func getClientSecretSuggestions(input string, parameters map[string]string) model.SuggestionList {
+	slb := builders.NewSuggestionListBuilder()
 
 	parameters["selected-menu"] = ""
 
@@ -284,7 +285,7 @@ func getClientSecretSuggestions(input string, parameters map[string]string) *mod
 		}).Build(),
 	})
 
-	return slb.Build()
+	return *slb.Build()
 }
 
 func (c *authenticateCommand) GetPlaceholderSuggestion() model.Suggestion {
@@ -294,7 +295,7 @@ func (c *authenticateCommand) GetPlaceholderSuggestion() model.Suggestion {
 		Icon:        constants.GetIconAddress(constants.IconAuthenticate),
 		ID:          "authenticate-spotify",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
-			SetCommand: &model.SetCommand{
+			SetCommand: &model.Command{
 				Id:         "authenticate",
 				Properties: CommandProperties,
 			},

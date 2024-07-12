@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/spotlightify/spotlightify/internal/command"
-	"github.com/spotlightify/spotlightify/internal/constants"
-	spot "github.com/spotlightify/spotlightify/internal/spotify"
+	"spotlightify-wails/backend/internal/command"
+	"spotlightify-wails/backend/internal/constants"
+	spot "spotlightify-wails/backend/internal/spotify"
+
 	"github.com/zmb3/spotify/v2"
 
-	"github.com/spotlightify/spotlightify/internal/builders"
-	"github.com/spotlightify/spotlightify/internal/cache"
-	"github.com/spotlightify/spotlightify/internal/model"
+	"spotlightify-wails/backend/internal/builders"
+	"spotlightify-wails/backend/internal/cache"
+	"spotlightify-wails/backend/internal/model"
 )
 
 const playCommandId = "play"
@@ -50,7 +51,7 @@ func (c *playCommand) GetPlaceholderSuggestion() model.Suggestion {
 		Icon:        constants.GetIconAddress(constants.IconPlay),
 		ID:          "play-command",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
-			SetCommand: &model.SetCommand{
+			SetCommand: &model.Command{
 				Id:         playCommandId,
 				Properties: commandProperties,
 			},
@@ -58,12 +59,12 @@ func (c *playCommand) GetPlaceholderSuggestion() model.Suggestion {
 	}
 }
 
-func (c *playCommand) GetSuggestions(input string, parameters map[string]string, ctx context.Context) *model.SuggestionList {
-	slb := builders.CreateSuggestionListBuilder()
+func (c *playCommand) GetSuggestions(input string, parameters map[string]string, ctx context.Context) model.SuggestionList {
+	slb := builders.NewSuggestionListBuilder()
 
 	tracks, err := c.cacheGetter.GetTrack(input)
 	if err != nil {
-		return slb.AddSuggestion(
+		return *slb.AddSuggestion(
 			model.Suggestion{
 				Title:       "An errorCmd occurred",
 				Description: "Please try again",
@@ -81,7 +82,7 @@ func (c *playCommand) GetSuggestions(input string, parameters map[string]string,
 			Icon:        constants.GetIconAddress(constants.IconSearch),
 			ID:          "play-command",
 			Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
-				PushCommand: &model.PushCommand{
+				PushCommand: &model.Command{
 					Id: playCommandId,
 				},
 			}).Build(),
@@ -107,16 +108,17 @@ func (c *playCommand) GetSuggestions(input string, parameters map[string]string,
 		})
 	}
 
-	return slb.Build()
+	return *slb.Build()
 }
 
-func (c *playCommand) Execute(parameters map[string]string, ctx context.Context) *model.ExecuteActionOutput {
+func (c *playCommand) Execute(parameters map[string]string, ctx context.Context) model.ExecuteActionOutput {
 	spotifyTrackId := parameters["spotifyId"]
+	slb := builders.NewSuggestionListBuilder()
 
 	if spotifyTrackId == "" {
 		log.Println("Failed to play track")
-		return &model.ExecuteActionOutput{
-			Suggestions: builders.CreateSuggestionListBuilder().AddSuggestion(model.Suggestion{
+		return model.ExecuteActionOutput{
+			Suggestions: slb.AddSuggestion(model.Suggestion{
 				Title:       "Error playing track",
 				Description: "Please try again",
 				Icon:        "errorCmd",
@@ -128,19 +130,19 @@ func (c *playCommand) Execute(parameters map[string]string, ctx context.Context)
 	err := c.spotifyPlayer.Play(ctx, spotifyTrackId)
 	if err != nil {
 		log.Println(err)
-		return &model.ExecuteActionOutput{
-			Suggestions: builders.CreateSuggestionListBuilder().AddSuggestion(model.Suggestion{
+		return model.ExecuteActionOutput{
+			Suggestions: slb.AddSuggestion(model.Suggestion{
 				Title:       "Error playing track",
 				Description: err.Error(),
 				Icon:        "error",
 				ID:          "play-execute-error",
-			}).Build(),
+			}).WithError().Build(),
 		}
 	}
 
 	log.Println("Playing track with Spotify ID:", spotifyTrackId)
 
-	return nil
+	return model.ExecuteActionOutput{}
 }
 
 type spotifyPlayBridge struct {

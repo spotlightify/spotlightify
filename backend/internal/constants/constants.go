@@ -63,5 +63,5 @@ const (
 )
 
 func GetIconAddress(icon Icon) string {
-	return fmt.Sprintf("%s/assets/icons/%s", ServerURL, icon)
+	return fmt.Sprintf("src/assets/svg/%s", icon)
 }

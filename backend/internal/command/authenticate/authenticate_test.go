@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/spotlightify/spotlightify/internal/constants"
-	"github.com/spotlightify/spotlightify/internal/utils"
+	"spotlightify-wails/backend/internal/constants"
+	"spotlightify-wails/backend/internal/utils"
+
 	"github.com/stretchr/testify/assert"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )

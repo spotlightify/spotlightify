@@ -3,7 +3,7 @@ package command
 import (
 	"sync"
 
-	"github.com/spotlightify/spotlightify/internal/interfaces"
+	"spotlightify-wails/backend/internal/interfaces"
 )
 
 // type CommandManager interface {
@@ -24,10 +24,11 @@ func (r RouteManager) RegisterRoute(path string, command interfaces.Command) {
 	r.commandMap[path] = command
 }
 
-func (r RouteManager) GetCommand(path string) interfaces.Command {
+func (r RouteManager) GetCommand(path string) (interfaces.Command, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	return r.commandMap[path]
+	command, ok := r.commandMap[path]
+	return command, ok
 }
 
 // Manager Manages commands and subcommands, and their routes
@@ -44,7 +45,7 @@ func (m *Manager) RegisterCommandKeyword(keyword string, command interfaces.Comm
 	m.keywordRegistry.Register(keyword, command)
 }
 
-func (m *Manager) GetCommandById(commandId string) interfaces.Command {
+func (m *Manager) GetCommandById(commandId string) (interfaces.Command, bool) {
 	return m.routes.GetCommand(commandId)
 }
 
