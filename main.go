@@ -24,24 +24,29 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:            "Spotlightify",
-		Width:            650,
-		Height:           66,
-		Assets:           assets,
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
-		Frameless:        true,
+		Title:             "Spotlightify",
+		Width:             550,
+		Height:            66,
+		AlwaysOnTop:       true,
+		DisableResize:     true,
+		HideWindowOnClose: true,
+		Assets:            assets,
+		BackgroundColour:  &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		OnStartup:         app.startup,
+		Frameless:         true,
+
+		// OS specific options
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,
 			WindowIsTranslucent:  false,
 		},
-
 		Mac: &mac.Options{
 			WebviewIsTransparent: true,
 		},
 		Linux: &linux.Options{
 			WindowIsTranslucent: true, // TODO Test this
 		},
+
 		Bind: []interface{}{
 			app,
 			backend,

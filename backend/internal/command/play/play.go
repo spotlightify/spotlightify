@@ -24,6 +24,7 @@ var commandProperties = model.CommandProperties{
 	Title:                "Play",
 	ShorthandTitle:       "▶",
 	ShorthandPersistOnUI: true,
+	PlaceholderText:      "Track search",
 }
 
 type spotifyPlayer interface {
@@ -104,7 +105,7 @@ func (c *playCommand) GetSuggestions(input string, parameters map[string]string,
 				ExecutionParameters: params,
 				WaitTillComplete:    false,
 				CloseOnSuccess:      false,
-			}).Build(),
+			}).WithPromptState(&model.PromptState{ClosePrompt: true}).Build(),
 		})
 	}
 
@@ -142,7 +143,9 @@ func (c *playCommand) Execute(parameters map[string]string, ctx context.Context)
 
 	log.Println("Playing track with Spotify ID:", spotifyTrackId)
 
-	return model.ExecuteActionOutput{}
+	return model.ExecuteActionOutput{
+		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{ClearCommandStack: true}).Build(),
+	}
 }
 
 type spotifyPlayBridge struct {
@@ -152,7 +155,7 @@ type spotifyPlayBridge struct {
 func (s *spotifyPlayBridge) Play(ctx context.Context, trackID string) error {
 	client, err := s.holder.GetSpotifyInstance()
 	if err != nil {
-		return fmt.Errorf("spotify play error: %s", err)
+		return fmt.Errorf("spotify play error: %w", err)
 	}
 
 	uris := []spotify.URI{spotify.URI("spotify:track:" + trackID)}

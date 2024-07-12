@@ -23,10 +23,10 @@ type CommandOptions struct {
 }
 
 type PromptState struct {
-	ClosePrompt        *bool   `json:"closePrompt,omitempty"`
+	ClosePrompt        bool    `json:"closePrompt,omitempty"`
 	SetPromptText      *string `json:"setPromptText,omitempty"`
-	PreservePromptText *bool   `json:"preservePromptText,omitempty"`
-	FreezePrompt       *bool   `json:"freezePrompt,omitempty"`
+	PreservePromptText bool    `json:"preservePromptText,omitempty"`
+	FreezePrompt       bool    `json:"freezePrompt,omitempty"`
 }
 
 type Action struct {

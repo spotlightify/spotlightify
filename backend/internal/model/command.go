@@ -6,4 +6,6 @@ type CommandProperties struct {
 	ShorthandTitle       string `json:"shorthandTitle"`
 	ShorthandPersistOnUI bool   `json:"shorthandPersistOnUI"`
 	DebounceMS           int    `json:"debounceMS"`
+	KeepPromptOpen       bool   `json:"keepPromptOpen"`
+	PlaceholderText      string `json:"placeholderText"`
 }
