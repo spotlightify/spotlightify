@@ -17,12 +17,12 @@ import (
 
 const (
 	DefaultPort                  = ":5000"
-	ConfigRefreshTokenKey        = "spotifyRefreshToken"
 	ConfigRequiresSpotifyAuthKey = "requiresSpotifyAuth"
 	ConfigServerUrlKey           = "serverUrl"
 	ConfigClientIDKey            = "clientID"
 	ConfigClientSecretKey        = "clientSecret"
 	ConfigSpotifyTokenKey        = "spotifyToken"
+	ConfigDefaultDeviceIDKey     = "defaultDevice"
 )
 
 const (
@@ -51,16 +51,16 @@ func (s *SpotlightifyConfig) getConfigValue(key string) any {
 	return s.config.Get(key)
 }
 
-func (s *SpotlightifyConfig) GetRefreshTokenKey() string {
-	return s.getConfigValue(ConfigRefreshTokenKey).(string)
-}
-
 func (s *SpotlightifyConfig) GetRequiresSpotifyAuthKey() bool {
 	return s.getConfigValue(ConfigRequiresSpotifyAuthKey).(bool)
 }
 
-func (s *SpotlightifyConfig) SetRefreshTokenKey(value string) {
-	s.setConfigValue(ConfigRefreshTokenKey, value)
+func (s *SpotlightifyConfig) GetDefaultDevice() bool {
+	return s.getConfigValue(ConfigDefaultDeviceIDKey).(bool)
+}
+
+func (s *SpotlightifyConfig) SetDefaultDevice(value string) {
+	s.setConfigValue(ConfigDefaultDeviceIDKey, value)
 }
 
 func (s *SpotlightifyConfig) SetRequiresSpotifyAuthKey(value bool) {
@@ -108,11 +108,11 @@ func (s *SpotlightifyConfig) SetClientSecret(value string) {
 
 func (s *SpotlightifyConfig) setDefaultConfigValues() {
 	s.config.SetDefault(ConfigRequiresSpotifyAuthKey, true)
-	s.config.SetDefault(ConfigRefreshTokenKey, "")
 	s.config.SetDefault(ConfigServerUrlKey, "")
 	s.config.SetDefault(ConfigClientIDKey, "")
 	s.config.SetDefault(ConfigClientSecretKey, "")
 	s.config.SetDefault(ConfigSpotifyTokenKey, nil)
+	s.config.SetDefault(ConfigDefaultDeviceIDKey, "")
 }
 
 func (s *SpotlightifyConfig) createConfigFile() error {

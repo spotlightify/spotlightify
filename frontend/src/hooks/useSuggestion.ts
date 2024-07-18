@@ -26,13 +26,6 @@ function useSuggestion({ activeCommand, input }: useSuggestionProps) {
     model.Suggestion[]
   >([]);
 
-  //   let suggestionsToDisplay = originalSuggestionList.items;
-  //   if (originalSuggestionList.filter) {
-  //     suggestionsToDisplay = originalSuggestionList.items.filter((item) =>
-  //       item.title.includes(input)
-  //     );
-  //   }
-
   const fetchSuggestions = useCallback(
     async (input: string) => {
       if (originalSuggestionList.filter) {
@@ -72,7 +65,30 @@ function useSuggestion({ activeCommand, input }: useSuggestionProps) {
   );
 
   useEffect(() => {
-    setDisplaySuggestions(originalSuggestionList.items);
+    setOriginalSuggestionList((prev) => ({
+      ...prev,
+      filter: false,
+      static: false,
+      convertValues: prev.convertValues,
+    }));
+  }, [activeCommand]);
+
+  useEffect;
+
+  useEffect(() => {
+    if (
+      !activeCommand &&
+      (originalSuggestionList.filter || originalSuggestionList.static)
+    ) {
+      setOriginalSuggestionList((prev) => ({
+        ...prev,
+        filter: false,
+        static: false,
+        convertValues: prev.convertValues,
+      }));
+    } else {
+      setDisplaySuggestions(originalSuggestionList.items);
+    }
   }, [originalSuggestionList]);
 
   return {

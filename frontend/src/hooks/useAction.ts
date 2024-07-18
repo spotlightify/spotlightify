@@ -6,6 +6,11 @@ import {
 } from "../Command/interfaces";
 import { model } from "../../wailsjs/go/models";
 import { ExecuteCommand } from "../../wailsjs/go/backend/Backend";
+import {
+  WindowHide,
+  WindowMinimise,
+  WindowShow,
+} from "../../wailsjs/runtime/runtime";
 
 interface useActionHandlerProps {
   pushCommand: (command: model.Command, oldPromptInput: string) => void;
@@ -75,10 +80,6 @@ function useAction({
         setActiveCommand(action.commandOptions.setCommand);
       }
 
-      if (action.commandOptions?.clearCommandStack) {
-        clearCommands();
-      }
-
       if (action.commandOptions?.popCommand) {
         popCommand();
       }
@@ -87,10 +88,18 @@ function useAction({
         addActionToExecute(action.executeAction);
       }
 
+      if (action.promptState?.closePrompt) {
+        WindowHide();
+      }
+
       if (action.commandOptions?.setCurrentCommandParameters) {
         setCurrentCommandParameters(
           action.commandOptions.setCurrentCommandParameters
         );
+      }
+
+      if (action.commandOptions?.clearCommandStack) {
+        clearCommands();
       }
       // TODO implement other actions
     },
@@ -134,6 +143,7 @@ function useAction({
           handleAction(response?.action);
         }
         if (response?.suggestions) {
+          WindowShow();
           setSuggestionList(response?.suggestions);
         }
       } catch (error) {

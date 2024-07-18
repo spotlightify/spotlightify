@@ -54,6 +54,8 @@ var CommandProperties = model.CommandProperties{
 	ShorthandTitle:       "🌐",
 	ShorthandPersistOnUI: true,
 	DebounceMS:           0,
+	KeepPromptOpen:       true,
+	PlaceholderText:      "Spotify Authentication",
 }
 
 type authConfig interface {

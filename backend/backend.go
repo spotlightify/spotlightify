@@ -8,6 +8,7 @@ import (
 	"spotlightify-wails/backend/internal/cache"
 	"spotlightify-wails/backend/internal/command"
 	"spotlightify-wails/backend/internal/command/authenticate"
+	"spotlightify-wails/backend/internal/command/device"
 	"spotlightify-wails/backend/internal/command/play"
 	"spotlightify-wails/backend/internal/model"
 	"spotlightify-wails/backend/internal/spotify"
@@ -26,11 +27,11 @@ type managers struct {
 func registerCommands(managers *managers) {
 	play.RegisterPlayCommand(managers.commandManager, managers.spotifyHolder, managers.cacheManager)
 	authenticate.RegisterAuthCommand(managers.commandManager, managers.spotifyHolder, managers.config)
+	device.RegisterDeviceCommand(managers.commandManager, managers.spotifyHolder, managers.config)
 }
 
 type Backend struct {
-	managers        *managers
-	latestRequestId chan int64
+	managers *managers
 }
 
 func (b *Backend) getCommandsByKeyword(search string) model.SuggestionList {

@@ -42,6 +42,8 @@ export namespace model {
 	    shorthandTitle: string;
 	    shorthandPersistOnUI: boolean;
 	    debounceMS: number;
+	    keepPromptOpen: boolean;
+	    placeholderText: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new CommandProperties(source);
@@ -54,6 +56,8 @@ export namespace model {
 	        this.shorthandTitle = source["shorthandTitle"];
 	        this.shorthandPersistOnUI = source["shorthandPersistOnUI"];
 	        this.debounceMS = source["debounceMS"];
+	        this.keepPromptOpen = source["keepPromptOpen"];
+	        this.placeholderText = source["placeholderText"];
 	    }
 	}
 	export class Command {

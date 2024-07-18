@@ -13,6 +13,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/wailsapp/wails/v2 v2.9.1
 	github.com/zmb3/spotify/v2 v2.4.2
+	golang.design/x/hotkey v0.4.1
 	golang.org/x/oauth2 v0.15.0
 )
 
