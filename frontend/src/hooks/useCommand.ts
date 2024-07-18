@@ -11,9 +11,7 @@ function useCommand() {
   // For displaying on the prompt
   const commandTitles = useMemo(() => {
     const titles = commandHistory.reduce((arr: string[], command) => {
-      if (command.properties.shorthandPersistOnUI) {
-        arr.push(command.properties.shorthandTitle);
-      }
+      arr.push(command.properties.shorthandTitle);
       return arr;
     }, []);
 

@@ -37,10 +37,8 @@ export namespace model {
 	    }
 	}
 	export class CommandProperties {
-	    id: string;
 	    title: string;
 	    shorthandTitle: string;
-	    shorthandPersistOnUI: boolean;
 	    debounceMS: number;
 	    keepPromptOpen: boolean;
 	    placeholderText: string;
@@ -51,10 +49,8 @@ export namespace model {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.id = source["id"];
 	        this.title = source["title"];
 	        this.shorthandTitle = source["shorthandTitle"];
-	        this.shorthandPersistOnUI = source["shorthandPersistOnUI"];
 	        this.debounceMS = source["debounceMS"];
 	        this.keepPromptOpen = source["keepPromptOpen"];
 	        this.placeholderText = source["placeholderText"];
@@ -62,6 +58,10 @@ export namespace model {
 	}
 	export class Command {
 	    id: string;
+	    name: string;
+	    description: string;
+	    icon: string;
+	    triggerWord: string;
 	    parameters?: {[key: string]: string};
 	    properties: CommandProperties;
 	    promptText?: string;
@@ -73,6 +73,10 @@ export namespace model {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.description = source["description"];
+	        this.icon = source["icon"];
+	        this.triggerWord = source["triggerWord"];
 	        this.parameters = source["parameters"];
 	        this.properties = this.convertValues(source["properties"], CommandProperties);
 	        this.promptText = source["promptText"];

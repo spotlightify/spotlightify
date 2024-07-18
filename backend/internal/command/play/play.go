@@ -5,26 +5,30 @@ import (
 	"fmt"
 	"log"
 
-	"spotlightify-wails/backend/internal/command"
 	"spotlightify-wails/backend/internal/constants"
 	spot "spotlightify-wails/backend/internal/spotify"
 
 	"github.com/zmb3/spotify/v2"
 
 	"spotlightify-wails/backend/internal/builders"
-	"spotlightify-wails/backend/internal/cache"
 	"spotlightify-wails/backend/internal/model"
 )
 
-const playCommandId = "play"
-
-var commandProperties = model.CommandProperties{
-	ID:                   "play",
-	DebounceMS:           0,
-	Title:                "Play",
-	ShorthandTitle:       "▶",
-	ShorthandPersistOnUI: true,
-	PlaceholderText:      "Track search",
+var commandModel = model.Command{
+	ID:          "play",
+	Name:        "Play",
+	Description: "Play a track",
+	Icon:        constants.GetIconAddress(constants.IconPlay),
+	TriggerWord: "play",
+	Properties: model.CommandProperties{
+		DebounceMS:      500,
+		Title:           "Play",
+		ShorthandTitle:  "▶",
+		PlaceholderText: "Track search",
+		KeepPromptOpen:  false,
+	},
+	Parameters: map[string]string{},
+	PromptText: "",
 }
 
 type spotifyPlayer interface {
@@ -53,8 +57,8 @@ func (c *playCommand) GetPlaceholderSuggestion() model.Suggestion {
 		ID:          "play-command",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCommand: &model.Command{
-				Id:         playCommandId,
-				Properties: commandProperties,
+				ID:         commandModel.ID,
+				Properties: commandModel.Properties,
 			},
 		}).Build(),
 	}
@@ -84,7 +88,7 @@ func (c *playCommand) GetSuggestions(input string, parameters map[string]string,
 			ID:          "play-command",
 			Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 				PushCommand: &model.Command{
-					Id: playCommandId,
+					ID: commandModel.ID,
 				},
 			}).Build(),
 		},
@@ -101,7 +105,7 @@ func (c *playCommand) GetSuggestions(input string, parameters map[string]string,
 			Icon:        constants.GetIconAddress(constants.IconPlay),
 			ID:          track.SpotifyID,
 			Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
-				CommandId:           playCommandId,
+				CommandId:           commandModel.ID,
 				ExecutionParameters: params,
 				WaitTillComplete:    false,
 				CloseOnSuccess:      false,
@@ -163,10 +167,11 @@ func (s *spotifyPlayBridge) Play(ctx context.Context, trackID string) error {
 	return client.PlayOpt(ctx, &spotify.PlayOptions{URIs: uris})
 }
 
-func RegisterPlayCommand(commandManager *command.Manager, spotifyHolder *spot.SpotifyClientHolder, cacheManager *cache.CacheManager) {
-	player := &spotifyPlayBridge{holder: spotifyHolder}
-
-	playCommand := &playCommand{spotifyPlayer: player, cacheGetter: cacheManager}
-	commandManager.RegisterCommandKeyword("play", playCommand)
-	commandManager.RegisterCommand(playCommandId, playCommand)
-}
+// TODO Use this command after local caching is implemented
+//func RegisterPlayCommand(commandManager *command.Manager, spotifyHolder *spot.SpotifyClientHolder, cacheManager *cache.CacheManager) {
+//	player := &spotifyPlayBridge{holder: spotifyHolder}
+//
+//	playCommand := &playCommand{spotifyPlayer: player, cacheGetter: cacheManager}
+//	commandManager.RegisterCommandKeyword("play", playCommand)
+//	commandManager.RegisterCommand(playCommandId, playCommand)
+//}

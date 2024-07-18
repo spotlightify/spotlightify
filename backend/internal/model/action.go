@@ -7,13 +7,6 @@ type ExecuteAction struct {
 	CloseOnSuccess      bool              `json:"closeOnSuccess"`
 }
 
-type Command struct {
-	Id         string            `json:"id"`
-	Parameters map[string]string `json:"parameters,omitempty"`
-	Properties CommandProperties `json:"properties"`
-	PromptText string            `json:"promptText,omitempty"`
-}
-
 type CommandOptions struct {
 	PushCommand                 *Command          `json:"pushCommand,omitempty"`
 	SetCommand                  *Command          `json:"setCommand,omitempty"`

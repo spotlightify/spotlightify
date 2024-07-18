@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.design/x/hotkey"
@@ -33,8 +34,9 @@ func (a *App) startup(ctx context.Context) {
 
 func listenForHotkey(ctx context.Context, hk *hotkey.Hotkey) {
 	for range hk.Keydown() {
-		log.Printf("Hotkey pressed")
+		slog.Info("Hotkey pressed")
 		runtime.WindowShow(ctx)
+		runtime.WindowCenter(ctx)
 	}
 }
 

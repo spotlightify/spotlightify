@@ -48,14 +48,21 @@ const (
 	BackDescription = "Go back to the main menu"
 )
 
-var CommandProperties = model.CommandProperties{
-	ID:                   "authenticate",
-	Title:                "Auth",
-	ShorthandTitle:       "🌐",
-	ShorthandPersistOnUI: true,
-	DebounceMS:           0,
-	KeepPromptOpen:       true,
-	PlaceholderText:      "Spotify Authentication",
+var commandModel = model.Command{
+	ID:          "authenticate",
+	Name:        "Authenticate",
+	Description: "Authenticate with Spotify",
+	Icon:        constants.GetIconAddress(constants.IconAuthenticate),
+	TriggerWord: "authenticate",
+	Properties: model.CommandProperties{
+		Title:           "Auth",
+		ShorthandTitle:  "🌐",
+		DebounceMS:      0,
+		KeepPromptOpen:  true,
+		PlaceholderText: "Spotify Authentication",
+	},
+	Parameters: map[string]string{},
+	PromptText: "",
 }
 
 type authConfig interface {
@@ -115,12 +122,12 @@ func (c *authenticateCommand) GetSuggestions(input string, parameters map[string
 	case "client_secret":
 		return getClientSecretSuggestions(input, parameters)
 	default:
-		return c.getMainMenuSuggestions(input, parameters)
+		return c.getMainMenuSuggestions(parameters)
 	}
 
 }
 
-func (c *authenticateCommand) getMainMenuSuggestions(input string, parameters map[string]string) model.SuggestionList {
+func (c *authenticateCommand) getMainMenuSuggestions(parameters map[string]string) model.SuggestionList {
 	slb := builders.NewSuggestionListBuilder()
 
 	slb.AddSuggestion(model.Suggestion{
@@ -298,8 +305,8 @@ func (c *authenticateCommand) GetPlaceholderSuggestion() model.Suggestion {
 		ID:          "authenticate-spotify",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCommand: &model.Command{
-				Id:         "authenticate",
-				Properties: CommandProperties,
+				ID:         commandModel.ID,
+				Properties: commandModel.Properties,
 			},
 		}).Build(),
 	}
@@ -307,6 +314,6 @@ func (c *authenticateCommand) GetPlaceholderSuggestion() model.Suggestion {
 
 func RegisterAuthCommand(commandManager *command.Manager, spotifyHolder *spotify.SpotifyClientHolder, config authConfig) {
 	authenticateCommand := &authenticateCommand{config: config, urlOpener: browser.OpenURL}
-	commandManager.RegisterCommandKeyword("authenticate", authenticateCommand)
-	commandManager.RegisterCommand(CommandProperties.ID, authenticateCommand)
+	commandManager.RegisterCommandKeyword(commandModel.TriggerWord, authenticateCommand)
+	commandManager.RegisterCommand(commandModel.ID, authenticateCommand)
 }

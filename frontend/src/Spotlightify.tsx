@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import logo from "./assets/svg/spotify-logo.svg";
 import Prompt from "./components/Prompt";
 import SuggestionsContainer from "./components/Suggestion/SuggestionsContainer";
@@ -6,12 +6,7 @@ import useAction from "./hooks/useAction";
 import useCommand from "./hooks/useCommand";
 import useSuggestion from "./hooks/useSuggestion";
 import useDebounce from "./hooks/useDebounce";
-import {
-  Hide,
-  WindowCenter,
-  WindowHide,
-  WindowSetSize,
-} from "../wailsjs/runtime/runtime";
+import { Hide, WindowHide, WindowSetSize } from "../wailsjs/runtime/runtime";
 
 function Spotlightify() {
   const [promptInput, setPromptInput] = useState("");
@@ -46,7 +41,6 @@ function Spotlightify() {
   const { fetchSuggestions, setSuggestionList, suggestions, errorOccurred } =
     useSuggestion({
       activeCommand,
-      input: promptInput,
     });
 
   const { handleAction } = useAction({
@@ -88,6 +82,12 @@ function Spotlightify() {
   }, [activeCommand, popCommand, promptInput.length]);
 
   useEffect(() => {
+    console.log(
+      "debouncedQuery",
+      debouncedQuery,
+      "activeCommand",
+      activeCommand
+    );
     fetchSuggestions(debouncedQuery);
   }, [fetchSuggestions, debouncedQuery]);
 
