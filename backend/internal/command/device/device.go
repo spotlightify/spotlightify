@@ -15,13 +15,18 @@ import (
 	"github.com/zmb3/spotify/v2"
 )
 
-var commandProperties = model.CommandProperties{
-	ID:                   "device",
-	DebounceMS:           0,
-	Title:                "Device",
-	ShorthandTitle:       "📱",
-	ShorthandPersistOnUI: true,
-	PlaceholderText:      "Filter for device",
+var commandModel = model.Command{
+	ID:          "device",
+	Name:        "Device",
+	Description: "Select default device for active playback",
+	Icon:        constants.GetIconAddress(constants.IconDevice),
+	TriggerWord: "device",
+	Properties: model.CommandProperties{
+		DebounceMS:      0,
+		Title:           "Device",
+		ShorthandTitle:  "📱",
+		PlaceholderText: "Filter for device",
+	},
 }
 
 type defaultDeviceSetter interface {
@@ -34,6 +39,7 @@ type spotifyPlayer interface {
 }
 
 type deviceCommand struct {
+	command       model.Command
 	spotifyPlayer spotifyPlayer
 	deviceSetter  defaultDeviceSetter
 }
@@ -66,7 +72,7 @@ func (d *deviceCommand) GetSuggestions(input string, parameters map[string]strin
 			ID:          device.ID.String(),
 			Action: builders.NewActionBuilder().WithExecuteAction(
 				&model.ExecuteAction{
-					CommandId: commandProperties.ID,
+					CommandId: commandModel.ID,
 					ExecutionParameters: map[string]string{
 						"device_id": device.ID.String(),
 					},
@@ -86,8 +92,8 @@ func (d *deviceCommand) GetPlaceholderSuggestion() model.Suggestion {
 		ID:          "device-command",
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCommand: &model.Command{
-				Id:         commandProperties.ID,
-				Properties: commandProperties,
+				ID:         commandModel.ID,
+				Properties: commandModel.Properties,
 			},
 		}).Build(),
 	}
@@ -129,17 +135,13 @@ func (s *spotifyDeviceBridge) PlayerDevices(ctx context.Context) ([]spotify.Play
 func (s *spotifyDeviceBridge) TransferPlayback(ctx context.Context, deviceID string) error {
 	client, err := s.holder.GetSpotifyInstance()
 	if err != nil {
-		return fmt.Errorf("spotify transfer playback error: %v", err)
+		return err
 	}
 
-	err = client.TransferPlayback(ctx, spotify.ID(deviceID), false)
+	id := spotify.ID(deviceID)
+	err = client.PlayOpt(ctx, &spotify.PlayOptions{DeviceID: &id})
 	if err != nil {
-		return fmt.Errorf("spotify transfer playback error: %v", err)
-	}
-
-	err = client.Play(ctx)
-	if err != nil {
-		return fmt.Errorf("spotify resume playback error: %v", err)
+		return err
 	}
 
 	return nil
@@ -148,7 +150,7 @@ func (s *spotifyDeviceBridge) TransferPlayback(ctx context.Context, deviceID str
 func RegisterDeviceCommand(commandManager *command.Manager, spotifyHolder *spot.SpotifyClientHolder, deviceIdSetter defaultDeviceSetter) {
 	player := &spotifyDeviceBridge{holder: spotifyHolder}
 
-	deviceCommand := &deviceCommand{spotifyPlayer: player, deviceSetter: deviceIdSetter}
+	deviceCommand := &deviceCommand{command: commandModel, spotifyPlayer: player, deviceSetter: deviceIdSetter}
 	commandManager.RegisterCommandKeyword("device", deviceCommand)
-	commandManager.RegisterCommand(commandProperties.ID, deviceCommand)
+	commandManager.RegisterCommand(commandModel.ID, deviceCommand)
 }

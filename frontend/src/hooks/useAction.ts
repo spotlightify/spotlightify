@@ -48,6 +48,11 @@ function useAction({
 
   const handleAction = useCallback(
     (action: model.Action) => {
+      if (action.executeAction) {
+        console.log("action.executeAction", action.executeAction);
+        addActionToExecute(action.executeAction);
+      }
+
       if (
         !action.promptState?.setPromptText &&
         !action.promptState?.preservePromptText
@@ -82,10 +87,6 @@ function useAction({
 
       if (action.commandOptions?.popCommand) {
         popCommand();
-      }
-
-      if (action.executeAction) {
-        addActionToExecute(action.executeAction);
       }
 
       if (action.promptState?.closePrompt) {
@@ -130,10 +131,11 @@ function useAction({
 
     const handleExecution = async (executableAction: model.ExecuteAction) => {
       try {
-        const commandId = activeCommand?.id ?? "";
-        if (!commandId) {
+        if (!executableAction.commandId) {
+          console.log("No commandId found");
           return;
         }
+
         const response = await ExecuteCommand(
           executableAction.commandId,
           executableAction.parameters
@@ -153,7 +155,7 @@ function useAction({
 
     handleExecution(actionExecuting);
     setActionExecuting(undefined);
-  }, [actionExecuting, handleAction, setSuggestionList]);
+  }, [actionExecuting, handleAction]);
 
   return { handleAction };
 }

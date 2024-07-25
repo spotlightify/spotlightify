@@ -8,10 +8,9 @@ const baseUrl = "http://localhost:49264";
 
 interface useSuggestionProps {
   activeCommand: model.Command | undefined;
-  input: string;
 }
 
-function useSuggestion({ activeCommand, input }: useSuggestionProps) {
+function useSuggestion({ activeCommand }: useSuggestionProps) {
   const [originalSuggestionList, setOriginalSuggestionList] =
     useState<model.SuggestionList>(
       model.SuggestionList.createFrom({

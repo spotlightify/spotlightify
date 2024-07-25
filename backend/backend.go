@@ -3,13 +3,15 @@ package backend
 import (
 	"context"
 	"log"
+	"log/slog"
 	"spotlightify-wails/backend/configs"
 	"spotlightify-wails/backend/internal/builders"
 	"spotlightify-wails/backend/internal/cache"
 	"spotlightify-wails/backend/internal/command"
 	"spotlightify-wails/backend/internal/command/authenticate"
 	"spotlightify-wails/backend/internal/command/device"
-	"spotlightify-wails/backend/internal/command/play"
+	"spotlightify-wails/backend/internal/command/playOnline"
+	"spotlightify-wails/backend/internal/command/playlistOnline"
 	"spotlightify-wails/backend/internal/model"
 	"spotlightify-wails/backend/internal/spotify"
 	"strings"
@@ -25,7 +27,8 @@ type managers struct {
 }
 
 func registerCommands(managers *managers) {
-	play.RegisterPlayCommand(managers.commandManager, managers.spotifyHolder, managers.cacheManager)
+	playOnline.RegisterPlayOnlineCommand(managers.commandManager, managers.spotifyHolder)
+	playlistOnline.RegisterPlaylistOnlineCommand(managers.commandManager, managers.spotifyHolder)
 	authenticate.RegisterAuthCommand(managers.commandManager, managers.spotifyHolder, managers.config)
 	device.RegisterDeviceCommand(managers.commandManager, managers.spotifyHolder, managers.config)
 }
@@ -46,7 +49,7 @@ func (b *Backend) getCommandsByKeyword(search string) model.SuggestionList {
 }
 
 func (b *Backend) GetSuggestions(input string, commandId string, parameters map[string]string) model.SuggestionList {
-	log.Printf("Getting suggestions for command '%s' with input '%s' and parameters", commandId, input, parameters)
+	slog.Info("Getting suggestions", "command", commandId, "input", input, "parameters", parameters)
 	ctx := context.Background()
 	if commandId == "" && input == "" {
 		return model.SuggestionList{Items: []model.Suggestion{}}
@@ -59,7 +62,7 @@ func (b *Backend) GetSuggestions(input string, commandId string, parameters map[
 
 	command, ok := b.managers.commandManager.GetCommandById(commandId)
 	if !ok {
-		log.Printf("Command with id %s not found", commandId)
+		slog.Warn("Command with id %s not found", commandId)
 		return model.SuggestionList{Items: []model.Suggestion{}}
 	}
 
@@ -67,6 +70,7 @@ func (b *Backend) GetSuggestions(input string, commandId string, parameters map[
 }
 
 func (b *Backend) ExecuteCommand(commandId string, parameters map[string]string) model.ExecuteActionOutput {
+	slog.Info("Executing command", "command", commandId, "parameters", parameters)
 	ctx := context.Background()
 	command, ok := b.managers.commandManager.GetCommandById(commandId)
 	if !ok {
