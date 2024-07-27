@@ -10,7 +10,7 @@ import (
 	"github.com/zmb3/spotify/v2"
 )
 
-func GetSuggestionsForTracks(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID string) {
+func GetSuggestionsForTracks(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID string, addToQueue bool) {
 	tracks := results.Tracks.Tracks
 	for _, track := range tracks {
 		trackArtists := make([]string, len(track.Artists))
@@ -21,6 +21,12 @@ func GetSuggestionsForTracks(results *spotify.SearchResult, slb *builders.Sugges
 		sb := strings.Builder{}
 		utils.NameLineBuilder(&sb, trackArtists)
 
+		executionParameters := map[string]string{"spotifyURI": string(track.URI)}
+		if addToQueue {
+			executionParameters[PlayTypeKey] = "queue"
+			executionParameters["spotifyID"] = string(track.ID)
+		}
+
 		slb.AddSuggestion(model.Suggestion{
 			Title:       track.Name,
 			Description: sb.String(),
@@ -28,7 +34,7 @@ func GetSuggestionsForTracks(results *spotify.SearchResult, slb *builders.Sugges
 			ID:          track.ID.String(),
 			Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
 				CommandId:           commandID,
-				ExecutionParameters: map[string]string{"spotifyURI": string(track.URI)},
+				ExecutionParameters: executionParameters,
 			}).WithPromptState(&model.PromptState{
 				ClosePrompt: true,
 			}).Build(),
@@ -51,7 +57,7 @@ func GetSuggestionsForAlbums(results *spotify.SearchResult, slb *builders.Sugges
 		slb.AddSuggestion(model.Suggestion{
 			Title:       album.Name,
 			Description: sb.String(),
-			Icon:        constants.GetIconAddress(constants.IconAlbum),
+			Icon:        album.Images[2].URL,
 			ID:          album.ID.String(),
 			Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
 				CommandId:           commandID,
@@ -110,7 +116,7 @@ func GetSuggestionsForShows(results *spotify.SearchResult, slb *builders.Suggest
 		slb.AddSuggestion(model.Suggestion{
 			Title:       show.Name,
 			Description: show.Description,
-			Icon:        constants.GetIconAddress(constants.IconShow),
+			Icon:        show.Images[2].URL,
 			ID:          show.ID.String(),
 			Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
 				CommandId:           commandID,
@@ -127,8 +133,8 @@ func GetSuggestionsForEpisodes(results *spotify.SearchResult, slb *builders.Sugg
 	for _, episode := range episodes {
 		slb.AddSuggestion(model.Suggestion{
 			Title:       episode.Name,
-			Description: episode.Show.Name,
-			Icon:        constants.GetIconAddress(constants.IconShow),
+			Description: episode.ReleaseDate,
+			Icon:        episode.Images[2].URL,
 			ID:          episode.ID.String(),
 			Action: builders.NewActionBuilder().WithExecuteAction(&model.ExecuteAction{
 				CommandId:           commandID,

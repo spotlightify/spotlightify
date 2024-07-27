@@ -8,10 +8,14 @@ import (
 	"spotlightify-wails/backend/internal/builders"
 	"spotlightify-wails/backend/internal/cache"
 	"spotlightify-wails/backend/internal/command"
+	"spotlightify-wails/backend/internal/command/albumOnline"
 	"spotlightify-wails/backend/internal/command/authenticate"
 	"spotlightify-wails/backend/internal/command/device"
+	"spotlightify-wails/backend/internal/command/episodeOnline"
 	"spotlightify-wails/backend/internal/command/playOnline"
 	"spotlightify-wails/backend/internal/command/playlistOnline"
+	"spotlightify-wails/backend/internal/command/podcastOnline"
+	"spotlightify-wails/backend/internal/command/queueOnline"
 	"spotlightify-wails/backend/internal/model"
 	"spotlightify-wails/backend/internal/spotify"
 	"strings"
@@ -28,7 +32,12 @@ type managers struct {
 
 func registerCommands(managers *managers) {
 	playOnline.RegisterPlayOnlineCommand(managers.commandManager, managers.spotifyHolder)
+	queueOnline.RegisterQueueOnlineCommand(managers.commandManager, managers.spotifyHolder)
+	albumOnline.RegisterAlbumOnlineCommand(managers.commandManager, managers.spotifyHolder)
 	playlistOnline.RegisterPlaylistOnlineCommand(managers.commandManager, managers.spotifyHolder)
+	podcastOnline.RegisterPodcastOnlineCommand(managers.commandManager, managers.spotifyHolder)
+	episodeOnline.RegisterEpisodeOnlineCommand(managers.commandManager, managers.spotifyHolder)
+
 	authenticate.RegisterAuthCommand(managers.commandManager, managers.spotifyHolder, managers.config)
 	device.RegisterDeviceCommand(managers.commandManager, managers.spotifyHolder, managers.config)
 }
