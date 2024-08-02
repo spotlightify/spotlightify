@@ -10,7 +10,7 @@ import (
 	"github.com/zmb3/spotify/v2"
 )
 
-func RegisterQueueOnlineCommand(commandManager *command.Manager, spotifyHolder *spot.SpotifyClientHolder) {
+func RegisterQueueOnlineCommand(commandRegistry *command.Registry, spotifyHolder *spot.SpotifyClientHolder) {
 	playOnlineCommand := model.Command{
 		ID:          "queue",
 		Name:        "Queue",
@@ -27,5 +27,5 @@ func RegisterQueueOnlineCommand(commandManager *command.Manager, spotifyHolder *
 		Parameters: map[string]string{searchOnline.PlayTypeKey: "queue"},
 		PromptText: "",
 	}
-	searchOnline.RegisterSearchCommand(playOnlineCommand, spotify.SearchTypeTrack, commandManager, spotifyHolder)
+	searchOnline.RegisterSearchCommand(playOnlineCommand, spotify.SearchTypeTrack, commandRegistry, spotifyHolder)
 }

@@ -1,7 +1,7 @@
 package model
 
 type ExecuteAction struct {
-	CommandId           string            `json:"commandId"`
+	CommandId           CommandID         `json:"commandId"`
 	ExecutionParameters map[string]string `json:"parameters"`
 	WaitTillComplete    bool              `json:"waitTillComplete"`
 	CloseOnSuccess      bool              `json:"closeOnSuccess"`

@@ -1,11 +1,14 @@
 package model
 
+type CommandID string
+type CommandKeyword string
+
 type Command struct {
-	ID          string            `json:"id"`
+	ID          CommandID         `json:"id"`
 	Name        string            `json:"name"`        // Text to show on the command's placeholder suggestion
 	Description string            `json:"description"` // Text to show on the command's placeholder suggestion
 	Icon        string            `json:"icon"`        // Icon to show on the command's placeholder suggestion
-	TriggerWord string            `json:"triggerWord"` // The word that triggers this command
+	TriggerWord CommandKeyword    `json:"triggerWord"` // The word that triggers this command
 	Parameters  map[string]string `json:"parameters,omitempty"`
 	Properties  CommandProperties `json:"properties"`
 	PromptText  string            `json:"promptText,omitempty"` // Used in frontend to hold prompt text, not needed in backend

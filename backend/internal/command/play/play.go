@@ -168,10 +168,10 @@ func (s *spotifyPlayBridge) Play(ctx context.Context, trackID string) error {
 }
 
 // TODO Use this command after local caching is implemented
-//func RegisterPlayCommand(commandManager *command.Manager, spotifyHolder *spot.SpotifyClientHolder, cacheManager *cache.CacheManager) {
+//func RegisterPlayCommand(commandRegistry *command.Registry, spotifyHolder *spot.SpotifyClientHolder, cacheManager *cache.CacheManager) {
 //	player := &spotifyPlayBridge{holder: spotifyHolder}
 //
 //	playCommand := &playCommand{spotifyPlayer: player, cacheGetter: cacheManager}
-//	commandManager.RegisterCommandKeyword("play", playCommand)
-//	commandManager.RegisterCommand(playCommandId, playCommand)
+//	commandRegistry.RegisterCommandKeyword("play", playCommand)
+//	commandRegistry.RegisterCommand(playCommandId, playCommand)
 //}
