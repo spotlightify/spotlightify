@@ -59,7 +59,7 @@ func TestDeviceCommand_Execute(t *testing.T) {
 
 		output := deviceCommand.Execute(parameters, context.Background())
 		assert.Equal(t, deviceID, mockDeviceSetter.actualDeviceID)
-		expectedAction := templates.ClearPromptAndCommandsAction()
+		expectedAction := builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{ClearCommandStack: true}).Build()
 		assert.True(t, reflect.DeepEqual(output, model.ExecuteActionOutput{Action: expectedAction}))
 	})
 

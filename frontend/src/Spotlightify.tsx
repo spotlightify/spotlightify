@@ -95,7 +95,7 @@ function Spotlightify() {
     const maxNumberOfSuggestions = 8;
     WindowSetSize(
       650,
-      66 + Math.min(maxNumberOfSuggestions, suggestions.length) * 58
+      65 + Math.min(maxNumberOfSuggestions, suggestions.length) * 58
     );
   }, [suggestions.length]);
 

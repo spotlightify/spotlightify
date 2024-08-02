@@ -26,7 +26,7 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:             "Spotlightify",
 		Width:             550,
-		Height:            66,
+		Height:            65,
 		AlwaysOnTop:       true,
 		DisableResize:     true,
 		HideWindowOnClose: true,
@@ -38,7 +38,6 @@ func main() {
 		// OS specific options
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,
-			WindowIsTranslucent:  false,
 		},
 		Mac: &mac.Options{
 			WebviewIsTransparent: true,
