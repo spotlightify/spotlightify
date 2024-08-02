@@ -116,7 +116,9 @@ func (d *deviceCommand) Execute(parameters map[string]string, ctx context.Contex
 
 	d.deviceSetter.SetDefaultDevice(deviceID)
 
-	return model.ExecuteActionOutput{Action: templates.ClearPromptAndCommandsAction()}
+	return model.ExecuteActionOutput{
+		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{ClearCommandStack: true}).Build(),
+	}
 }
 
 type spotifyDeviceBridge struct {
