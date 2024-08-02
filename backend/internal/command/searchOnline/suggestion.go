@@ -10,7 +10,7 @@ import (
 	"github.com/zmb3/spotify/v2"
 )
 
-func GetSuggestionsForTracks(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID string, addToQueue bool) {
+func GetSuggestionsForTracks(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID model.CommandID, addToQueue bool) {
 	tracks := results.Tracks.Tracks
 	for _, track := range tracks {
 		trackArtists := make([]string, len(track.Artists))
@@ -42,7 +42,7 @@ func GetSuggestionsForTracks(results *spotify.SearchResult, slb *builders.Sugges
 	}
 }
 
-func GetSuggestionsForAlbums(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID string) {
+func GetSuggestionsForAlbums(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID model.CommandID) {
 	albums := results.Albums.Albums
 	for _, album := range albums {
 		aristNames := make([]string, len(album.Artists))
@@ -69,7 +69,7 @@ func GetSuggestionsForAlbums(results *spotify.SearchResult, slb *builders.Sugges
 	}
 }
 
-func GetSuggestionsForArtists(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID string) {
+func GetSuggestionsForArtists(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID model.CommandID) {
 	artists := results.Artists.Artists
 	for _, artist := range artists {
 		slb.AddSuggestion(model.Suggestion{
@@ -87,7 +87,7 @@ func GetSuggestionsForArtists(results *spotify.SearchResult, slb *builders.Sugge
 	}
 }
 
-func GetSuggestionsForPlaylists(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID string) {
+func GetSuggestionsForPlaylists(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID model.CommandID) {
 	playlists := results.Playlists.Playlists
 	for _, playlist := range playlists {
 		icon := constants.GetIconAddress(constants.IconPlaylist)
@@ -110,7 +110,7 @@ func GetSuggestionsForPlaylists(results *spotify.SearchResult, slb *builders.Sug
 	}
 }
 
-func GetSuggestionsForShows(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID string) {
+func GetSuggestionsForShows(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID model.CommandID) {
 	shows := results.Shows.Shows
 	for _, show := range shows {
 		slb.AddSuggestion(model.Suggestion{
@@ -128,7 +128,7 @@ func GetSuggestionsForShows(results *spotify.SearchResult, slb *builders.Suggest
 	}
 }
 
-func GetSuggestionsForEpisodes(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID string) {
+func GetSuggestionsForEpisodes(results *spotify.SearchResult, slb *builders.SuggestionListBuilder, commandID model.CommandID) {
 	episodes := results.Episodes.Episodes
 	for _, episode := range episodes {
 		slb.AddSuggestion(model.Suggestion{

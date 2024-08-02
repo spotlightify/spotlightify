@@ -312,8 +312,7 @@ func (c *authenticateCommand) GetPlaceholderSuggestion() model.Suggestion {
 	}
 }
 
-func RegisterAuthCommand(commandManager *command.Manager, spotifyHolder *spotify.SpotifyClientHolder, config authConfig) {
+func RegisterAuthCommand(commandRegistry *command.Registry, spotifyHolder *spotify.SpotifyClientHolder, config authConfig) {
 	authenticateCommand := &authenticateCommand{config: config, urlOpener: browser.OpenURL}
-	commandManager.RegisterCommandKeyword(commandModel.TriggerWord, authenticateCommand)
-	commandManager.RegisterCommand(commandModel.ID, authenticateCommand)
+	commandRegistry.Register(commandModel.ID, commandModel.TriggerWord, authenticateCommand)
 }

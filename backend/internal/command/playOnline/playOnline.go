@@ -10,7 +10,7 @@ import (
 	"github.com/zmb3/spotify/v2"
 )
 
-func RegisterPlayOnlineCommand(commandManager *command.Manager, spotifyHolder *spot.SpotifyClientHolder) {
+func RegisterPlayOnlineCommand(commandRegistry *command.Registry, spotifyHolder *spot.SpotifyClientHolder) {
 	playOnlineCommand := model.Command{
 		ID:          "play",
 		Name:        "Play",
@@ -27,5 +27,5 @@ func RegisterPlayOnlineCommand(commandManager *command.Manager, spotifyHolder *s
 		Parameters: map[string]string{},
 		PromptText: "",
 	}
-	searchOnline.RegisterSearchCommand(playOnlineCommand, spotify.SearchTypeTrack, commandManager, spotifyHolder)
+	searchOnline.RegisterSearchCommand(playOnlineCommand, spotify.SearchTypeTrack, commandRegistry, spotifyHolder)
 }

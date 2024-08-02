@@ -24,22 +24,22 @@ import (
 )
 
 type managers struct {
-	commandManager *command.Manager
-	spotifyHolder  *spotify.SpotifyClientHolder
-	cacheManager   *cache.CacheManager
-	config         *configs.SpotlightifyConfig
+	commandRegistry *command.Registry
+	spotifyHolder   *spotify.SpotifyClientHolder
+	cacheManager    *cache.CacheManager
+	config          *configs.SpotlightifyConfig
 }
 
 func registerCommands(managers *managers) {
-	playOnline.RegisterPlayOnlineCommand(managers.commandManager, managers.spotifyHolder)
-	queueOnline.RegisterQueueOnlineCommand(managers.commandManager, managers.spotifyHolder)
-	albumOnline.RegisterAlbumOnlineCommand(managers.commandManager, managers.spotifyHolder)
-	playlistOnline.RegisterPlaylistOnlineCommand(managers.commandManager, managers.spotifyHolder)
-	podcastOnline.RegisterPodcastOnlineCommand(managers.commandManager, managers.spotifyHolder)
-	episodeOnline.RegisterEpisodeOnlineCommand(managers.commandManager, managers.spotifyHolder)
+	playOnline.RegisterPlayOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
+	queueOnline.RegisterQueueOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
+	albumOnline.RegisterAlbumOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
+	playlistOnline.RegisterPlaylistOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
+	podcastOnline.RegisterPodcastOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
+	episodeOnline.RegisterEpisodeOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
 
-	authenticate.RegisterAuthCommand(managers.commandManager, managers.spotifyHolder, managers.config)
-	device.RegisterDeviceCommand(managers.commandManager, managers.spotifyHolder, managers.config)
+	authenticate.RegisterAuthCommand(managers.commandRegistry, managers.spotifyHolder, managers.config)
+	device.RegisterDeviceCommand(managers.commandRegistry, managers.spotifyHolder, managers.config)
 }
 
 type Backend struct {
@@ -47,7 +47,7 @@ type Backend struct {
 }
 
 func (b *Backend) getCommandsByKeyword(search string) model.SuggestionList {
-	commands := b.managers.commandManager.FindCommands(search)
+	commands := b.managers.commandRegistry.FindItemsByKeyword(search)
 	slb := builders.NewSuggestionListBuilder()
 
 	for _, command := range commands {
@@ -69,8 +69,8 @@ func (b *Backend) GetSuggestions(input string, commandId string, parameters map[
 		return b.getCommandsByKeyword(input)
 	}
 
-	command, ok := b.managers.commandManager.GetCommandById(commandId)
-	if !ok {
+	command, err := b.managers.commandRegistry.GetItemByID(model.CommandID(commandId))
+	if err != nil {
 		slog.Warn("Command with id %s not found", commandId)
 		return model.SuggestionList{Items: []model.Suggestion{}}
 	}
@@ -81,8 +81,8 @@ func (b *Backend) GetSuggestions(input string, commandId string, parameters map[
 func (b *Backend) ExecuteCommand(commandId string, parameters map[string]string) model.ExecuteActionOutput {
 	slog.Info("Executing command", "command", commandId, "parameters", parameters)
 	ctx := context.Background()
-	command, ok := b.managers.commandManager.GetCommandById(commandId)
-	if !ok {
+	command, error := b.managers.commandRegistry.GetItemByID(model.CommandID(commandId))
+	if error != nil {
 		log.Printf("Command with id %s not found", commandId)
 		return model.ExecuteActionOutput{}
 	}
@@ -101,14 +101,14 @@ func StartBackend() *Backend {
 	if err != nil {
 		log.Fatalf("Failed to load Spotify token from config: %v", err)
 	}
-	commandManager := command.NewManager()
+	commandRegistry := command.NewRegistry()
 	cacheManager := cache.NewCacheManager()
 
 	managers := &managers{
-		commandManager: commandManager,
-		spotifyHolder:  spotify,
-		cacheManager:   cacheManager,
-		config:         config,
+		commandRegistry: commandRegistry,
+		spotifyHolder:   spotify,
+		cacheManager:    cacheManager,
+		config:          config,
 	}
 
 	registerCommands(managers)
@@ -119,7 +119,7 @@ func StartBackend() *Backend {
 
 	// router := mux.NewRouter()
 
-	// v1.SetupCommandRoutes(router, &v1.CommandHandler{Config: config, CommandManager: commandManager})
+	// v1.SetupCommandRoutes(router, &v1.CommandHandler{Config: config, commandRegistry: commandRegistry})
 	// v1.SetupAuthenticationRoutes(router, &v1.AuthenticationHandlers{Config: config, ClientHolder: spotify})
 	// v1.SetupAssetRoutes(router, fileSystem)
 

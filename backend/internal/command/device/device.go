@@ -147,10 +147,9 @@ func (s *spotifyDeviceBridge) TransferPlayback(ctx context.Context, deviceID str
 	return nil
 }
 
-func RegisterDeviceCommand(commandManager *command.Manager, spotifyHolder *spot.SpotifyClientHolder, deviceIdSetter defaultDeviceSetter) {
+func RegisterDeviceCommand(commandRegistry *command.Registry, spotifyHolder *spot.SpotifyClientHolder, deviceIdSetter defaultDeviceSetter) {
 	player := &spotifyDeviceBridge{holder: spotifyHolder}
 
 	deviceCommand := &deviceCommand{command: commandModel, spotifyPlayer: player, deviceSetter: deviceIdSetter}
-	commandManager.RegisterCommandKeyword("device", deviceCommand)
-	commandManager.RegisterCommand(commandModel.ID, deviceCommand)
+	commandRegistry.Register(commandModel.ID, "device", deviceCommand)
 }

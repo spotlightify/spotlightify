@@ -35,7 +35,7 @@ func (c *searchOnlineCommand) GetPlaceholderSuggestion() model.Suggestion {
 		Title:       c.command.Name,
 		Description: c.command.Description,
 		Icon:        c.command.Icon,
-		ID:          c.command.ID,
+		ID:          string(c.command.ID),
 		Action: builders.NewActionBuilder().WithCommandOptions(&model.CommandOptions{
 			SetCommand: &c.command,
 		}).Build(),
@@ -196,10 +196,9 @@ func (s *spotifyPlayBridge) Queue(ctx context.Context, trackID string) error {
 	return client.QueueSong(ctx, spotify.ID(trackID))
 }
 
-func RegisterSearchCommand(command model.Command, searchType spotify.SearchType, commandManager *command.Manager, spotifyHolder *spot.SpotifyClientHolder) {
+func RegisterSearchCommand(command model.Command, searchType spotify.SearchType, commandRegistry *command.Registry, spotifyHolder *spot.SpotifyClientHolder) {
 	player := &spotifyPlayBridge{holder: spotifyHolder, searchType: searchType}
 
 	searchOnlineCommand := &searchOnlineCommand{spotifyPlayer: player, command: command, searchType: searchType}
-	commandManager.RegisterCommandKeyword(command.TriggerWord, searchOnlineCommand)
-	commandManager.RegisterCommand(command.ID, searchOnlineCommand)
+	commandRegistry.Register(command.ID, command.TriggerWord, searchOnlineCommand)
 }
