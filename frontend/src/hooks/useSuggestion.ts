@@ -1,33 +1,30 @@
 import { useCallback, useEffect, useState } from "react";
-import { Command, SuggestionList } from "../Command/interfaces";
-import useDebounce from "./useDebounce";
-import { GetSuggestions } from "../../wailsjs/go/backend/Backend";
-import { model } from "../../wailsjs/go/models";
+import { CommandHistoryItem } from "./useCommand";
+import { Command, Suggestion, SuggestionList } from "../types/command";
+import { useSpotlightify } from "./useSpotlightify";
+import { useQueryClient } from "@tanstack/react-query";
+import Icon from "../types/icons";
 
 const baseUrl = "http://localhost:49264";
 
 interface useSuggestionProps {
-  activeCommand: model.Command | undefined;
+  commandSearch: (input: string) => Command[];
 }
 
-function useSuggestion({ activeCommand }: useSuggestionProps) {
-  const [originalSuggestionList, setOriginalSuggestionList] =
-    useState<model.SuggestionList>(
-      model.SuggestionList.createFrom({
-        items: [],
-        filter: false,
-        static: false,
-        errorOccurred: false,
-      })
-    );
+function useSuggestion({ commandSearch }: useSuggestionProps) {
+  const { state, actions } = useSpotlightify();
+  const { activeCommand } = state;
+  const { suggestions: originalSuggestionList } = state;
 
-  const [displaySuggestions, setDisplaySuggestions] = useState<
-    model.Suggestion[]
-  >([]);
+  const [displaySuggestions, setDisplaySuggestions] = useState<Suggestion[]>(
+    []
+  );
+
+  const queryClient = useQueryClient();
 
   const fetchSuggestions = useCallback(
     async (input: string) => {
-      if (originalSuggestionList.filter) {
+      if (originalSuggestionList?.type === "filter") {
         setDisplaySuggestions(
           originalSuggestionList.items.filter((item) =>
             item.title.includes(input)
@@ -36,55 +33,56 @@ function useSuggestion({ activeCommand }: useSuggestionProps) {
         return;
       }
 
-      if (originalSuggestionList.static) {
+      if (originalSuggestionList?.type === "static") {
         return;
       }
 
       try {
-        const newSuggestionList = await GetSuggestions(
-          input,
-          activeCommand?.id ?? "",
-          activeCommand?.parameters ?? {}
-        );
-        setOriginalSuggestionList(newSuggestionList);
+        let newSuggestionList: SuggestionList = { items: [] };
+        if (!activeCommand) {
+          await Promise.all(
+            commandSearch(input).map(async (command) => {
+              newSuggestionList.items.push(
+                await command.getPlaceholderSuggestion(queryClient)
+              );
+            })
+          );
+        } else {
+          newSuggestionList = await activeCommand.command.getSuggestions(
+            input,
+            activeCommand.options?.parameters ?? {},
+            queryClient
+          );
+        }
+        actions.setSuggestionList(newSuggestionList);
       } catch (error) {
         setDisplaySuggestions([
-          model.Suggestion.createFrom({
-            title: "An error occurred",
-            description: "",
-          }),
+          {
+            title: "Error occurred",
+            description: String(error),
+            icon: Icon.Error,
+            id: "error",
+          },
         ]);
       }
     },
-    [
-      activeCommand,
-      originalSuggestionList.filter,
-      originalSuggestionList.static,
-    ]
+    [activeCommand, originalSuggestionList.type]
   );
 
   useEffect(() => {
-    setOriginalSuggestionList((prev) => ({
-      ...prev,
-      filter: false,
-      static: false,
-      convertValues: prev.convertValues,
-    }));
+    actions.setSuggestionList({
+      items: [...state.suggestions.items],
+    });
   }, [activeCommand]);
-
-  useEffect;
 
   useEffect(() => {
     if (
       !activeCommand &&
-      (originalSuggestionList.filter || originalSuggestionList.static)
+      ["filter", "static"].includes(originalSuggestionList?.type ?? "")
     ) {
-      setOriginalSuggestionList((prev) => ({
-        ...prev,
-        filter: false,
-        static: false,
-        convertValues: prev.convertValues,
-      }));
+      actions.setSuggestionList({
+        items: [...state.suggestions.items],
+      });
     } else {
       setDisplaySuggestions(originalSuggestionList.items);
     }
@@ -93,8 +91,7 @@ function useSuggestion({ activeCommand }: useSuggestionProps) {
   return {
     suggestions: displaySuggestions,
     fetchSuggestions,
-    setSuggestionList: setOriginalSuggestionList,
-    errorOccurred: originalSuggestionList.errorOccurred ?? false,
+    errorOccurred: originalSuggestionList?.type === "error",
   };
 }
 

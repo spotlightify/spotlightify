@@ -1,17 +1,16 @@
-import { SuggestionData } from '../../Command/interfaces';
-import {model} from "../../../wailsjs/go/models";
+import {Suggestion} from "../../types/command";
 
 interface SuggestionProps {
-  suggestion: model.Suggestion;
+  suggestion: Suggestion;
   isFocused: boolean;
   handleAction: () => void;
 }
 
-function Suggestion({
-  suggestion,
-  isFocused = false,
-  handleAction,
-}: SuggestionProps) {
+function SuggestionElement({
+                             suggestion,
+                             isFocused = false,
+                             handleAction,
+                           }: SuggestionProps) {
   return (
     <button
       type="button"
@@ -35,4 +34,4 @@ function Suggestion({
   );
 }
 
-export default Suggestion;
+export default SuggestionElement;

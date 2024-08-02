@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import Suggestion from './Suggestion';
-import { Action, SuggestionData } from '../../Command/interfaces';
-import { model } from "../../../wailsjs/go/models";
+import {useEffect, useRef, useState} from 'react';
+import SuggestionElement from './SuggestionElement';
+import {model} from "../../../wailsjs/go/models";
+import {Suggestion, SuggestionAction} from "../../types/command";
 
 interface SuggestionContainerProps {
-  suggestions: model.Suggestion[];
-  actionHandler: (action: model.Action) => void;
+  suggestions: Suggestion[];
+  actionHandler: (action: SuggestionAction) => void;
 }
 
 function SuggestionsContainer({
-  suggestions,
-  actionHandler,
-}: SuggestionContainerProps) {
+                                suggestions,
+                                actionHandler,
+                              }: SuggestionContainerProps) {
   const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState(0);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -50,8 +50,9 @@ function SuggestionsContainer({
         moveFocusedIndex('up');
       }
       if (event.key === 'Enter' && suggestions.length > 0) {
-        if (suggestions[focusedSuggestionIndex].action) {
-          actionHandler(suggestions[focusedSuggestionIndex].action!);
+        const action = suggestions[focusedSuggestionIndex].action;
+        if (action) {
+          actionHandler(action);
         }
       }
     };
@@ -64,7 +65,7 @@ function SuggestionsContainer({
   }, [actionHandler, focusedSuggestionIndex, suggestions]);
 
   const suggestionElements = suggestions.map((suggestion, index) => (
-    <Suggestion
+    <SuggestionElement
       key={suggestion.id}
       suggestion={suggestion}
       isFocused={index === focusedSuggestionIndex}
@@ -79,7 +80,7 @@ function SuggestionsContainer({
   return (
     <div
       ref={suggestionsRef}
-      style={{ height: Math.min(suggestions.length, 8) * 58 }}
+      style={{height: Math.min(suggestions.length, 8) * 58}}
       className="suggestions-wrapper"
     >
       {suggestionElements}
