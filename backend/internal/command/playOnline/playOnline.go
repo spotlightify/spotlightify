@@ -15,7 +15,7 @@ func RegisterPlayOnlineCommand(commandRegistry *command.Registry, spotifyHolder 
 		ID:          "play",
 		Name:        "Play",
 		Description: "Play a track",
-		Icon:        constants.GetIconAddress(constants.IconTrack),
+		Icon:        constants.GetIconAddress(constants.IconPlay),
 		TriggerWord: "play",
 		Properties: model.CommandProperties{
 			DebounceMS:      500,
