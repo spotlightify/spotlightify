@@ -2,6 +2,7 @@ package backend
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"log/slog"
 	"spotlightify-wails/backend/configs"
@@ -13,6 +14,7 @@ import (
 	"spotlightify-wails/backend/internal/command/device"
 	"spotlightify-wails/backend/internal/command/episodeOnline"
 	"spotlightify-wails/backend/internal/command/playOnline"
+	"spotlightify-wails/backend/internal/command/playback"
 	"spotlightify-wails/backend/internal/command/playlistOnline"
 	"spotlightify-wails/backend/internal/command/podcastOnline"
 	"spotlightify-wails/backend/internal/command/queueOnline"
@@ -37,6 +39,12 @@ func registerCommands(managers *managers) {
 	playlistOnline.RegisterPlaylistOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
 	podcastOnline.RegisterPodcastOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
 	episodeOnline.RegisterEpisodeOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
+
+	playback.RegisterCurrentlyPlayingCommand(managers.commandRegistry, managers.spotifyHolder)
+	playback.RegisterNextTrackCommand(managers.commandRegistry, managers.spotifyHolder)
+	playback.RegisterPreviousTrackCommand(managers.commandRegistry, managers.spotifyHolder)
+	playback.RegisterResumeCommand(managers.commandRegistry, managers.spotifyHolder)
+	playback.RegisterPauseCommand(managers.commandRegistry, managers.spotifyHolder)
 
 	authenticate.RegisterAuthCommand(managers.commandRegistry, managers.spotifyHolder, managers.config)
 	device.RegisterDeviceCommand(managers.commandRegistry, managers.spotifyHolder, managers.config)
@@ -99,7 +107,7 @@ func StartBackend() *Backend {
 	spotify := spotify.NewSpotifyClientHolder(config)
 	err := spotify.LoadSpotifyTokenFromConfig(config)
 	if err != nil {
-		log.Fatalf("Failed to load Spotify token from config: %v", err)
+		slog.Error(fmt.Sprintf("Failed to load Spotify token from config: %v", err))
 	}
 	commandRegistry := command.NewRegistry()
 	cacheManager := cache.NewCacheManager()

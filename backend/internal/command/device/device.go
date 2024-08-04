@@ -57,12 +57,20 @@ func getIconByDeviceType(deviceType string) string {
 }
 
 func (d *deviceCommand) GetSuggestions(input string, parameters map[string]string, ctx context.Context) model.SuggestionList {
+	slb := builders.NewSuggestionListBuilder()
 	devices, err := d.spotifyPlayer.PlayerDevices(ctx)
 	if err != nil {
-		return model.SuggestionList{}
+		slog.Error(err.Error())
+		return *slb.AddSuggestion(
+			templates.ErrorSuggestion("Could not retrieve devices", err.Error()),
+		).Build()
 	}
 
-	slb := builders.NewSuggestionListBuilder()
+	if len(devices) == 0 {
+		return *slb.AddSuggestion(
+			templates.ErrorSuggestion("No devices found", "Please start a spotify session on a device and click here to refresh search"),
+		).Build()
+	}
 
 	for _, device := range devices {
 		slb.AddSuggestion(model.Suggestion{
@@ -141,7 +149,7 @@ func (s *spotifyDeviceBridge) TransferPlayback(ctx context.Context, deviceID str
 	}
 
 	id := spotify.ID(deviceID)
-	err = client.PlayOpt(ctx, &spotify.PlayOptions{DeviceID: &id})
+	err = client.TransferPlayback(ctx, id, false)
 	if err != nil {
 		return err
 	}
