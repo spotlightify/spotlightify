@@ -20,6 +20,8 @@ import ShuffleCommand from "../Command/Commands/shuffle";
 import RepeatCommand from "../Command/Commands/repeat";
 import ExitCommand from "../Command/Commands/exit";
 import ArtistCommand from "../Command/Commands/artist";
+import AuthenticateCommand from "../Command/Commands/authenticate/authenticate";
+import { Hide, WindowHide } from "../../wailsjs/runtime/runtime";
 
 export interface CommandOptions {
   parameters?: Record<string, string>;
@@ -32,9 +34,10 @@ export interface CommandHistoryItem {
 }
 
 function useCommand() {
-  const { state } = useSpotlightify();
+  const { state, actions } = useSpotlightify();
   const { commandHistory, activeCommand } = state;
   const commandRegistry = useMemo(() => new CommandRegistry(), []);
+  const activeCommandOptions = state.activeCommand?.options;
 
   // Register all commands here
   useEffect(() => {
@@ -62,9 +65,56 @@ function useCommand() {
       commandRegistry.register(new LikeCommand());
       commandRegistry.register(new CurrentlyPlayingCommand());
 
+      commandRegistry.register(new AuthenticateCommand());
+
       commandRegistry.register(new ExitCommand());
     }
   }, []);
+
+  useEffect(() => {
+    if (!activeCommand) {
+      actions.setPlaceholderText("Spotlightify Search");
+    }
+    const onBlur = () => {
+      if (!activeCommandOptions?.keepPromptOpen) {
+        Hide();
+        actions.batchActions([
+          { type: "CLEAR_COMMANDS" },
+          { type: "SET_PROMPT_INPUT", payload: "" },
+          { type: "SET_SUGGESTION_LIST", payload: { items: [] } },
+        ]);
+      }
+    };
+    window.addEventListener("blur", onBlur);
+    return () => window.removeEventListener("blur", onBlur);
+  }, [activeCommand]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (!activeCommand) {
+          WindowHide();
+        }
+        if (!activeCommandOptions?.lockCommandStack) {
+          actions.popCommand();
+        }
+      }
+      if (event.key === "Backspace") {
+        if (
+          state.promptInput.length === 0 &&
+          activeCommand &&
+          !activeCommandOptions?.lockCommandStack
+        ) {
+          actions.popCommand();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Remove the event listener on cleanup
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeCommand, state.promptInput.length]);
 
   // For displaying on the prompt
   const commandTitles = useMemo(() => {

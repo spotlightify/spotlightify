@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { CommandHistoryItem } from "./useCommand";
 import { Command, Suggestion, SuggestionList } from "../types/command";
 import { useSpotlightify } from "./useSpotlightify";
 import { useQueryClient } from "@tanstack/react-query";
@@ -70,12 +69,6 @@ function useSuggestion({ commandSearch }: useSuggestionProps) {
   );
 
   useEffect(() => {
-    actions.setSuggestionList({
-      items: [...state.suggestions.items],
-    });
-  }, [activeCommand]);
-
-  useEffect(() => {
     if (
       !activeCommand &&
       ["filter", "static"].includes(originalSuggestionList?.type ?? "")
@@ -86,7 +79,7 @@ function useSuggestion({ commandSearch }: useSuggestionProps) {
     } else {
       setDisplaySuggestions(originalSuggestionList.items);
     }
-  }, [originalSuggestionList]);
+  }, [originalSuggestionList, activeCommand]);
 
   return {
     suggestions: displaySuggestions,

@@ -1,17 +1,19 @@
 package server
 
 import (
-	"encoding/json"
-	"html/template"
-	"log"
+	"context"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"spotlightify-wails/backend/configs"
 	"spotlightify-wails/backend/internal/constants"
 	spot "spotlightify-wails/backend/internal/spotify"
 
 	"github.com/gorilla/mux"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
@@ -26,35 +28,20 @@ var (
 )
 
 type AuthenticationHandlers struct {
-	Config       *configs.SpotlightifyConfig
-	ClientHolder *spot.SpotifyClientHolder
+	Config         *configs.SpotlightifyConfig
+	ClientHolder   *spot.SpotifyClientHolder
+	WailsContext   context.Context
+	ShutdownServer func(context.Context) error
 }
 
 func SetupAuthenticationRoutes(r *mux.Router, handlers *AuthenticationHandlers) {
-	log.Println("Setting up authentication routes")
+	slog.Info("Setting up authentication routes")
 	redirectURI = constants.ServerURL + callbackPath
 	auth = spotifyauth.New(spotifyauth.WithRedirectURL(redirectURI), spotifyauth.WithScopes(constants.SpotifyScopes()...))
-	log.Println("Redirect URI: ", redirectURI)
+	slog.Info("Redirect URI: ", redirectURI)
 
-	r.HandleFunc("/auth/check", handlers.checkAuthHandler)
-	r.HandleFunc("/auth/login", handlers.loginHandler)
-	r.HandleFunc("/auth/post-credentials", handlers.postCredentialsHandler)
 	r.HandleFunc(callbackPath, handlers.callbackHandler)
-	fs := http.FileServer(http.Dir("./public/"))
-	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
-	log.Println("Finished setting up authentication routes")
-}
-
-func (a *AuthenticationHandlers) checkAuthHandler(w http.ResponseWriter, r *http.Request) { // TODO This should be polled from the client side
-	// Check if the user is authenticated
-	isRequired := a.Config.GetRequiresSpotifyAuthKey()
-
-	w.Header().Set("Content-Type", "application/json")
-	if isRequired {
-		w.Write([]byte(`{"requiresAuth": true}`))
-	} else {
-		w.Write([]byte(`{"requiresAuth": false}`))
-	}
+	slog.Info("Finished setting up authentication routes")
 }
 
 type AccessToken struct {
@@ -65,63 +52,34 @@ type AccessToken struct {
 	Expires      *int   `json:"expires,omitempty"` // Pointer to int to allow for omission/nil
 }
 
-type TemplateVars struct {
-	WasRedirected bool // Whether the user was redirected from the /callback endpoint
-	IsSuccess     bool
-	ErrorMessage  string
-	AuthUrl       string
+func (a *AuthenticationHandlers) handleSuccessInUI() {
+	runtime.EventsEmit(a.WailsContext, "auth_success", "auth_success")
 }
 
-type clientDetails struct {
-	ClientId     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-}
-
-func (a *AuthenticationHandlers) loginHandler(w http.ResponseWriter, r *http.Request) {
-	a.loadLoginPage(w, r, true, nil)
-}
-
-func (a *AuthenticationHandlers) loadLoginPage(w http.ResponseWriter, r *http.Request, isPreAuth bool, err error) {
-	loginTemplate, tmplErr := template.ParseFiles("public/auth/indexHtml.tmpl")
-	if tmplErr != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	var templateVars TemplateVars
-	if !isPreAuth && err == nil {
-		templateVars = TemplateVars{WasRedirected: true, IsSuccess: true}
-	} else if err != nil {
-		templateVars = TemplateVars{WasRedirected: true, IsSuccess: false, ErrorMessage: err.Error()}
-	}
-
-	loginTemplate.Execute(w, templateVars)
-}
-
-func (a *AuthenticationHandlers) postCredentialsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var clientDetailsResponse clientDetails
-
-	err := json.NewDecoder(r.Body).Decode(&clientDetailsResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	a.Config.SetClientID(clientDetailsResponse.ClientId)
-	a.Config.SetClientSecret(clientDetailsResponse.ClientSecret)
+func (a *AuthenticationHandlers) handleFailureInUI(err error) {
+	runtime.EventsEmit(a.WailsContext, "auth_failure", err.Error())
 }
 
 func (a *AuthenticationHandlers) callbackHandler(w http.ResponseWriter, r *http.Request) {
+	shutdownServer := func() {
+		shutdownRoutine := func() {
+			slog.Info("Shutting down server in 10 seconds")
+			time.Sleep(10 * time.Second)
+			slog.Info("Shutting down server now")
+			err := a.ShutdownServer(context.Background())
+			if err != nil {
+				slog.Error("Error shutting down server", "error", err)
+			}
+		}
+
+		go shutdownRoutine()
+	}
+
 	spotifyID := a.Config.GetClientID()
 	spotifySecret := a.Config.GetClientSecret()
-	log.Println("Spotify ID:", spotifyID)
+	slog.Info("Spotify ID:" + spotifyID)
 	censoredSecret := strings.Repeat("*", len(spotifySecret))
-	log.Println("Spotify Secret:", censoredSecret)
+	slog.Info("Spotify Secret:" + censoredSecret)
 
 	auth = spotifyauth.New(
 		spotifyauth.WithClientID(spotifyID),
@@ -132,23 +90,27 @@ func (a *AuthenticationHandlers) callbackHandler(w http.ResponseWriter, r *http.
 	tok, err := auth.Token(r.Context(), constants.SpotifyState, r)
 	if err != nil {
 		http.Error(w, "Couldn't get token", http.StatusForbidden)
-		log.Panicln(err)
+		slog.Error("Couldn't get token", "error", err)
+		a.handleFailureInUI(err)
+		shutdownServer()
+		return
 	}
 	if st := r.FormValue("state"); st != constants.SpotifyState {
 		http.NotFound(w, r)
-		log.Printf("State mismatch: %s != %s\n", st, constants.SpotifyState)
+		slog.Error(fmt.Sprintf("State mismatch: %s != %s\n", st, constants.SpotifyState))
+		a.handleFailureInUI(fmt.Errorf("state mismatch: %s != %s", st, constants.SpotifyState))
+		shutdownServer()
+		return
 	}
 
 	// use the token to get an authenticated client
-	log.Println("Creating spotify client with access token...")
+	slog.Info("Creating spotify client with access token...")
 	client := spotify.New(auth.Client(r.Context(), tok))
 	a.ClientHolder.SetSpotifyInstance(client)
-	log.Println("Logged in successfully!")
+	slog.Info("Logged in successfully!")
+	a.Config.SetRequiresSpotifyAuthKey(false)
+	a.handleSuccessInUI()
 
-	// Redirect to the frontend
-	a.redirectToLogin(w, r, nil)
-}
-
-func (a *AuthenticationHandlers) redirectToLogin(w http.ResponseWriter, r *http.Request, err error) {
-	a.loadLoginPage(w, r, false, err)
+	w.Write([]byte("<h1>Spotlightify Success!</h1><p>You have successfully authenticated with Spotify! You can now close this window.</p>"))
+	shutdownServer()
 }

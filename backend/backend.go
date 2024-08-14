@@ -19,9 +19,12 @@ import (
 	"spotlightify-wails/backend/internal/command/queueOnline"
 	"spotlightify-wails/backend/internal/model"
 	"spotlightify-wails/backend/internal/spotify"
+	"spotlightify-wails/backend/server"
 	"strings"
 
 	"github.com/spf13/afero"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"golang.design/x/hotkey"
 )
 
 type managers struct {
@@ -44,7 +47,34 @@ func registerCommands(managers *managers) {
 }
 
 type Backend struct {
-	managers *managers
+	managers   *managers
+	ctx        context.Context
+	authServer *server.AuthServer
+}
+
+// startup is called at application startup
+func (a *Backend) Startup(ctx context.Context) {
+	// Perform your setup here
+	a.ctx = ctx
+	hk := hotkey.New([]hotkey.Modifier{hotkey.ModCtrl, hotkey.ModOption}, hotkey.KeySpace)
+	err := hk.Register()
+	if err != nil {
+		log.Printf("Failed to register hotkey: %v", err)
+	}
+	go listenForHotkey(ctx, hk)
+}
+
+func listenForHotkey(ctx context.Context, hk *hotkey.Hotkey) {
+	for range hk.Keydown() {
+		slog.Info("Hotkey pressed")
+		runtime.WindowShow(ctx)
+		runtime.WindowCenter(ctx)
+	}
+}
+
+// domReady is called after front-end resources have been loaded
+func (a *Backend) DomReady(ctx context.Context) {
+	a.ctx = ctx
 }
 
 func (b *Backend) getCommandsByKeyword(search string) model.SuggestionList {
@@ -115,7 +145,8 @@ func StartBackend() *Backend {
 	registerCommands(managers)
 
 	backend := &Backend{
-		managers: managers,
+		managers:   managers,
+		authServer: &server.AuthServer{},
 	}
 
 	return backend

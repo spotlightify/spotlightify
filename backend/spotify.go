@@ -4,8 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"spotlightify-wails/backend/internal/constants"
 
 	"github.com/zmb3/spotify/v2"
+	spotifyauth "github.com/zmb3/spotify/v2/auth"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 func (b *Backend) GetTracksByQuery(query string) ([]spotify.SimpleTrack, error) {
@@ -264,6 +268,21 @@ func (b *Backend) SetActiveDevice(deviceID string) error {
 	return client.TransferPlayback(ctx, spotify.ID(deviceID), true)
 }
 
+func (b *Backend) GetVolume() (int, error) {
+	ctx := context.Background()
+	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
+	if err != nil {
+		return 0, fmt.Errorf("error getting Spotify instance: %v", err)
+	}
+
+	status, err := client.PlayerState(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("error retrieving player state: %v", err)
+	}
+
+	return int(status.Device.Volume) / 10, nil
+}
+
 func (b *Backend) SetVolume(volume int) error {
 	if volume < 0 || volume > 10 {
 		return fmt.Errorf("volume must be between 0 and 10")
@@ -433,4 +452,70 @@ func (b *Backend) ChangeRepeatState(repeatState string) error {
 	}
 
 	return client.Repeat(ctx, repeatState)
+}
+
+func (b *Backend) AddClientID(clientID string) {
+	slog.Info("Setting client ID", "clientID", clientID)
+	b.managers.config.SetClientID(clientID)
+}
+
+func (b *Backend) GetClientID() string {
+	return b.managers.config.GetClientID()
+}
+
+func (b *Backend) AddClientSecret(clientSecret string) {
+	slog.Info("Setting client secret", "clientSecret", clientSecret)
+	b.managers.config.SetClientSecret(clientSecret)
+}
+
+func (b *Backend) GetClientSecret() string {
+	return b.managers.config.GetClientSecret()
+}
+
+func (b *Backend) CheckIfAuthenticatedWithSpotify() bool {
+	clientID := b.managers.config.GetClientID()
+	if clientID == "" || len(clientID) != 32 {
+		return false
+	}
+
+	clientSecret := b.managers.config.GetClientSecret()
+	if clientSecret == "" || len(clientSecret) != 32 {
+		return false
+	}
+
+	return !b.managers.config.GetRequiresSpotifyAuthKey()
+}
+
+func (b *Backend) SetAuthenticatedWithSpotify(authenticated bool) {
+	b.managers.config.SetRequiresSpotifyAuthKey(authenticated)
+}
+
+func (b *Backend) AuthenticateWithSpotify() error {
+	clientID := b.managers.config.GetClientID()
+	if clientID == "" {
+		return fmt.Errorf("client ID not set")
+	}
+
+	clientSecret := b.managers.config.GetClientSecret()
+	if clientSecret == "" {
+		return fmt.Errorf("client secret not set")
+	}
+
+	b.authServer.StartAuthServer(b.ctx, b.managers.config, b.managers.spotifyHolder)
+
+	auth := spotifyauth.New(
+		spotifyauth.WithRedirectURL(constants.ServerURL+"/auth/callback"),
+		spotifyauth.WithScopes(constants.SpotifyScopes()...),
+		spotifyauth.WithClientID(clientID),
+		spotifyauth.WithClientSecret(clientSecret),
+	)
+
+	url := auth.AuthURL(constants.SpotifyState)
+
+	runtime.BrowserOpenURL(b.ctx, url)
+	return nil
+}
+
+func (b *Backend) CloseAuthServer() {
+	b.authServer.StopAuthServer()
 }

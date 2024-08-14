@@ -2,8 +2,15 @@ import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide, Show } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import { Pause, SetVolume } from "../../../wailsjs/go/backend/Backend";
+import {
+  GetVolume,
+  Pause,
+  SetVolume,
+} from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
+import { QueryClient } from "@tanstack/react-query";
+
+const VolumeQueryKey = "volume";
 
 class VolumeCommand extends BaseCommand {
   constructor() {
@@ -12,9 +19,17 @@ class VolumeCommand extends BaseCommand {
     });
   }
 
-  async getPlaceholderSuggestion(): Promise<Suggestion> {
+  async getPlaceholderSuggestion(
+    queryClient: QueryClient
+  ): Promise<Suggestion> {
+    const volume = await queryClient.fetchQuery({
+      queryKey: [VolumeQueryKey],
+      queryFn: GetVolume,
+      staleTime: 10000,
+    });
+
     return {
-      title: "Volume",
+      title: `Volume [${volume}/10]`,
       description: "Set the volume level",
       icon: Icon.Volume,
       id: this.id,
@@ -31,7 +46,8 @@ class VolumeCommand extends BaseCommand {
 
   getSuggestions(
     input: string,
-    parameters: Record<string, string>
+    parameters: Record<string, string>,
+    queryClient: QueryClient
   ): Promise<SuggestionList> {
     const volumeNumber = Number(input);
     if (volumeNumber < 0 || volumeNumber > 10 || isNaN(volumeNumber)) {
@@ -62,6 +78,7 @@ class VolumeCommand extends BaseCommand {
             } catch (e) {
               HandleGenericError("Set Volume", e, actions.setSuggestionList);
             }
+            queryClient.invalidateQueries({ queryKey: [VolumeQueryKey] });
             return Promise.resolve;
           },
         },
