@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import logo from "./assets/svg/spotify-logo.svg";
 import Prompt from "./components/Prompt";
 import SuggestionsContainer from "./components/Suggestion/SuggestionsContainer";
@@ -6,59 +6,52 @@ import useAction from "./hooks/useAction";
 import useCommand from "./hooks/useCommand";
 import useSuggestion from "./hooks/useSuggestion";
 import useDebounce from "./hooks/useDebounce";
-import { Hide, WindowHide, WindowSetSize } from "../wailsjs/runtime/runtime";
+import {Hide, WindowHide, WindowSetSize} from "../wailsjs/runtime/runtime";
+import {useSpotlightify} from "./hooks/useSpotlightify";
 
 function Spotlightify() {
-  const [promptInput, setPromptInput] = useState("");
+  const {state, actions} = useSpotlightify()
+  const activeCommand = state.activeCommand?.command;
+  const activeCommandOptions = state.activeCommand?.options;
+  console.log('Spotlightify: activeCommand', activeCommand);
 
   const {
-    activeCommand,
+    commandSearch,
     commandTitles,
-    popCommand,
-    pushCommand,
-    setActiveCommand,
-    clearCommands,
-    setCurrentCommandParameters,
   } = useCommand();
 
+  const {fetchSuggestions, suggestions, errorOccurred} = useSuggestion({
+    commandSearch,
+  });
+  const {handleAction} = useAction();
+
+  const debouncedQuery = useDebounce(
+    state.promptInput,
+    activeCommand?.debounceMS ?? 0
+  );
+
+  const onPromptChange = (event: { target: { value: any } }) => {
+    const {value} = event.target;
+    actions.setPromptInput(value);
+  };
+
   useEffect(() => {
+    if (!activeCommand) {
+      actions.setPlaceholderText("Spotlightify Search");
+    }
     const onBlur = () => {
-      if (!activeCommand?.properties.keepPromptOpen) {
+      if (!activeCommandOptions?.keepPromptOpen) {
         Hide();
-        clearCommands();
-        setPromptInput("");
+        actions.batchActions([
+          {type: "CLEAR_COMMANDS"},
+          {type: "SET_PROMPT_INPUT", payload: ""},
+          {type: "SET_SUGGESTION_LIST", payload: {items: []}},
+        ]);
       }
     };
     window.addEventListener("blur", onBlur);
     return () => window.removeEventListener("blur", onBlur);
   }, [activeCommand]);
-
-  const debouncedQuery = useDebounce(
-    promptInput,
-    activeCommand?.properties.debounceMS ?? 0
-  );
-
-  const { fetchSuggestions, setSuggestionList, suggestions, errorOccurred } =
-    useSuggestion({
-      activeCommand,
-    });
-
-  const { handleAction } = useAction({
-    pushCommand,
-    popCommand,
-    setActiveCommand,
-    clearCommands,
-    setPromptText: setPromptInput,
-    activeCommand,
-    promptInput,
-    setSuggestionList,
-    setCurrentCommandParameters,
-  });
-
-  const onPromptChange = (event: { target: { value: any } }) => {
-    const { value } = event.target;
-    setPromptInput(value);
-  };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -66,11 +59,11 @@ function Spotlightify() {
         if (!activeCommand) {
           WindowHide();
         }
-        popCommand();
+        actions.popCommand();
       }
       if (event.key === "Backspace") {
-        if (promptInput.length === 0 && activeCommand) {
-          popCommand();
+        if (state.promptInput.length === 0 && activeCommand) {
+          actions.popCommand();
         }
       }
     };
@@ -79,15 +72,9 @@ function Spotlightify() {
 
     // Remove the event listener on cleanup
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeCommand, popCommand, promptInput.length]);
+  }, [activeCommand, state.promptInput.length]);
 
   useEffect(() => {
-    console.log(
-      "debouncedQuery",
-      debouncedQuery,
-      "activeCommand",
-      activeCommand
-    );
     fetchSuggestions(debouncedQuery);
   }, [fetchSuggestions, debouncedQuery]);
 
@@ -120,10 +107,10 @@ function Spotlightify() {
           </div>
         )}
         <Prompt
-          value={promptInput}
+          value={state.promptInput}
           onChange={onPromptChange}
           placeHolder={
-            activeCommand?.properties.placeholderText ?? "Spotlightify Search"
+            state.placeholderText ?? "Spotlightify Search"
           }
         />
       </div>

@@ -14,7 +14,6 @@ import (
 	"spotlightify-wails/backend/internal/command/device"
 	"spotlightify-wails/backend/internal/command/episodeOnline"
 	"spotlightify-wails/backend/internal/command/playOnline"
-	"spotlightify-wails/backend/internal/command/playback"
 	"spotlightify-wails/backend/internal/command/playlistOnline"
 	"spotlightify-wails/backend/internal/command/podcastOnline"
 	"spotlightify-wails/backend/internal/command/queueOnline"
@@ -39,12 +38,6 @@ func registerCommands(managers *managers) {
 	playlistOnline.RegisterPlaylistOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
 	podcastOnline.RegisterPodcastOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
 	episodeOnline.RegisterEpisodeOnlineCommand(managers.commandRegistry, managers.spotifyHolder)
-
-	playback.RegisterCurrentlyPlayingCommand(managers.commandRegistry, managers.spotifyHolder)
-	playback.RegisterNextTrackCommand(managers.commandRegistry, managers.spotifyHolder)
-	playback.RegisterPreviousTrackCommand(managers.commandRegistry, managers.spotifyHolder)
-	playback.RegisterResumeCommand(managers.commandRegistry, managers.spotifyHolder)
-	playback.RegisterPauseCommand(managers.commandRegistry, managers.spotifyHolder)
 
 	authenticate.RegisterAuthCommand(managers.commandRegistry, managers.spotifyHolder, managers.config)
 	device.RegisterDeviceCommand(managers.commandRegistry, managers.spotifyHolder, managers.config)
@@ -125,17 +118,5 @@ func StartBackend() *Backend {
 		managers: managers,
 	}
 
-	// router := mux.NewRouter()
-
-	// v1.SetupCommandRoutes(router, &v1.CommandHandler{Config: config, commandRegistry: commandRegistry})
-	// v1.SetupAuthenticationRoutes(router, &v1.AuthenticationHandlers{Config: config, ClientHolder: spotify})
-	// v1.SetupAssetRoutes(router, fileSystem)
-
-	// headersOk := handlers.AllowedHeaders([]string{"Content-Type"})
-	// originsOk := handlers.AllowedOrigins([]string{"*"}) // TODO: restrict to specific origin of electron server
-	// methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
-
-	// log.Println("Starting server on " + constants.ServerURL + "...")
-	// log.Fatal(http.ListenAndServe(constants.Port, handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 	return backend
 }
