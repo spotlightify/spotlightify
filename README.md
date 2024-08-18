@@ -170,8 +170,6 @@ To learn more about Spotlightify, feel free to join our [discord server](https:/
 
 ## Acknowledgments
 
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
 * [Wails React Typescript Project Base](https://github.com/hotafrika/wails-vite-react-ts-tailwind-template)
 
 
