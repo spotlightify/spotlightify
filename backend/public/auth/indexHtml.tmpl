@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Spotlightify Authentication</title>
+    <link rel="stylesheet" href="/public/auth/style.css" />
+  </head>
+  <body>
+    <div class="branding_container">
+      <div class="branding_container__logo">
+        <img src="/public/auth/logo.svg" alt="Logo" />
+      </div>
+      <h1>Spotlightify</h1>
+    </div>
+
+    <div class="contents">
+
+      {{ if .WasRedirected }}
+        {{ if .IsSuccess }}
+
+      <div class="alert success">
+        <div class="alert__title">Success</div>
+        <div class="alert__message">
+          You have successfully authenticated with Spotify. You can now close
+          this window and return to the application.
+        </div>
+      </div>
+
+        {{ else }}
+
+      <div class="alert error">
+        <div class="alert__title">Error</div>
+        <div class="alert__message">
+          Authentication failed producing the following error:
+          <span class="alert__message__error"
+            >{{ .ErrorMessage }}</span
+          >
+        </div>
+      </div>
+
+        {{ end }}
+
+      {{ end }}
+    </div>
+
+    <script src="/public/auth/script.js"></script>
+  </body>
+</html>

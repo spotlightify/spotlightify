@@ -1,0 +1,191 @@
+/* #root {
+  height: 60px;
+  width: 100%;
+} */
+
+:root {
+  --base-children-height: 45px;
+  --base-height: 64px;
+  --suggestion-item-height: 58px;
+  --font-color: rgb(202, 202, 202);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: "Geist Light";
+}
+
+/* button[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+} */
+
+/* 16px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    Cantarell,
+    'Open Sans',
+    'Helvetica Neue',
+    sans-serif; */
+
+.base {
+  /* padding: 20px; */
+  /* height: var(--base-height); */
+  height: 100%;
+  max-height: calc(var(--base-height) + var(--suggestion-item-height) * 8);
+  width: 100%;
+  background-color: #121212;
+  user-select: none;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.input-wrapper {
+  /* width: auto; */
+  flex-grow: 1;
+  padding: 4px;
+  /* background-color: #333333; */
+  border-radius: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: row;
+  padding: 10px;
+  gap: 10px;
+  -webkit-app-region: drag;
+  --wails-draggable: drag;
+}
+
+.command-title-container {
+  display: flex;
+  gap: 4px;
+}
+
+.command-title-container .command-title-container__title,
+.command-title-container .command-title-container__title:hover {
+  border: 2px solid #1db954;
+  color: #1db954;
+  font-size: 14px;
+  border-radius: 5px;
+  padding: 4px;
+  cursor: default;
+}
+
+.command-title-container .command-title-container__title--error,
+.command-title-container .command-title-container__title--error:hover {
+  border: 2px solid #e62525;
+  color: #e62525;
+  font-size: 14px;
+  border-radius: 5px;
+  padding: 4px;
+  cursor: default;
+}
+
+.input-prompt {
+  flex-grow: 1;
+  height: var(--base-children-height);
+  /* background-color: #4f4f4f; */
+  /* background-color: #191414; */
+  background-color: #121212;
+  border-radius: 10px;
+  border-width: 0px;
+  user-select: text;
+  -webkit-app-region: no-drag;
+  color: var(--font-color);
+  font-size: 26px;
+  /* padding: 0 10px 0 10px; */
+  font-family: "Geist Light";
+}
+
+.input-prompt:focus {
+  outline: none;
+}
+
+.spotify-logo {
+  height: var(--base-children-height);
+}
+
+button {
+  all: unset;
+}
+
+.suggestions-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+.suggestions-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.suggestion-item {
+  height: var(--suggestion-item-height);
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 10px;
+  align-items: center;
+  color: #b5b5b5;
+  flex-shrink: 0;
+  padding-left: 15px;
+}
+
+.button--focus {
+  background-color: #322828 !important;
+}
+
+.suggestion-item:hover {
+  background-color: #251e1e;
+}
+
+.button--focus:hover {
+  background-color: #322828;
+}
+
+.suggestion-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.suggestion-item__title {
+  text-align: left;
+  font-size: 20px;
+}
+
+.suggestion-item__description {
+  font-size: 13px;
+}
+
+.suggestion-item__icon-wrapper {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.suggestion-item__icon {
+  width: 100%;
+  height: 100%;
+}
+
+.suggestion-item__icon--svg {
+  height: 30px;
+}

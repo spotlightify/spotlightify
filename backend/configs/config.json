@@ -1,0 +1,5 @@
+{
+  "requiresSpotifyAuth": true,
+  "spotifyRefreshToken": "",
+  "serverUrl": ""
+}
