@@ -1,10 +1,10 @@
-# IDEs
-.idea
-.vscode
-.pylintrc
+build/bin
+node_modules/
+frontend/dist
+frontend/node_modules/
+build/
 
-# project specific
-cache
-venv
-__pycache__
-.cache-*
+.vscode/
+.erb/
+.DS_Store
+.idea/
