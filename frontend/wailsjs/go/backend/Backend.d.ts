@@ -4,15 +4,29 @@ import {model} from '../models';
 import {spotify} from '../models';
 import {backend} from '../models';
 
+export function AddClientID(arg1:string):Promise<void>;
+
+export function AddClientSecret(arg1:string):Promise<void>;
+
+export function AuthenticateWithSpotify():Promise<void>;
+
 export function ChangeRepeatState(arg1:string):Promise<void>;
 
 export function ChangeShuffle(arg1:boolean):Promise<void>;
+
+export function CheckIfAuthenticatedWithSpotify():Promise<boolean>;
+
+export function CloseAuthServer():Promise<void>;
 
 export function ExecuteCommand(arg1:string,arg2:{[key: string]: string}):Promise<model.ExecuteActionOutput>;
 
 export function GetAlbumsByQuery(arg1:string):Promise<Array<spotify.SimpleAlbum>>;
 
 export function GetArtistsByQuery(arg1:string):Promise<Array<spotify.FullArtist>>;
+
+export function GetClientID():Promise<string>;
+
+export function GetClientSecret():Promise<string>;
 
 export function GetCurrentlyPlayingTrack():Promise<backend.CurrentlyPlayingTrack>;
 
@@ -29,6 +43,8 @@ export function GetShowsByQuery(arg1:string):Promise<Array<spotify.FullShow>>;
 export function GetSuggestions(arg1:string,arg2:string,arg3:{[key: string]: string}):Promise<model.SuggestionList>;
 
 export function GetTracksByQuery(arg1:string):Promise<Array<spotify.SimpleTrack>>;
+
+export function GetVolume():Promise<number>;
 
 export function IsCurrentSongLiked():Promise<boolean>;
 
@@ -59,6 +75,8 @@ export function Resume():Promise<void>;
 export function Seek(arg1:number):Promise<void>;
 
 export function SetActiveDevice(arg1:string):Promise<void>;
+
+export function SetAuthenticatedWithSpotify(arg1:boolean):Promise<void>;
 
 export function SetVolume(arg1:number):Promise<void>;
 

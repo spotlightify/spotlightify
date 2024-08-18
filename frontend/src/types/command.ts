@@ -17,6 +17,8 @@ export interface Command {
   ): Promise<SuggestionList>;
 
   getPlaceholderSuggestion(queryClient: QueryClient): Promise<Suggestion>;
+
+  onCancel?(): void;
 }
 
 export interface SuggestionList {
@@ -39,6 +41,7 @@ export type SuggestionAction = (
 export interface CommandOptions {
   parameters?: Record<string, string>;
   keepPromptOpen?: boolean;
+  lockCommandStack?: boolean; // Prevents the command stack from being altered by interaction through the prompt
 }
 
 export interface CommandHistoryItem {

@@ -32,7 +32,8 @@ func main() {
 		HideWindowOnClose: true,
 		Assets:            assets,
 		BackgroundColour:  &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:         app.startup,
+		OnStartup:         backend.Startup,
+		OnDomReady:        backend.DomReady,
 		Frameless:         true,
 
 		// OS specific options

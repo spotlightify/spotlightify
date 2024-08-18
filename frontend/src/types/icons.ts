@@ -4,6 +4,7 @@ enum Icon {
   Authenticate = "/src/assets/svg/authenticate.svg",
   BackNav = "/src/assets/svg/back-nav.svg",
   Backward = "/src/assets/svg/backward.svg",
+  Change = "/src/assets/svg/change.svg",
   Cog = "/src/assets/svg/cog.svg",
   Computer = "/src/assets/svg/computer.svg",
   Device = "/src/assets/svg/device.svg",

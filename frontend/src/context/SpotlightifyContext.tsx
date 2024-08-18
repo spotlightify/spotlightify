@@ -25,7 +25,8 @@ function spotlightifyReducer(
       return { ...state, promptInput: action.payload };
     case "POP_COMMAND":
       const newCommandHistory = [...state.commandHistory];
-      newCommandHistory.pop();
+      // Call onCancel for side effects on the command that is being popped
+      newCommandHistory.pop()?.command?.onCancel?.();
       return {
         ...state,
         commandHistory: newCommandHistory,
@@ -39,6 +40,7 @@ function spotlightifyReducer(
         activeCommand: action.payload,
       };
     case "SET_ACTIVE_COMMAND":
+      state.commandHistory.forEach((c) => c.command.onCancel?.());
       if (action.payload) {
         return {
           ...state,
@@ -48,12 +50,14 @@ function spotlightifyReducer(
       }
       return { ...state, commandHistory: [], activeCommand: null };
     case "CLEAR_COMMANDS":
+      state.commandHistory.forEach((c) => c.command.onCancel?.());
       return { ...state, commandHistory: [], activeCommand: null };
     case "SET_SUGGESTION_LIST":
       return { ...state, suggestions: action.payload };
     case "SET_PLACEHOLDER_TEXT":
       return { ...state, placeholderText: action.payload };
     case "RESET_PROMPT":
+      state.commandHistory.forEach((c) => c.command.onCancel?.());
       return {
         ...state,
         promptInput: "",
