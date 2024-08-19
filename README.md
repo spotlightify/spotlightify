@@ -86,7 +86,7 @@ Development of this application is currently taking place on macOS, so Windows a
 - NPM `10.24.0`
 - Wails `2.0.0` or later
 - Spotify Premium Account
-  - Spotify API Application, instructions can be found [here](https://spotlightify.github.io/instructions)
+  - Spotify API Application, instructions can be found [here](https://spotlightify.github.io/setup)
 
 ### Live development build
 
