@@ -44,7 +44,8 @@ func main() {
 			WebviewIsTransparent: true,
 		},
 		Linux: &linux.Options{
-			WindowIsTranslucent: true, // TODO Test this
+			WindowIsTranslucent: true,
+			WebviewGpuPolicy:    linux.WebviewGpuPolicyNever,
 		},
 
 		Bind: []interface{}{
