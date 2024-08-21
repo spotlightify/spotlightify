@@ -19,6 +19,7 @@ import (
 	"spotlightify-wails/backend/internal/command/queueOnline"
 	"spotlightify-wails/backend/internal/model"
 	"spotlightify-wails/backend/internal/spotify"
+	"spotlightify-wails/backend/keybind"
 	"spotlightify-wails/backend/server"
 	"strings"
 
@@ -52,11 +53,9 @@ type Backend struct {
 	authServer *server.AuthServer
 }
 
-// startup is called at application startup
 func (a *Backend) Startup(ctx context.Context) {
-	// Perform your setup here
 	a.ctx = ctx
-	hk := hotkey.New([]hotkey.Modifier{hotkey.ModCtrl, hotkey.ModOption}, hotkey.KeySpace)
+	hk := keybind.GetHotkey()
 	err := hk.Register()
 	if err != nil {
 		log.Printf("Failed to register hotkey: %v", err)
