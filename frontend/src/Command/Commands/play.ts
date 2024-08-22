@@ -4,6 +4,7 @@ import Icon from "../../types/icons";
 import {
   GetTracksByQuery,
   PlayTrack,
+  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
 import { Hide, Show } from "../../../wailsjs/runtime";
 import icons from "../../types/icons";
@@ -87,7 +88,7 @@ class PlayCommand extends BaseCommand {
                 },
               ],
             });
-            Show();
+            ShowWindow();
           }
           return Promise.resolve();
         },

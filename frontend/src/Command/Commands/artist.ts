@@ -10,6 +10,7 @@ import {
   GetArtistsByQuery,
   PlayAlbum,
   PlayArtistsTopTracks,
+  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
 
 class ArtistCommand extends BaseCommand {
@@ -89,7 +90,7 @@ class ArtistCommand extends BaseCommand {
                 },
               ],
             });
-            Show();
+            ShowWindow();
           }
           return Promise.resolve();
         },

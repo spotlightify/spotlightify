@@ -8,6 +8,7 @@ import { CombinedArtistsString } from "./utils";
 import {
   GetAlbumsByQuery,
   PlayAlbum,
+  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
 
 class AlbumCommand extends BaseCommand {
@@ -87,7 +88,7 @@ class AlbumCommand extends BaseCommand {
                 },
               ],
             });
-            Show();
+            ShowWindow();
           }
           return Promise.resolve();
         },

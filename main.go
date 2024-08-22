@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"spotlightify-wails/backend"
+	"spotlightify-wails/backend/constants"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -25,8 +26,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "Spotlightify",
-		Width:             550,
-		Height:            65,
+		Width:             constants.Width,
+		Height:            constants.Height,
 		AlwaysOnTop:       true,
 		DisableResize:     true,
 		HideWindowOnClose: true,

@@ -154,6 +154,10 @@ export function SetVolume(arg1) {
   return window['go']['backend']['Backend']['SetVolume'](arg1);
 }
 
+export function ShowWindow() {
+  return window['go']['backend']['Backend']['ShowWindow']();
+}
+
 export function Shuffle(arg1) {
   return window['go']['backend']['Backend']['Shuffle'](arg1);
 }
