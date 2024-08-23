@@ -6,6 +6,7 @@ import (
 	"log"
 	"log/slog"
 	"spotlightify-wails/backend/configs"
+	"spotlightify-wails/backend/constants"
 	"spotlightify-wails/backend/internal/builders"
 	"spotlightify-wails/backend/internal/cache"
 	"spotlightify-wails/backend/internal/command"
@@ -63,12 +64,51 @@ func (a *Backend) Startup(ctx context.Context) {
 	go listenForHotkey(ctx, hk)
 }
 
+// Expose the ShowWindow function to the frontend
+func (a *Backend) ShowWindow() {
+	showWindow(a.ctx)
+}
+
 func listenForHotkey(ctx context.Context, hk *hotkey.Hotkey) {
 	for range hk.Keydown() {
 		slog.Info("Hotkey pressed")
-		runtime.WindowShow(ctx)
-		runtime.WindowCenter(ctx)
+		showWindow(ctx)
 	}
+}
+
+func defaultShowWindow(ctx context.Context) {
+	runtime.WindowShow(ctx)
+	runtime.WindowCenter(ctx)
+}
+
+func showWindow(ctx context.Context) {
+	screens, err := runtime.ScreenGetAll(ctx)
+	if err != nil {
+		slog.Error("Failed to get screens", "error", err)
+		defaultShowWindow(ctx)
+		return
+	}
+
+	currentScreenIndex := -1
+	for idx, screen := range screens {
+		if screen.IsCurrent {
+			currentScreenIndex = idx
+			break
+		}
+	}
+
+	if currentScreenIndex == -1 {
+		slog.Error("Failed to find current screen")
+		defaultShowWindow(ctx)
+		return
+	}
+
+	currentScreen := screens[currentScreenIndex]
+	posX := (currentScreen.Size.Width - constants.Width) / 2
+	posY := currentScreen.Size.Height / 5
+	runtime.WindowShow(ctx)
+	runtime.WindowSetPosition(ctx, posX, posY)
+	slog.Info("Setting window position", "x", posX, "y", posY)
 }
 
 // domReady is called after front-end resources have been loaded

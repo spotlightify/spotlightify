@@ -80,4 +80,6 @@ export function SetAuthenticatedWithSpotify(arg1:boolean):Promise<void>;
 
 export function SetVolume(arg1:number):Promise<void>;
 
+export function ShowWindow():Promise<void>;
+
 export function Shuffle(arg1:boolean):Promise<void>;

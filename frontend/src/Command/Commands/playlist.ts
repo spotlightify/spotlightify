@@ -6,6 +6,7 @@ import {
   GetTracksByQuery,
   PlayPlaylist,
   PlayTrack,
+  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
 import { Hide, Show } from "../../../wailsjs/runtime";
 import icons from "../../types/icons";
@@ -88,7 +89,7 @@ class PlaylistCommand extends BaseCommand {
                 },
               ],
             });
-            Show();
+            ShowWindow();
           }
           return Promise.resolve();
         },

@@ -7,6 +7,7 @@ import { spotify } from "../../../wailsjs/go/models";
 import {
   GetShowsByQuery,
   PlayPodcast,
+  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
 
 class PodcastCommand extends BaseCommand {
@@ -86,7 +87,7 @@ class PodcastCommand extends BaseCommand {
                 },
               ],
             });
-            Show();
+            ShowWindow();
           }
           return Promise.resolve();
         },
