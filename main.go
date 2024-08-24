@@ -36,6 +36,7 @@ func main() {
 		OnStartup:         backend.Startup,
 		OnDomReady:        backend.DomReady,
 		Frameless:         true,
+		StartHidden:       true,
 
 		// OS specific options
 		Windows: &windows.Options{

@@ -27,13 +27,33 @@ function Spotlightify() {
 
   const debouncedQuery = useDebounce(
     state.promptInput,
-    activeCommand?.debounceMS ?? 0
+    activeCommand?.debounceMS ?? 0,
   );
 
   const onPromptChange = (event: { target: { value: any } }) => {
     const { value } = event.target;
     actions.setPromptInput(value);
   };
+
+  const isWindows10 = useMemo(
+    () => navigator.userAgent.includes("Windows NT 10"),
+    [],
+  );
+
+  useEffect(() => {
+    const onBlur = () => {
+      if (!state.activeCommand?.options?.keepPromptOpen) {
+        Hide();
+        actions.batchActions([
+          { type: "CLEAR_COMMANDS" },
+          { type: "SET_PROMPT_INPUT", payload: "" },
+          { type: "SET_SUGGESTION_LIST", payload: { items: [] } },
+        ]);
+      }
+    };
+    window.addEventListener("blur", onBlur);
+    return () => window.removeEventListener("blur", onBlur);
+  }, [state.activeCommand, actions]);
 
   useEffect(() => {
     fetchSuggestions(debouncedQuery);
@@ -43,12 +63,21 @@ function Spotlightify() {
     const maxNumberOfSuggestions = 8;
     WindowSetSize(
       650,
-      65 + Math.min(maxNumberOfSuggestions, suggestions.length) * 58
+      65 + Math.min(maxNumberOfSuggestions, suggestions.length) * 58,
     );
   }, [suggestions.length]);
 
+  const windows10Style = useMemo(() => {
+    if (isWindows10) {
+      return {
+        borderRadius: 0,
+      };
+    }
+    return {};
+  }, [isWindows10]);
+
   return (
-    <div className="base">
+    <div className="base" style={windows10Style}>
       <div className="input-wrapper">
         <img
           className="spotify-logo"
