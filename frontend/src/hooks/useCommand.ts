@@ -69,25 +69,13 @@ function useCommand() {
 
       commandRegistry.register(new ExitCommand());
     }
-  }, []);
+  }, [commandRegistry]);
 
   useEffect(() => {
     if (!activeCommand) {
       actions.setPlaceholderText("Spotlightify Search");
     }
-    const onBlur = () => {
-      if (!activeCommandOptions?.keepPromptOpen) {
-        Hide();
-        actions.batchActions([
-          { type: "CLEAR_COMMANDS" },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-          { type: "SET_SUGGESTION_LIST", payload: { items: [] } },
-        ]);
-      }
-    };
-    window.addEventListener("blur", onBlur);
-    return () => window.removeEventListener("blur", onBlur);
-  }, [activeCommand]);
+  }, [actions, activeCommand]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -114,7 +102,12 @@ function useCommand() {
 
     // Remove the event listener on cleanup
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeCommand, state.promptInput.length]);
+  }, [
+    actions,
+    activeCommand,
+    activeCommandOptions?.lockCommandStack,
+    state.promptInput.length,
+  ]);
 
   // For displaying on the prompt
   const commandTitles = useMemo(() => {
@@ -126,7 +119,7 @@ function useCommand() {
         arr.push(item.command.shorthandTitle);
         return arr;
       },
-      []
+      [],
     );
 
     if (activeCommand) {

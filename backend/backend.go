@@ -77,7 +77,7 @@ func listenForHotkey(ctx context.Context, hk *hotkey.Hotkey) {
 }
 
 func defaultShowWindow(ctx context.Context) {
-	runtime.WindowShow(ctx)
+	keybind.ShowWindow(ctx)
 	runtime.WindowCenter(ctx)
 }
 
@@ -106,7 +106,7 @@ func showWindow(ctx context.Context) {
 	currentScreen := screens[currentScreenIndex]
 	posX := (currentScreen.Size.Width - constants.Width) / 2
 	posY := currentScreen.Size.Height / 5
-	runtime.WindowShow(ctx)
+	keybind.ShowWindow(ctx)
 	runtime.WindowSetPosition(ctx, posX, posY)
 	slog.Info("Setting window position", "x", posX, "y", posY)
 }
