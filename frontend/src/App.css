@@ -1,8 +1,3 @@
-/* #root {
-  height: 60px;
-  width: 100%;
-} */
-
 :root {
   --base-children-height: 45px;
   --base-height: 64px;
@@ -14,27 +9,9 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: "Geist Light";
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
-
-/* button[type="button"],
-input[type="submit"],
-input[type="reset"] {
-  background: none;
-  color: inherit;
-  border: none;
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  outline: inherit;
-} */
-
-/* 16px/1.5 -apple-system,
-    BlinkMacSystemFont,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif; */
 
 .base {
   /* padding: 20px; */
