@@ -114,6 +114,10 @@ export function PlayArtistsTopTracks(arg1) {
   return window['go']['backend']['Backend']['PlayArtistsTopTracks'](arg1);
 }
 
+export function PlayLiked() {
+  return window['go']['backend']['Backend']['PlayLiked']();
+}
+
 export function PlayPlaylist(arg1) {
   return window['go']['backend']['Backend']['PlayPlaylist'](arg1);
 }

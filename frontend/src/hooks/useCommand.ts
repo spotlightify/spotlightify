@@ -22,6 +22,7 @@ import ExitCommand from "../Command/Commands/exit";
 import ArtistCommand from "../Command/Commands/artist";
 import AuthenticateCommand from "../Command/Commands/authenticate/authenticate";
 import { Hide, WindowHide } from "../../wailsjs/runtime/runtime";
+import PlayLikedSongs from "../Command/Commands/liked";
 
 export interface CommandOptions {
   parameters?: Record<string, string>;
@@ -49,6 +50,7 @@ function useCommand() {
       commandRegistry.register(new AlbumCommand());
       commandRegistry.register(new ArtistCommand());
       commandRegistry.register(new PodcastCommand());
+      commandRegistry.register(new PlayLikedSongs());
 
       // Playback control commands
       commandRegistry.register(new PauseCommand());
@@ -119,7 +121,7 @@ function useCommand() {
         arr.push(item.command.shorthandTitle);
         return arr;
       },
-      [],
+      []
     );
 
     if (activeCommand) {
