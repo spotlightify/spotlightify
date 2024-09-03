@@ -60,6 +60,8 @@ export function PlayAlbum(arg1:string):Promise<void>;
 
 export function PlayArtistsTopTracks(arg1:string):Promise<void>;
 
+export function PlayLiked():Promise<void>;
+
 export function PlayPlaylist(arg1:string):Promise<void>;
 
 export function PlayPodcast(arg1:string):Promise<void>;
