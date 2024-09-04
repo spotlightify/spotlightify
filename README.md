@@ -6,13 +6,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![GLP-3.0 License][license-shield]][license-url]
 [![Discord][discord-shield]][discord-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -37,39 +37,36 @@
 <details>
   <summary>Table of Contents</summary>
 
-  * [About The Project](#about-the-project)
-    * [Built With](#built-with)
-  * [Development](#development)
-    * [Prerequisites](#prerequisites)
-    * [Live development build](#live-development-build)
-    * [Building](#building)
-  * [Usage](#usage)
-    * [List of Commands](#list-of-commands)
-  * [Roadmap](#roadmap)
-  * [Contributing](#contributing)
-  * [Contact](#contact)
-  * [Acknowledgments](#acknowledgments)
+- [About The Project](#about-the-project)
+  - [Built With](#built-with)
+- [Development](#development)
+  - [Prerequisites](#prerequisites)
+  - [Live development build](#live-development-build)
+  - [Building](#building)
+- [Usage](#usage)
+  - [List of Commands](#list-of-commands)
+- [Contributing](#contributing)
+- [Contact](#contact)
+- [Acknowledgments](#acknowledgments)
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 Spotlightify is a GUI based application designed to allow users to quickly interact with Spotify playback
-across Windows, Linux and macOS. Created with simplicity and efficiency in mind, Spotlightify allows users to 
+across Windows, Linux and macOS. Created with simplicity and efficiency in mind, Spotlightify allows users to
 seamlessly control their music experience without having to navigate through Spotify's native interface.
 
 https://github.com/user-attachments/assets/ba116d21-bfd5-4106-9cb3-5bfff65afcfb
 
 ### Built With
 
-* [![Wails][Wails.com]][Wails-url]
-* [![Go][Go.com]][Go-url]
-* [![React][React.js]][React-url]
-* [![Tailwind][Tailwind.com]][Tailwind-url]
-* [![Vite][Vite.com]][Vite-url]
-
+- [![Wails][Wails.com]][Wails-url]
+- [![Go][Go.com]][Go-url]
+- [![React][React.js]][React-url]
+- [![Tailwind][Tailwind.com]][Tailwind-url]
+- [![Vite][Vite.com]][Vite-url]
 
 ## Development
 
@@ -104,48 +101,40 @@ To build a redistributable, production mode package, run the following in the pr
 wails build
 ```
 
-
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
-The GUI is activated by using the shortcut `control + alt + space` for Windows and `control + option + space` for macOS.
+The GUI is activated by using the shortcut `control + alt + space` for Windows and Linux, and `control + option + space` for macOS.
 Here is the current list of available functions:
 
 ### List of Commands
 
 ```
-| Name     | Description                                        | Keyword           | Input         | Implemented? |
-|----------|----------------------------------------------------|-------------------|---------------|--------------|
-| Play     | Find and play a song                               | play              | song name     | ✅           |
-| Queue    | Find and queues a song                             | queue             | song name     | ✅           |
-| Playlist | Find and play a saved/followed playlist            | playlist          | playlist name | ✅           |
-| Album    | Find and play a saved album                        | album             | album name    | ✅           |
-| Artist   | Find and play songs from a saved/followed artist   | artist            | artist name   | ✅           |
-| Liked    | Plays saved/liked music                            | liked             | None          | ❌           |
-| Volume   | Changes music volume                               | volume            | 1 - 10        | ❌           |
-| Go to    | Seeks a position in a song                         | goto              | e.g. 1:24     | ❌           |
-| Resume   | Resumes music playback                             | resume            | None          | ✅           |
-| Skip     | Skips the current song                             | next              | None          | ✅           |
-| Previous | Plays pervious song                                | previous          | None          | ✅           |
-| Pause    | Pauses music playback                              | pause             | None          | ✅           |
-| Shuffle  | Toggles shuffle playback                           | shuffle           | None          | ❌           |
-| Device   | Select device for music playback                   | device            | None          | ✅           |
-| Repeat   | Toggles repeating modes                            | repeat            | None          | ❌           |
-| Current  | Provides currently playing song info and sharing   | currently playing | None          | ✅           |
-| Auth     | Authenticate with Spotify                          | Authenticate      | Credentials   | -            |
-| Exit     | Exits the application                              | exit              | None          | ❌           |
+| Name             | Description                                        | Keyword           |
+|------------------|----------------------------------------------------|-------------------|
+| Play             | Find and play a song                               | play              |
+| Queue            | Find and queues a song                             | queue             |
+| Playlist         | Find and play a saved/followed playlist            | playlist          |
+| Album            | Find and play a saved album                        | album             |
+| Artist           | Find and play songs from a saved/followed artist   | artist            |
+| Liked            | Plays saved/liked music                            | liked             |
+| Volume           | Changes music volume                               | volume            |
+| Go to            | Seeks a position in a song                         | goto              |
+| Resume           | Resumes music playback                             | resume            |
+| Skip             | Skips the current song                             | next              |
+| Previous         | Plays pervious song                                | previous          |
+| Pause            | Pauses music playback                              | pause             |
+| Shuffle          | Toggles shuffle playback                           | shuffle           |
+| Device           | Select device for music playback                   | device            |
+| Repeat           | Toggles repeating modes                            | repeat            |
+| Current Playing  | Provides currently playing song info and sharing   | currently playing |
+| Authenticate     | Authenticate with Spotify                          | Authenticate      |
+| Exit             | Exits the application                              | exit              |
 ```
 
-<!-- ROADMAP -->
-## Roadmap
-
-- [ ] Complete authentication command
-- [ ] Implement features to be in functional parity with legacy version
-- [ ] Increase Windows Compatibility
-- [ ] Increase Linux Compatibility
-
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
@@ -160,6 +149,7 @@ Don't forget to give the project a star! Thanks again!
 Join us on [discord](https://discord.gg/nrDke3q) to learn more about contributing to the project.
 
 <!-- CONTACT -->
+
 ## Contact
 
 Please report any bugs or possible feature requests in the Issues section of this GitHub repository.
@@ -170,12 +160,11 @@ To learn more about Spotlightify, feel free to join our [discord server](https:/
 
 ## Acknowledgments
 
-* [Wails React Typescript Project Base](https://github.com/hotafrika/wails-vite-react-ts-tailwind-template)
-
-
+- [Wails React Typescript Project Base](https://github.com/hotafrika/wails-vite-react-ts-tailwind-template)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/spotlightify/spotlightify.svg?style=for-the-badge
 [contributors-url]: https://github.com/spotlightify/spotlightify/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/spotlightify/spotlightify.svg?style=for-the-badge
