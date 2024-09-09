@@ -44,20 +44,5 @@ jobs:
         with:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
-          package: false
+          package: true
           go-version: "1.22.5"
-
-        # Upload build assets
-      - uses: actions/upload-artifact@v3
-        if: inputs.package == 'true'
-        with:
-          name: Wails Build ${{runner.os}} ${{inputs.build-name}}
-          path: |
-            */bin/
-            *\bin\*
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: inputs.package == 'true' && startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            */bin/*
