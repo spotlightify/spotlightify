@@ -8,5 +8,9 @@
   "author": {
     "name": "Peter Murphy",
     "email": ""
+  },
+  "info": {
+    "productVersion": "0.1.0-beta.1",
+    "comments": "The Spotify overlay controller."
   }
 }
