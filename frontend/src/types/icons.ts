@@ -1,45 +1,89 @@
-enum Icon {
-  Album = "/src/assets/svg/album.svg",
-  Artist = "/src/assets/svg/artist.svg",
-  Authenticate = "/src/assets/svg/authenticate.svg",
-  BackNav = "/src/assets/svg/back-nav.svg",
-  Backward = "/src/assets/svg/backward.svg",
-  Change = "/src/assets/svg/change.svg",
-  Cog = "/src/assets/svg/cog.svg",
-  Computer = "/src/assets/svg/computer.svg",
-  Device = "/src/assets/svg/device.svg",
-  Ellipsis = "/src/assets/svg/ellipsis.svg",
-  Error = "/src/assets/svg/error.svg",
-  Exit = "/src/assets/svg/exit.svg",
-  ForwardNav = "/src/assets/svg/forward-nav.svg",
-  Forward = "/src/assets/svg/forward.svg",
-  GoArrow = "/src/assets/svg/go-arrow.svg",
-  HeartNoFill = "/src/assets/svg/heart-no-fill.svg",
-  Heart = "/src/assets/svg/heart.svg",
-  Moon = "/src/assets/svg/moon.svg",
-  NoTexture = "/src/assets/svg/no-texture.svg",
-  PauseButtonLight = "/src/assets/svg/pause-button-light.svg",
-  PauseButton = "/src/assets/svg/pause-button.svg",
-  Pause = "/src/assets/svg/pause.svg",
-  Play = "/src/assets/svg/play.svg",
-  Plus = "/src/assets/svg/plus.svg",
-  Playlist = "/src/assets/svg/playlist.svg",
-  Podcast = "/src/assets/svg/podcast.svg",
-  QueueLight = "/src/assets/svg/queue-light.svg",
-  Queue = "/src/assets/svg/queue.svg",
-  Radio = "/src/assets/svg/radio.svg",
-  Repeat = "/src/assets/svg/repeat.svg",
-  Search = "/src/assets/svg/search.svg",
-  Share = "/src/assets/svg/share.svg",
-  ShuffleOff = "/src/assets/svg/shuffle-off.svg",
-  Shuffle = "/src/assets/svg/shuffle.svg",
-  Smartphone = "/src/assets/svg/smartphone.svg",
-  Speaker = "/src/assets/svg/speaker.svg",
-  SpotifyLogo = "/src/assets/svg/spotify-logo.svg",
-  Sun = "/src/assets/svg/sun.svg",
-  Track = "/src/assets/svg/track.svg",
-  VolumeLight = "/src/assets/svg/volume-light.svg",
-  Volume = "/src/assets/svg/volume.svg",
-}
+import Album from "../assets/svg/album.svg";
+import Artist from "../assets/svg/artist.svg";
+import Authenticate from "../assets/svg/authenticate.svg";
+import BackNav from "../assets/svg/back-nav.svg";
+import Backward from "../assets/svg/backward.svg";
+import Change from "../assets/svg/change.svg";
+import Cog from "../assets/svg/cog.svg";
+import Computer from "../assets/svg/computer.svg";
+import Device from "../assets/svg/device.svg";
+import Ellipsis from "../assets/svg/ellipsis.svg";
+import Error from "../assets/svg/error.svg";
+import Exit from "../assets/svg/exit.svg";
+import ForwardNav from "../assets/svg/forward-nav.svg";
+import Forward from "../assets/svg/forward.svg";
+import GoArrow from "../assets/svg/go-arrow.svg";
+import HeartNoFill from "../assets/svg/heart-no-fill.svg";
+import Heart from "../assets/svg/heart.svg";
+import Moon from "../assets/svg/moon.svg";
+import NoTexture from "../assets/svg/no-texture.svg";
+import PauseButtonLight from "../assets/svg/pause-button-light.svg";
+import PauseButton from "../assets/svg/pause-button.svg";
+import Pause from "../assets/svg/pause.svg";
+import Play from "../assets/svg/play.svg";
+import Plus from "../assets/svg/plus.svg";
+import Playlist from "../assets/svg/playlist.svg";
+import Podcast from "../assets/svg/podcast.svg";
+import QueueLight from "../assets/svg/queue-light.svg";
+import Queue from "../assets/svg/queue.svg";
+import Radio from "../assets/svg/radio.svg";
+import Repeat from "../assets/svg/repeat.svg";
+import Search from "../assets/svg/search.svg";
+import Share from "../assets/svg/share.svg";
+import ShuffleOff from "../assets/svg/shuffle-off.svg";
+import Shuffle from "../assets/svg/shuffle.svg";
+import Smartphone from "../assets/svg/smartphone.svg";
+import Speaker from "../assets/svg/speaker.svg";
+import SpotifyLogo from "../assets/svg/spotify-logo.svg";
+import Sun from "../assets/svg/sun.svg";
+import Track from "../assets/svg/track.svg";
+import VolumeLight from "../assets/svg/volume-light.svg";
+import Volume from "../assets/svg/volume.svg";
+
+export type SVGIcon = string;
+
+const Icon = {
+  Album,
+  Artist,
+  Authenticate,
+  BackNav,
+  Backward,
+  Change,
+  Cog,
+  Computer,
+  Device,
+  Ellipsis,
+  Error,
+  Exit,
+  ForwardNav,
+  Forward,
+  GoArrow,
+  HeartNoFill,
+  Heart,
+  Moon,
+  NoTexture,
+  PauseButtonLight,
+  PauseButton,
+  Pause,
+  Play,
+  Plus,
+  Playlist,
+  Podcast,
+  QueueLight,
+  Queue,
+  Radio,
+  Repeat,
+  Search,
+  Share,
+  ShuffleOff,
+  Shuffle,
+  Smartphone,
+  Speaker,
+  SpotifyLogo,
+  Sun,
+  Track,
+  VolumeLight,
+  Volume,
+};
 
 export default Icon;

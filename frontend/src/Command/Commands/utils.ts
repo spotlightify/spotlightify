@@ -1,7 +1,7 @@
 import { spotify } from "../../../wailsjs/go/models";
 import SimpleArtist = spotify.SimpleArtist;
 import { Suggestion, SuggestionList } from "../../types/command";
-import Icon from "../../types/icons";
+import Icon, { SVGIcon } from "../../types/icons";
 import { Show } from "../../../wailsjs/runtime";
 import { ShowWindow } from "../../../wailsjs/go/backend/Backend";
 
@@ -37,7 +37,7 @@ export function HandleGenericError(
   ShowWindow();
 }
 
-export function DeviceIconSelector(deviceType: string): Icon {
+export function DeviceIconSelector(deviceType: string): SVGIcon {
   switch (deviceType) {
     case "Computer":
       return Icon.Computer;
