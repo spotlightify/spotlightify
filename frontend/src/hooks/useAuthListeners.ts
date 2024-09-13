@@ -1,7 +1,7 @@
 // hook for setting up auth listeners
 
 import { useEffect } from "react";
-import { SpotlightifyActions, SuggestionList } from "../types/command";
+import { SpotlightifyActions } from "../types/command";
 import { EventsOn } from "../../wailsjs/runtime/runtime";
 import Icon from "../types/icons";
 

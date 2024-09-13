@@ -1,8 +1,8 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide, Show } from "../../../wailsjs/runtime";
+import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import { Pause, Seek, SetVolume } from "../../../wailsjs/go/backend/Backend";
+import { Seek } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
 
 const second = 1000;
@@ -82,7 +82,7 @@ class GotoCommand extends BaseCommand {
 
   getSuggestions(
     input: string,
-    parameters: Record<string, string>
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
     const location = input.trim();
     let timeMS = 0;

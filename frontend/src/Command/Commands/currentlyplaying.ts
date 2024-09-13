@@ -1,19 +1,10 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { ClipboardSetText, Hide, Show } from "../../../wailsjs/runtime";
+import { ClipboardSetText } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import {
-  GetCurrentlyPlayingTrack,
-  GetDevices,
-  Pause,
-  SetActiveDevice,
-} from "../../../wailsjs/go/backend/Backend";
-import {
-  CombinedArtistsString,
-  DeviceIconSelector,
-  HandleGenericError,
-} from "./utils";
+import { GetCurrentlyPlayingTrack } from "../../../wailsjs/go/backend/Backend";
+import { CombinedArtistsString, HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
-import { backend, spotify } from "../../../wailsjs/go/models";
+import { backend } from "../../../wailsjs/go/models";
 import { QueryClient } from "@tanstack/react-query";
 
 class CurrentlyPlayingCommand extends BaseCommand {

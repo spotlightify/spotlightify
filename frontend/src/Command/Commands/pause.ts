@@ -1,9 +1,9 @@
 import BaseCommand from "./baseCommand";
-import {Suggestion, SuggestionList} from "../../types/command";
-import {Hide, Show} from "../../../wailsjs/runtime";
+import { Suggestion, SuggestionList } from "../../types/command";
+import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import {Pause} from "../../../wailsjs/go/backend/Backend";
-import {HandleGenericError} from "./utils";
+import { Pause } from "../../../wailsjs/go/backend/Backend";
+import { HandleGenericError } from "./utils";
 
 class PauseCommand extends BaseCommand {
   constructor() {
@@ -11,10 +11,10 @@ class PauseCommand extends BaseCommand {
   }
 
   getSuggestions(
-    input: string,
-    parameters: Record<string, string>
+    _input: string,
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
-    return Promise.resolve({items: []});
+    return Promise.resolve({ items: [] });
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

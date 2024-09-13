@@ -3,15 +3,12 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
 import {
   GetPlaylistsByQuery,
-  GetTracksByQuery,
   PlayPlaylist,
-  PlayTrack,
   ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
-import { Hide, Show } from "../../../wailsjs/runtime";
+import { Hide } from "../../../wailsjs/runtime";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
 class PlaylistCommand extends BaseCommand {
   constructor() {
     super("playlist", "Playlist", "playlist", 400, "playlist", {});
@@ -36,7 +33,7 @@ class PlaylistCommand extends BaseCommand {
 
   async getSuggestions(
     input: string,
-    parameters: Record<string, string>
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 

@@ -1,8 +1,8 @@
-import {Suggestion, SuggestionList} from "../../types/command";
-import {Hide} from "../../../wailsjs/runtime";
+import { Suggestion, SuggestionList } from "../../types/command";
+import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import {Pause, Resume} from "../../../wailsjs/go/backend/Backend";
-import {HandleGenericError} from "./utils";
+import { Resume } from "../../../wailsjs/go/backend/Backend";
+import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
 
 class ResumeCommand extends BaseCommand {
@@ -11,10 +11,10 @@ class ResumeCommand extends BaseCommand {
   }
 
   getSuggestions(
-    input: string,
-    parameters: Record<string, string>
+    _input: string,
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
-    return Promise.resolve({items: []});
+    return Promise.resolve({ items: [] });
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

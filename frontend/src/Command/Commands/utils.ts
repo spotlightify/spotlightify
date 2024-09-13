@@ -1,8 +1,7 @@
 import { spotify } from "../../../wailsjs/go/models";
 import SimpleArtist = spotify.SimpleArtist;
-import { Suggestion, SuggestionList } from "../../types/command";
+import { SuggestionList } from "../../types/command";
 import Icon, { SVGIcon } from "../../types/icons";
-import { Show } from "../../../wailsjs/runtime";
 import { ShowWindow } from "../../../wailsjs/go/backend/Backend";
 
 // TODO: at some point, we should probably move this to the backend for efficiency
@@ -21,7 +20,7 @@ export function CombinedArtistsString(artists: SimpleArtist[]): string {
 
 export function HandleGenericError(
   opName: string,
-  error: any,
+  error: unknown,
   setSuggestions: (suggestions: SuggestionList) => void
 ) {
   setSuggestions({

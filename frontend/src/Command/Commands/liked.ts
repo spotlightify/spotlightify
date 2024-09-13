@@ -11,8 +11,8 @@ class PlayLikedSongs extends BaseCommand {
   }
 
   getSuggestions(
-    input: string,
-    parameters: Record<string, string>
+    _input: string,
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }

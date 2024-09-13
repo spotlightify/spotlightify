@@ -10,7 +10,7 @@ class ClientIDCommand extends BaseCommand {
 
   getSuggestions(
     input: string,
-    parameters: Record<string, string>
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
     const addClientIDSuggestion: Suggestion = {
       title: "Add Client ID",

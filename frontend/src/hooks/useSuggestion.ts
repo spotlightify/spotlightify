@@ -4,8 +4,6 @@ import { useSpotlightify } from "./useSpotlightify";
 import { useQueryClient } from "@tanstack/react-query";
 import Icon from "../types/icons";
 
-const baseUrl = "http://localhost:49264";
-
 interface useSuggestionProps {
   commandSearch: (input: string) => Command[];
 }

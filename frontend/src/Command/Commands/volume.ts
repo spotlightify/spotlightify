@@ -1,12 +1,8 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide, Show } from "../../../wailsjs/runtime";
+import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import {
-  GetVolume,
-  Pause,
-  SetVolume,
-} from "../../../wailsjs/go/backend/Backend";
+import { GetVolume, SetVolume } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
 import { QueryClient } from "@tanstack/react-query";
 

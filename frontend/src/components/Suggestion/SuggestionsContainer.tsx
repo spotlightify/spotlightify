@@ -1,7 +1,7 @@
-import {useEffect, useRef, useState} from 'react';
-import SuggestionElement from './SuggestionElement';
-import {model} from "../../../wailsjs/go/models";
-import {Suggestion, SuggestionAction} from "../../types/command";
+import React from "react";
+import { useEffect, useRef, useState } from "react";
+import SuggestionElement from "./SuggestionElement";
+import { Suggestion, SuggestionAction } from "../../types/command";
 
 interface SuggestionContainerProps {
   suggestions: Suggestion[];
@@ -9,9 +9,9 @@ interface SuggestionContainerProps {
 }
 
 function SuggestionsContainer({
-                                suggestions,
-                                actionHandler,
-                              }: SuggestionContainerProps) {
+  suggestions,
+  actionHandler,
+}: SuggestionContainerProps) {
   const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState(0);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -28,28 +28,28 @@ function SuggestionsContainer({
   }, [focusedSuggestionIndex]);
 
   useEffect(() => {
-    const moveFocusedIndex = (direction: 'up' | 'down') => {
-      if (direction === 'up') {
+    const moveFocusedIndex = (direction: "up" | "down") => {
+      if (direction === "up") {
         setFocusedSuggestionIndex((prevIndex) =>
-          prevIndex === 0 ? suggestions.length - 1 : prevIndex - 1,
+          prevIndex === 0 ? suggestions.length - 1 : prevIndex - 1
         );
       } else {
         setFocusedSuggestionIndex((prevIndex) =>
-          prevIndex === suggestions.length - 1 ? 0 : prevIndex + 1,
+          prevIndex === suggestions.length - 1 ? 0 : prevIndex + 1
         );
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Tab' || event.key === 'ArrowDown') {
+      if (event.key === "Tab" || event.key === "ArrowDown") {
         event.preventDefault();
-        moveFocusedIndex('down');
+        moveFocusedIndex("down");
       }
-      if (event.key === 'ArrowUp') {
+      if (event.key === "ArrowUp") {
         event.preventDefault();
-        moveFocusedIndex('up');
+        moveFocusedIndex("up");
       }
-      if (event.key === 'Enter' && suggestions.length > 0) {
+      if (event.key === "Enter" && suggestions.length > 0) {
         const action = suggestions[focusedSuggestionIndex].action;
         if (action) {
           actionHandler(action);
@@ -58,10 +58,10 @@ function SuggestionsContainer({
     };
 
     // Add the event listener
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     // Remove the event listener on cleanup
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [actionHandler, focusedSuggestionIndex, suggestions]);
 
   const suggestionElements = suggestions.map((suggestion, index) => (
@@ -80,7 +80,7 @@ function SuggestionsContainer({
   return (
     <div
       ref={suggestionsRef}
-      style={{height: Math.min(suggestions.length, 8) * 58}}
+      style={{ height: Math.min(suggestions.length, 8) * 58 }}
       className="suggestions-wrapper"
     >
       {suggestionElements}

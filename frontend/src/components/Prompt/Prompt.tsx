@@ -1,9 +1,10 @@
-import { forwardRef, Ref, useEffect, useImperativeHandle, useRef } from "react";
+import React from "react";
+import { useEffect, useRef } from "react";
 
 interface Props {
   value: string;
   placeHolder: string;
-  onChange: (event: { target: { value: any } }) => void;
+  onChange: (event: { target: { value: string } }) => void;
 }
 
 function Prompt({ value, onChange, placeHolder }: Props) {

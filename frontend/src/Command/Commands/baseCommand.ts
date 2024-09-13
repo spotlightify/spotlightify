@@ -1,10 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import {
-  Command,
-  SpotlightifyActions,
-  Suggestion,
-  SuggestionList,
-} from "../../types/command";
+import { Command, Suggestion, SuggestionList } from "../../types/command";
 // import {QueryClient} from "@tanstack/react-query";
 
 abstract class BaseCommand implements Command {
