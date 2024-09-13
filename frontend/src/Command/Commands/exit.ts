@@ -1,7 +1,6 @@
 import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide, Quit } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import { Pause, Resume } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
 
@@ -11,8 +10,8 @@ class ExitCommand extends BaseCommand {
   }
 
   getSuggestions(
-    input: string,
-    parameters: Record<string, string>
+    _input: string,
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }

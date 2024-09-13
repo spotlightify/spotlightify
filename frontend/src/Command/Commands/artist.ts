@@ -1,14 +1,11 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
-import { Hide, Show } from "../../../wailsjs/runtime";
+import { Hide } from "../../../wailsjs/runtime";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
 import {
-  GetAlbumsByQuery,
   GetArtistsByQuery,
-  PlayAlbum,
   PlayArtistsTopTracks,
   ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
@@ -37,7 +34,7 @@ class ArtistCommand extends BaseCommand {
 
   async getSuggestions(
     input: string,
-    parameters: Record<string, string>
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 

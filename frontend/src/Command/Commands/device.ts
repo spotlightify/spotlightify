@@ -1,9 +1,8 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide, Show } from "../../../wailsjs/runtime";
+import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import {
   GetDevices,
-  Pause,
   SetActiveDevice,
 } from "../../../wailsjs/go/backend/Backend";
 import { DeviceIconSelector, HandleGenericError } from "./utils";
@@ -38,7 +37,7 @@ class DeviceCommand extends BaseCommand {
     parameters: Record<string, string>,
     queryClient: QueryClient
   ): Promise<SuggestionList> {
-    let suggestions = [] as Suggestion[];
+    const suggestions = [] as Suggestion[];
 
     let devices: spotify.PlayerDevice[];
     try {

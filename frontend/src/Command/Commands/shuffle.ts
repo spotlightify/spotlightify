@@ -1,12 +1,7 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide, Show } from "../../../wailsjs/runtime";
+import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import {
-  ChangeShuffle,
-  IsCurrentSongLiked,
-  IsShuffled,
-  LikeCurrentSong,
-} from "../../../wailsjs/go/backend/Backend";
+import { ChangeShuffle, IsShuffled } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { QueryClient } from "@tanstack/react-query";
@@ -19,8 +14,8 @@ class ShuffleCommand extends BaseCommand {
   }
 
   getSuggestions(
-    input: string,
-    parameters: Record<string, string>
+    _input: string,
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }

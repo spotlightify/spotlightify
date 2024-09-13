@@ -54,17 +54,17 @@ export type Action =
   | { type: "POP_COMMAND" }
   | {
       type: "PUSH_COMMAND";
-      payload: { command: any; options?: CommandOptions };
+      payload: { command: Command; options?: CommandOptions };
     }
   | {
       type: "SET_ACTIVE_COMMAND";
-      payload: { command: any; options?: CommandOptions } | null;
+      payload: { command: Command; options?: CommandOptions } | null;
     }
   | { type: "CLEAR_COMMANDS" }
   | { type: "SET_SUGGESTION_LIST"; payload: SuggestionList }
   | { type: "SET_PLACEHOLDER_TEXT"; payload: string }
   | { type: "RESET_PROMPT" }
-  | { type: "SET_CURRENT_COMMAND_PARAMETERS"; payload: any }
+  | { type: "SET_CURRENT_COMMAND_PARAMETERS"; payload: Record<string, string> }
   | { type: "BATCH_ACTIONS"; payload: Action[] };
 
 export interface SpotlightifyActions {

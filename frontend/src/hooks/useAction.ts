@@ -21,9 +21,7 @@ function useAction() {
       const newActionExecuting = actionsToExecuteCopy.shift();
       setActionsToExecute(actionsToExecuteCopy);
       setActionExecuting(
-        !!newActionExecuting
-          ? { actionCallback: newActionExecuting }
-          : undefined
+        newActionExecuting ? { actionCallback: newActionExecuting } : undefined
       );
     }
   }, [actionExecuting, actionsToExecute]);

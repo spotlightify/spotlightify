@@ -1,3 +1,4 @@
+import React from "react";
 import { MemoryRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Spotlightify from "./Spotlightify";

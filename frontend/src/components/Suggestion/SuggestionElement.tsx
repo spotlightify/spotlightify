@@ -1,4 +1,5 @@
-import {Suggestion} from "../../types/command";
+import React from "react";
+import { Suggestion } from "../../types/command";
 
 interface SuggestionProps {
   suggestion: Suggestion;
@@ -7,19 +8,21 @@ interface SuggestionProps {
 }
 
 function SuggestionElement({
-                             suggestion,
-                             isFocused = false,
-                             handleAction,
-                           }: SuggestionProps) {
+  suggestion,
+  isFocused = false,
+  handleAction,
+}: SuggestionProps) {
   return (
     <button
       type="button"
-      className={`suggestion-item ${isFocused ? 'button--focus' : ''}`}
+      className={`suggestion-item ${isFocused ? "button--focus" : ""}`}
       onClick={handleAction}
     >
       <div className="suggestion-item__icon-wrapper">
         <img
-          className={`suggestion-item__icon${suggestion.icon?.endsWith('.svg') ? '--svg' : ''}`}
+          className={`suggestion-item__icon${
+            suggestion.icon?.endsWith(".svg") ? "--svg" : ""
+          }`}
           src={suggestion.icon}
           alt="icon"
         />

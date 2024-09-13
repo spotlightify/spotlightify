@@ -1,13 +1,9 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide, Show } from "../../../wailsjs/runtime";
+import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import {
   ChangeRepeatState,
-  ChangeShuffle,
   GetRepeatState,
-  IsCurrentSongLiked,
-  IsShuffled,
-  LikeCurrentSong,
 } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
@@ -93,7 +89,7 @@ class RepeatCommand extends BaseCommand {
         queryKey: [repeatKey],
         staleTime: 5000,
       });
-    } catch (e) {
+    } catch {
       return {
         title: "Repeat",
         description: "Cannot repeat when no device is active",

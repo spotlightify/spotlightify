@@ -1,3 +1,4 @@
+import React from "react";
 import { createContext, useReducer, useMemo } from "react";
 import {
   Action,
@@ -23,7 +24,7 @@ function spotlightifyReducer(
   switch (action.type) {
     case "SET_PROMPT_INPUT":
       return { ...state, promptInput: action.payload };
-    case "POP_COMMAND":
+    case "POP_COMMAND": {
       const newCommandHistory = [...state.commandHistory];
       // Call onCancel for side effects on the command that is being popped
       newCommandHistory.pop()?.command?.onCancel?.();
@@ -32,13 +33,15 @@ function spotlightifyReducer(
         commandHistory: newCommandHistory,
         activeCommand: newCommandHistory[newCommandHistory.length - 1] || null,
       };
-    case "PUSH_COMMAND":
+    }
+    case "PUSH_COMMAND": {
       const pushedCommandHistory = [...state.commandHistory, action.payload];
       return {
         ...state,
         commandHistory: pushedCommandHistory,
         activeCommand: action.payload,
       };
+    }
     case "SET_ACTIVE_COMMAND":
       state.commandHistory.forEach((c) => c.command.onCancel?.());
       if (action.payload) {
@@ -66,7 +69,7 @@ function spotlightifyReducer(
         placeholderText: "Spotlightify Search",
         suggestions: { items: [] },
       };
-    case "SET_CURRENT_COMMAND_PARAMETERS":
+    case "SET_CURRENT_COMMAND_PARAMETERS": {
       if (!state.activeCommand) {
         return state;
       }
@@ -82,6 +85,7 @@ function spotlightifyReducer(
           options: { ...newActiveCommandOptions },
         },
       };
+    }
     case "BATCH_ACTIONS":
       return action.payload.reduce((s, a) => spotlightifyReducer(s, a), state);
     default:

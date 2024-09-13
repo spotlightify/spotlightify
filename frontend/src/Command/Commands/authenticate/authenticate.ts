@@ -25,15 +25,15 @@ class AuthenticateCommand extends BaseCommand {
   }
 
   async getSuggestions(
-    input: string,
-    parameters: Record<string, string>
+    _input: string,
+    _parameters: Record<string, string>
   ): Promise<SuggestionList> {
     const openInstructionsSuggestions: Suggestion = {
       title: "Open Instructions",
       description: "Open the instructions in a new browser window",
       icon: Icon.Ellipsis,
       id: "open-instructions",
-      action: async (actions) => {
+      action: async (_actions) => {
         BrowserOpenURL("https://spotlightify.github.io/setup");
       },
     };
