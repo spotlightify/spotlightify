@@ -39,7 +39,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libx11-dev
 
       - name: Build wails
-        uses: petergmurphy/wails-build-action@1a63341fa3542ae42cc60f8730c1d1f88d79fc9b
+        uses: petergmurphy/wails-build-action@main
         id: build
         with:
           build-name: ${{ matrix.build.name }}
