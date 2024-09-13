@@ -10,7 +10,7 @@
     "email": ""
   },
   "info": {
-    "productVersion": "0.1.0-beta.2",
+    "productVersion": "0.1.0.2",
     "comments": "The Spotify overlay controller."
   }
 }
