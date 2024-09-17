@@ -17,13 +17,13 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name: "spotlightify"
+          - name: "Spotlightify"
             platform: "linux/amd64"
             os: "ubuntu-latest"
-          - name: "spotlightify"
+          - name: "Spotlightify"
             platform: "windows/amd64"
             os: "windows-latest"
-          - name: "spotlightify"
+          - name: "Spotlightify"
             platform: "darwin/universal"
             os: "macos-latest"
 
