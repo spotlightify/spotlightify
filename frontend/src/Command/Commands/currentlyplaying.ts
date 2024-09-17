@@ -89,7 +89,10 @@ class CurrentlyPlayingCommand extends BaseCommand {
       id: "share",
       action: async (actions) => {
         try {
-          const trackUrl = `https://spotify.com/track/${track.id}`;
+          const trackUrl = track.external_urls.spotify;
+          if (!trackUrl) {
+            throw new Error("No Spotify URL available for this track");
+          }
           await ClipboardSetText(trackUrl);
           actions.setCurrentCommandParameters({ shared: "true" });
         } catch (e) {
