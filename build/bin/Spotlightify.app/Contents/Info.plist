@@ -10,11 +10,11 @@
         <key>CFBundleIdentifier</key>
         <string>com.wails.Spotlightify</string>
         <key>CFBundleVersion</key>
-        <string>0.1.0-beta.1</string>
+        <string>0.1.0.2</string>
         <key>CFBundleGetInfoString</key>
         <string>The Spotify overlay controller.</string>
         <key>CFBundleShortVersionString</key>
-        <string>0.1.0-beta.1</string>
+        <string>0.1.0.2</string>
         <key>CFBundleIconFile</key>
         <string>iconfile</string>
         <key>LSMinimumSystemVersion</key>
@@ -25,5 +25,10 @@
         <string>Copyright.........</string>
         
         
+        <key>NSAppTransportSecurity</key>
+        <dict>
+            <key>NSAllowsLocalNetworking</key>
+            <true/>
+        </dict>
     </dict>
 </plist>
