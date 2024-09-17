@@ -82,7 +82,6 @@ body {
   color: var(--font-color);
   font-size: 26px;
   /* padding: 0 10px 0 10px; */
-  font-family: "Geist Light";
 }
 
 .input-prompt:focus {
