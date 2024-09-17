@@ -21,6 +21,7 @@ import (
 	"spotlightify-wails/backend/internal/model"
 	"spotlightify-wails/backend/internal/spotify"
 	"spotlightify-wails/backend/keybind"
+	"spotlightify-wails/backend/platform"
 	"spotlightify-wails/backend/server"
 	"strings"
 
@@ -52,40 +53,41 @@ type Backend struct {
 	managers   *managers
 	ctx        context.Context
 	authServer *server.AuthServer
+	platform   platform.OSOperations
 }
 
 func (a *Backend) Startup(ctx context.Context) {
 	a.ctx = ctx
-	hk := keybind.GetHotkey()
+	hk := a.platform.GetHotkey()
 	err := hk.Register()
 	if err != nil {
 		log.Printf("Failed to register hotkey: %v", err)
 	}
-	go listenForHotkey(ctx, hk)
+	go a.listenForHotkey(ctx, hk)
 }
 
 // Expose the ShowWindow function to the frontend
 func (a *Backend) ShowWindow() {
-	showWindow(a.ctx)
+	a.showWindow(a.ctx)
 }
 
-func listenForHotkey(ctx context.Context, hk *hotkey.Hotkey) {
+func (a *Backend) listenForHotkey(ctx context.Context, hk *hotkey.Hotkey) {
 	for range hk.Keydown() {
 		slog.Info("Hotkey pressed")
-		showWindow(ctx)
+		a.showWindow(ctx)
 	}
 }
 
-func defaultShowWindow(ctx context.Context) {
+func (a *Backend) defaultShowWindow(ctx context.Context) {
 	keybind.ShowWindow(ctx)
 	runtime.WindowCenter(ctx)
 }
 
-func showWindow(ctx context.Context) {
+func (a *Backend) showWindow(ctx context.Context) {
 	screens, err := runtime.ScreenGetAll(ctx)
 	if err != nil {
 		slog.Error("Failed to get screens", "error", err)
-		defaultShowWindow(ctx)
+		a.defaultShowWindow(ctx)
 		return
 	}
 
@@ -99,7 +101,7 @@ func showWindow(ctx context.Context) {
 
 	if currentScreenIndex == -1 {
 		slog.Error("Failed to find current screen")
-		defaultShowWindow(ctx)
+		a.defaultShowWindow(ctx)
 		return
 	}
 
@@ -186,6 +188,7 @@ func StartBackend() *Backend {
 	backend := &Backend{
 		managers:   managers,
 		authServer: &server.AuthServer{},
+		platform:   platform.GetOSOperations(),
 	}
 
 	return backend
