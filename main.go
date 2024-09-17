@@ -2,8 +2,12 @@ package main
 
 import (
 	"embed"
+	"log/slog"
 	"spotlightify-wails/backend"
 	"spotlightify-wails/backend/constants"
+
+	"os"
+	"strings"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -23,6 +27,12 @@ func main() {
 	app := NewApp()
 	backend := backend.StartBackend()
 
+	// Check for development mode
+	isDev := strings.ToLower(os.Getenv("SPOTLIGHTIFY_DEV")) == "true"
+	if isDev {
+		slog.Info("Running in development mode")
+	}
+
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "Spotlightify",
@@ -36,7 +46,7 @@ func main() {
 		OnStartup:         backend.Startup,
 		OnDomReady:        backend.DomReady,
 		Frameless:         true,
-		StartHidden:       true,
+		StartHidden:       isDev,
 
 		// OS specific options
 		Windows: &windows.Options{

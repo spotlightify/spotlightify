@@ -110,7 +110,9 @@ button {
 
 .suggestion-item {
   height: var(--suggestion-item-height);
-  width: 100%;
+  width: auto;
+  max-width: 100%;
+  padding: 0 15px 0 15px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -118,7 +120,7 @@ button {
   align-items: center;
   color: #b5b5b5;
   flex-shrink: 0;
-  padding-left: 15px;
+  overflow: hidden; /* Prevents overflow */
 }
 
 .button--focus {
@@ -144,10 +146,18 @@ button {
 .suggestion-item__title {
   text-align: left;
   font-size: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: calc(650px - 80px);
 }
 
 .suggestion-item__description {
   font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: calc(650px - 80px);
 }
 
 .suggestion-item__icon-wrapper {
@@ -156,6 +166,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .suggestion-item__icon {
