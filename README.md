@@ -58,7 +58,9 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
 across Windows, Linux and macOS. Created with simplicity and efficiency in mind, Spotlightify allows users to
 seamlessly control their music experience without having to navigate through Spotify's native interface.
 
-https://github.com/user-attachments/assets/ba116d21-bfd5-4106-9cb3-5bfff65afcfb
+
+https://github.com/user-attachments/assets/77118ce9-cb8c-443f-9008-b1cd8817db74
+
 
 ### Built With
 
