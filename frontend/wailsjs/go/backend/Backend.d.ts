@@ -66,6 +66,8 @@ export function PlayPlaylist(arg1:string):Promise<void>;
 
 export function PlayPodcast(arg1:string):Promise<void>;
 
+export function PlayRecommendationsFromItem(arg1:spotify.SimpleTrack):Promise<void>;
+
 export function PlayTrack(arg1:string):Promise<void>;
 
 export function Previous():Promise<void>;

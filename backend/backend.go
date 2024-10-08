@@ -26,6 +26,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"go.uber.org/zap"
 	"golang.design/x/hotkey"
 )
 
@@ -52,6 +53,7 @@ type Backend struct {
 	managers   *managers
 	ctx        context.Context
 	authServer *server.AuthServer
+	logger     *zap.SugaredLogger
 }
 
 func (a *Backend) Startup(ctx context.Context) {
@@ -160,7 +162,7 @@ func (b *Backend) ExecuteCommand(commandId string, parameters map[string]string)
 	return command.Execute(parameters, ctx)
 }
 
-func StartBackend() *Backend {
+func StartBackend(logger *zap.SugaredLogger) *Backend {
 	fileSystem := afero.NewOsFs()
 	setupDirectories(fileSystem) // TODO
 
@@ -186,6 +188,7 @@ func StartBackend() *Backend {
 	backend := &Backend{
 		managers:   managers,
 		authServer: &server.AuthServer{},
+		logger:     logger,
 	}
 
 	return backend
