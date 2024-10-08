@@ -10,10 +10,11 @@ import { Hide } from "../../../wailsjs/runtime";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
 import { CombinedArtistsString } from "./utils";
+import TrackOptions from "./trackOptions";
 
 class PlayCommand extends BaseCommand {
   constructor() {
-    super("play", "Play", "play", 400, "play", {});
+    super("play", "Play", "🎵", 400, "play", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -91,6 +92,14 @@ class PlayCommand extends BaseCommand {
             ShowWindow();
           }
           return Promise.resolve();
+        },
+        modKeys: {
+          shift: {
+            description: "View options for this track",
+            action: async (actions) => {
+              actions.pushCommand(new TrackOptions(track));
+            },
+          },
         },
       });
     });

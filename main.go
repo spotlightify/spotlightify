@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"log/slog"
 	"spotlightify-wails/backend"
 	"spotlightify-wails/backend/constants"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"go.uber.org/zap"
 )
 
 //go:embed all:frontend/dist
@@ -23,15 +23,26 @@ var assets embed.FS
 var icon []byte
 
 func main() {
-	// Create an instance of the app structure
-	app := NewApp()
-	backend := backend.StartBackend()
-
 	// Check for development mode
 	isDev := strings.ToLower(os.Getenv("SPOTLIGHTIFY_DEV")) == "true"
+
+	// Create logger
+	var logger *zap.Logger
 	if isDev {
-		slog.Info("Running in development mode")
+		logger, _ = zap.NewDevelopment()
+	} else {
+		logger, _ = zap.NewProduction()
 	}
+	defer logger.Sync() // flushes buffer, if any
+	sugarLogger := logger.Sugar()
+
+	if isDev {
+		sugarLogger.Info("Running in development mode")
+	}
+
+	// Create an instance of the app structure
+	app := NewApp()
+	backend := backend.StartBackend(sugarLogger)
 
 	// Create application with options
 	err := wails.Run(&options.App{

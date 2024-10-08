@@ -26,11 +26,19 @@ export interface SuggestionList {
   type?: "filter" | "static" | "error";
 }
 
+export type ModKeys = "ctrl" | "shift" | "alt";
+
+type ModSuggestion = {
+  description?: string;
+  action?: SuggestionAction;
+};
+
 export interface Suggestion {
   title: string;
   description: string;
   icon: string;
   id: string;
+  modKeys?: { [key in ModKeys]?: ModSuggestion };
   action?: SuggestionAction;
 }
 

@@ -126,6 +126,10 @@ export function PlayPodcast(arg1) {
   return window['go']['backend']['Backend']['PlayPodcast'](arg1);
 }
 
+export function PlayRecommendationsFromItem(arg1) {
+  return window['go']['backend']['Backend']['PlayRecommendationsFromItem'](arg1);
+}
+
 export function PlayTrack(arg1) {
   return window['go']['backend']['Backend']['PlayTrack'](arg1);
 }

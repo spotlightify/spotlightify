@@ -16,13 +16,13 @@ func (b *Backend) GetTracksByQuery(query string) ([]spotify.SimpleTrack, error) 
 	ctx := context.Background()
 	spotifyPlayer, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.SimpleTrack{}, err
 	}
 
 	results, err := spotifyPlayer.Search(ctx, query, spotify.SearchTypeTrack)
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.SimpleTrack{}, err
 	}
 
@@ -39,13 +39,13 @@ func (b *Backend) GetPlaylistsByQuery(query string) ([]spotify.SimplePlaylist, e
 	ctx := context.Background()
 	spotifyPlayer, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.SimplePlaylist{}, err
 	}
 
 	results, err := spotifyPlayer.Search(ctx, query, spotify.SearchTypePlaylist)
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.SimplePlaylist{}, err
 	}
 
@@ -56,13 +56,13 @@ func (b *Backend) GetArtistsByQuery(query string) ([]spotify.FullArtist, error) 
 	ctx := context.Background()
 	spotifyPlayer, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.FullArtist{}, err
 	}
 
 	results, err := spotifyPlayer.Search(ctx, query, spotify.SearchTypeArtist)
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.FullArtist{}, err
 	}
 
@@ -73,13 +73,13 @@ func (b *Backend) GetAlbumsByQuery(query string) ([]spotify.SimpleAlbum, error) 
 	ctx := context.Background()
 	spotifyPlayer, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving albums", "error", err)
+		b.logger.Error("error retrieving albums", "error", err)
 		return []spotify.SimpleAlbum{}, err
 	}
 
 	results, err := spotifyPlayer.Search(ctx, query, spotify.SearchTypeAlbum)
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.SimpleAlbum{}, err
 	}
 
@@ -90,13 +90,13 @@ func (b *Backend) GetShowsByQuery(query string) ([]spotify.FullShow, error) {
 	ctx := context.Background()
 	spotifyPlayer, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving albums", "error", err)
+		b.logger.Error("error retrieving albums", "error", err)
 		return []spotify.FullShow{}, err
 	}
 
 	results, err := spotifyPlayer.Search(ctx, query, spotify.SearchTypeShow)
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.FullShow{}, err
 	}
 
@@ -107,13 +107,13 @@ func (b *Backend) GetEpisodesByShowID(showID string) ([]spotify.EpisodePage, err
 	ctx := context.Background()
 	spotifyPlayer, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving albums", "error", err)
+		b.logger.Error("error retrieving albums", "error", err)
 		return []spotify.EpisodePage{}, err
 	}
 
 	results, err := spotifyPlayer.GetShowEpisodes(ctx, showID)
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return []spotify.EpisodePage{}, err
 	}
 
@@ -124,7 +124,7 @@ func (b *Backend) PlayTrack(trackID string) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error getting spotify instance", "error", err)
+		b.logger.Error("error getting spotify instance", "error", err)
 		return err
 	}
 
@@ -137,13 +137,13 @@ func (b *Backend) PlayArtistsTopTracks(artistID string) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error getting spotify instance", "error", err)
+		b.logger.Error("error getting spotify instance", "error", err)
 		return err
 	}
 
 	topTracks, err := client.GetArtistsTopTracks(ctx, spotify.ID(artistID), "US")
 	if err != nil {
-		slog.Error("error getting top tracks", "error", err)
+		b.logger.Error("error getting top tracks", "error", err)
 		return err
 	}
 
@@ -159,7 +159,7 @@ func (b *Backend) PlayPodcast(uri string) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error getting spotify instance", "error", err)
+		b.logger.Error("error getting spotify instance", "error", err)
 		return err
 	}
 
@@ -171,7 +171,7 @@ func (b *Backend) PlayPlaylist(uri string) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error getting spotify instance", "error", err)
+		b.logger.Error("error getting spotify instance", "error", err)
 		return err
 	}
 
@@ -183,7 +183,7 @@ func (b *Backend) PlayAlbum(uri string) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error getting spotify instance", "error", err)
+		b.logger.Error("error getting spotify instance", "error", err)
 		return err
 	}
 
@@ -195,7 +195,7 @@ func (b *Backend) QueueTrack(trackID string) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return err
 	}
 
@@ -206,7 +206,7 @@ func (b *Backend) Pause() error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return err
 	}
 
@@ -217,7 +217,7 @@ func (b *Backend) Next() error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return err
 	}
 
@@ -228,7 +228,7 @@ func (b *Backend) Previous() error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return err
 	}
 
@@ -239,7 +239,7 @@ func (b *Backend) Resume() error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return err
 	}
 
@@ -250,7 +250,7 @@ func (b *Backend) GetDevices() ([]spotify.PlayerDevice, error) {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return nil, err
 	}
 
@@ -261,7 +261,7 @@ func (b *Backend) SetActiveDevice(deviceID string) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return err
 	}
 
@@ -292,7 +292,7 @@ func (b *Backend) SetVolume(volume int) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error retrieving tracks", "error", err)
+		b.logger.Error("error retrieving tracks", "error", err)
 		return err
 	}
 
@@ -303,7 +303,7 @@ func (b *Backend) Shuffle(shuffle bool) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error toggling shuffle", "error", err)
+		b.logger.Error("error toggling shuffle", "error", err)
 		return err
 	}
 
@@ -314,13 +314,13 @@ func (b *Backend) IsCurrentSongLiked() (bool, error) {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error checking if current song is liked", "error", err)
+		b.logger.Error("error checking if current song is liked", "error", err)
 		return false, err
 	}
 
 	currentSong, err := client.PlayerCurrentlyPlaying(ctx)
 	if err != nil {
-		slog.Error("error checking if current song is liked", "error", err)
+		b.logger.Error("error checking if current song is liked", "error", err)
 		return false, err
 	} else if currentSong == nil || currentSong.Item == nil {
 		return false, fmt.Errorf("no current song playing")
@@ -328,7 +328,7 @@ func (b *Backend) IsCurrentSongLiked() (bool, error) {
 
 	checkArray, err := client.UserHasTracks(ctx, currentSong.Item.ID)
 	if err != nil {
-		slog.Error("error checking if current song is liked", "error", err)
+		b.logger.Error("error checking if current song is liked", "error", err)
 		return false, err
 	}
 
@@ -342,13 +342,13 @@ func (b *Backend) LikeCurrentSong(like bool) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error liking current song", "error", err)
+		b.logger.Error("error liking current song", "error", err)
 		return err
 	}
 
 	currentSong, err := client.PlayerCurrentlyPlaying(ctx)
 	if err != nil {
-		slog.Error("error liking current song", "error", err)
+		b.logger.Error("error liking current song", "error", err)
 		return err
 	}
 
@@ -362,7 +362,7 @@ func (b *Backend) Seek(positionMS int) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error seeking", "error", err)
+		b.logger.Error("error seeking", "error", err)
 		return err
 	}
 
@@ -377,13 +377,13 @@ func (b *Backend) GetCurrentlyPlayingTrack() (*CurrentlyPlayingTrack, error) {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error seeking", "error", err)
+		b.logger.Error("error seeking", "error", err)
 		return nil, err
 	}
 
 	track, err := client.PlayerCurrentlyPlaying(ctx)
 	if err != nil {
-		slog.Error("error getting currently playing track", "error", err)
+		b.logger.Error("error getting currently playing track", "error", err)
 		return nil, err
 	}
 
@@ -402,13 +402,13 @@ func (b *Backend) IsShuffled() (bool, error) {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error checking shuffle status", "error", err)
+		b.logger.Error("error checking shuffle status", "error", err)
 		return false, err
 	}
 
 	status, err := client.PlayerState(ctx)
 	if err != nil {
-		slog.Error("error checking shuffle status", "error", err)
+		b.logger.Error("error checking shuffle status", "error", err)
 		return false, err
 	}
 
@@ -419,7 +419,7 @@ func (b *Backend) ChangeShuffle(shuffleOn bool) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error toggling shuffle", "error", err)
+		b.logger.Error("error toggling shuffle", "error", err)
 		return err
 	}
 
@@ -430,13 +430,13 @@ func (b *Backend) GetRepeatState() (string, error) {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error getting repeat state", "error", err)
+		b.logger.Error("error getting repeat state", "error", err)
 		return "", err
 	}
 
 	status, err := client.PlayerState(ctx)
 	if err != nil {
-		slog.Error("error getting repeat state", "error", err)
+		b.logger.Error("error getting repeat state", "error", err)
 		return "", err
 	}
 
@@ -447,7 +447,7 @@ func (b *Backend) ChangeRepeatState(repeatState string) error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error changing repeat state", "error", err)
+		b.logger.Error("error changing repeat state", "error", err)
 		return err
 	}
 
@@ -455,7 +455,7 @@ func (b *Backend) ChangeRepeatState(repeatState string) error {
 }
 
 func (b *Backend) AddClientID(clientID string) {
-	slog.Info("Setting client ID", "clientID", clientID)
+	b.logger.Info("Setting client ID", "clientID", clientID)
 	b.managers.config.SetClientID(clientID)
 }
 
@@ -464,7 +464,7 @@ func (b *Backend) GetClientID() string {
 }
 
 func (b *Backend) AddClientSecret(clientSecret string) {
-	slog.Info("Setting client secret", "clientSecret", clientSecret)
+	b.logger.Info("Setting client secret", "clientSecret", clientSecret)
 	b.managers.config.SetClientSecret(clientSecret)
 }
 
@@ -520,18 +520,18 @@ func (b *Backend) CloseAuthServer() {
 	b.authServer.StopAuthServer()
 }
 
-func (b *Backend) PlayLiked() {
+func (b *Backend) PlayLiked() error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
-		slog.Error("error getting spotify instance", "error", err)
-		return
+		b.logger.Error("error getting spotify instance", "error", err)
+		return err
 	}
 
 	likedTracks, err := client.CurrentUsersTracks(ctx, spotify.Limit(50))
 	if err != nil {
-		slog.Error("error getting liked tracks", "error", err)
-		return
+		b.logger.Error("error getting liked tracks", "error", err)
+		return err
 	}
 
 	uris := []spotify.URI{}
@@ -539,5 +539,60 @@ func (b *Backend) PlayLiked() {
 		uris = append(uris, track.SimpleTrack.URI)
 	}
 
-	client.PlayOpt(ctx, &spotify.PlayOptions{URIs: uris})
+	err = client.PlayOpt(ctx, &spotify.PlayOptions{URIs: uris})
+	if err != nil {
+		b.logger.Error("error playing recommendations", "error", err)
+	}
+	return err
+}
+
+func (b *Backend) PlayRecommendationsFromItem(track spotify.SimpleTrack) error {
+	slog.Debug("Playing recommendations from item", "itemURI", track.ID)
+	ctx := context.Background()
+	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
+	if err != nil {
+		b.logger.Error("error getting spotify instance", "error", err)
+		return err
+	}
+
+	// Max of 5 seed items across tracks, artists, and genres, we set a max of 2 artists, 2 genres, and 1 track
+	artistIDs := []spotify.ID{}
+	for i, artist := range track.Artists {
+		if i > 2 {
+			break
+		}
+		artistIDs = append(artistIDs, artist.ID)
+	}
+
+	genres := []string{}
+	if len(track.Album.Artists) > 0 {
+		artist, err := client.GetArtist(ctx, track.Album.Artists[0].ID)
+		if err != nil {
+			b.logger.Error("error getting artist genres", "error", err)
+			return err
+		}
+		genres = artist.Genres
+		if len(genres) > 2 {
+			genres = genres[:2]
+		}
+	}
+
+	seeds := spotify.Seeds{Tracks: []spotify.ID{track.ID}, Artists: artistIDs, Genres: genres}
+	b.logger.Debugw("Seeds for recommendations", "seeds", seeds)
+	recommendations, err := client.GetRecommendations(ctx, seeds, nil)
+	if err != nil {
+		b.logger.Error("error getting recommendations", "error", err)
+		return err
+	}
+
+	uris := []spotify.URI{}
+	for _, track := range recommendations.Tracks {
+		uris = append(uris, track.URI)
+	}
+
+	err = client.PlayOpt(ctx, &spotify.PlayOptions{URIs: uris})
+	if err != nil {
+		b.logger.Error("error playing recommendations", "error", err)
+	}
+	return err
 }
