@@ -10,15 +10,18 @@ import BaseCommand from "./baseCommand";
 import { spotify } from "../../../wailsjs/go/models";
 import { QueryClient } from "@tanstack/react-query";
 
+const GetDevicesKey = "getDevices";
+
 class DeviceCommand extends BaseCommand {
   constructor() {
-    super("device", "Device", "device", 0, "device", {});
+    super("device", "Device", "device", 400, "device", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
     return {
       title: "Device",
-      description: "Control device settings",
+      description:
+        "Set the active device, will make this the device default for playback through Spotlightify",
       icon: Icon.Device,
       id: this.id,
       action: async (actions) => {
@@ -41,7 +44,11 @@ class DeviceCommand extends BaseCommand {
 
     let devices: spotify.PlayerDevice[];
     try {
-      devices = await GetDevices();
+      devices = await queryClient.fetchQuery({
+        queryFn: GetDevices,
+        queryKey: [GetDevicesKey],
+        staleTime: 10000,
+      });
     } catch (e) {
       suggestions.push({
         title: "Error retrieving devices",
@@ -52,10 +59,30 @@ class DeviceCommand extends BaseCommand {
       return { items: suggestions };
     }
 
+    if (input) {
+      devices = devices.filter((device) =>
+        device.name.toLowerCase().includes(input.toLowerCase())
+      );
+    }
+
+    suggestions.push({
+      title: "Refresh devices",
+      description: "Refresh the list of devices",
+      icon: Icon.Refresh,
+      id: "refresh-devices",
+      action: async (actions) => {
+        queryClient.invalidateQueries({ queryKey: [GetDevicesKey] });
+        actions.refreshSuggestions();
+        return Promise.resolve();
+      },
+    });
+
     if (devices.length === 0) {
       suggestions.push({
         title: "No devices found",
-        description: "Make sure Spotify is running on a device",
+        description: `${
+          input ? "No devices found for " + input + "." : ""
+        } Make sure Spotify is running on a device`,
         icon: Icon.Error,
         id: "no-devices-found-error",
       });
@@ -64,7 +91,7 @@ class DeviceCommand extends BaseCommand {
 
     devices.forEach((device) => {
       suggestions.push({
-        title: device.name,
+        title: device.name + (device.is_active ? " [Active]" : ""),
         description: device.type,
         icon: DeviceIconSelector(device.type),
         id: device.id,
@@ -73,7 +100,7 @@ class DeviceCommand extends BaseCommand {
           actions.resetPrompt();
           try {
             await SetActiveDevice(device.id);
-            queryClient.invalidateQueries();
+            queryClient.invalidateQueries({ queryKey: [GetDevicesKey] });
           } catch (e) {
             HandleGenericError("Pause", e, actions.setSuggestionList);
           }
@@ -82,7 +109,7 @@ class DeviceCommand extends BaseCommand {
       });
     });
 
-    return { items: suggestions, type: "filter" };
+    return { items: suggestions };
   }
 }
 

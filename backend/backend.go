@@ -181,11 +181,19 @@ func StartBackend() *Backend {
 		config:          config,
 	}
 
-	registerCommands(managers)
-
 	backend := &Backend{
 		managers:   managers,
 		authServer: &server.AuthServer{},
+	}
+
+	// This makes any playback commands use the active device when the app starts
+	// Spotlightify should be used to set the active device after this
+	device, err := backend.GetActiveDevice()
+	if err != nil {
+		slog.Error("Failed to get active device", "error", err)
+		managers.config.SetActiveDevice("")
+	} else {
+		managers.config.SetActiveDevice(device.ID.String())
 	}
 
 	return backend

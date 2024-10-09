@@ -65,7 +65,8 @@ export type Action =
   | { type: "SET_PLACEHOLDER_TEXT"; payload: string }
   | { type: "RESET_PROMPT" }
   | { type: "SET_CURRENT_COMMAND_PARAMETERS"; payload: Record<string, string> }
-  | { type: "BATCH_ACTIONS"; payload: Action[] };
+  | { type: "BATCH_ACTIONS"; payload: Action[] }
+  | { type: "REFRESH_SUGGESTIONS" };
 
 export interface SpotlightifyActions {
   setPromptInput: (input: string) => void;
@@ -78,4 +79,5 @@ export interface SpotlightifyActions {
   setPlaceholderText: (text: string) => void;
   resetPrompt: () => void;
   batchActions: (actions: Action[]) => void;
+  refreshSuggestions: () => void;
 }

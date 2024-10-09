@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sync"
@@ -23,6 +24,7 @@ const (
 	ConfigClientSecretKey        = "clientSecret"
 	ConfigSpotifyTokenKey        = "spotifyToken"
 	ConfigDefaultDeviceIDKey     = "defaultDevice"
+	ConfigActiveDeviceIDKey      = "activeDevice"
 )
 
 const (
@@ -46,6 +48,7 @@ func (s *SpotlightifyConfig) setConfigValue(key string, value any) {
 }
 
 func (s *SpotlightifyConfig) getConfigValue(key string) any {
+	slog.Debug("Getting config value for key", "key", key)
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.config.Get(key)
@@ -55,15 +58,23 @@ func (s *SpotlightifyConfig) GetRequiresSpotifyAuthKey() bool {
 	return s.getConfigValue(ConfigRequiresSpotifyAuthKey).(bool)
 }
 
-func (s *SpotlightifyConfig) GetDefaultDevice() bool {
-	return s.getConfigValue(ConfigDefaultDeviceIDKey).(bool)
+func (s *SpotlightifyConfig) GetDefaultDevice() string {
+	return s.getConfigValue(ConfigDefaultDeviceIDKey).(string)
+}
+
+func (s *SpotlightifyConfig) GetActiveDevice() string {
+	return s.getConfigValue(ConfigActiveDeviceIDKey).(string)
 }
 
 func (s *SpotlightifyConfig) SetDefaultDevice(value string) {
 	s.setConfigValue(ConfigDefaultDeviceIDKey, value)
 }
 
-func (s *SpotlightifyConfig) SetRequiresSpotifyAuthKey(value bool) {
+func (s *SpotlightifyConfig) SetActiveDevice(value string) {
+	s.setConfigValue(ConfigActiveDeviceIDKey, value)
+}
+
+func (s *SpotlightifyConfig) SetRequiresSpotifyAuth(value bool) {
 	s.setConfigValue(ConfigRequiresSpotifyAuthKey, value)
 }
 
@@ -113,6 +124,8 @@ func (s *SpotlightifyConfig) setDefaultConfigValues() {
 	s.config.SetDefault(ConfigClientSecretKey, "")
 	s.config.SetDefault(ConfigSpotifyTokenKey, nil)
 	s.config.SetDefault(ConfigDefaultDeviceIDKey, "")
+	s.config.SetDefault(ConfigActiveDeviceIDKey, "")
+	slog.Debug("Set default config values", "config", s.config.AllSettings())
 }
 
 func (s *SpotlightifyConfig) createConfigFile() error {

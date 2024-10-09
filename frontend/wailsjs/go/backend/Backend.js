@@ -34,6 +34,10 @@ export function ExecuteCommand(arg1, arg2) {
   return window['go']['backend']['Backend']['ExecuteCommand'](arg1, arg2);
 }
 
+export function GetActiveDevice() {
+  return window['go']['backend']['Backend']['GetActiveDevice']();
+}
+
 export function GetAlbumsByQuery(arg1) {
   return window['go']['backend']['Backend']['GetAlbumsByQuery'](arg1);
 }
@@ -108,6 +112,10 @@ export function Pause() {
 
 export function PlayAlbum(arg1) {
   return window['go']['backend']['Backend']['PlayAlbum'](arg1);
+}
+
+export function PlayAnythingToDevice(arg1, arg2) {
+  return window['go']['backend']['Backend']['PlayAnythingToDevice'](arg1, arg2);
 }
 
 export function PlayArtistsTopTracks(arg1) {

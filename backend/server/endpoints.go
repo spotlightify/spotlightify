@@ -108,7 +108,7 @@ func (a *AuthenticationHandlers) callbackHandler(w http.ResponseWriter, r *http.
 	client := spotify.New(auth.Client(r.Context(), tok))
 	a.ClientHolder.SetSpotifyInstance(client)
 	slog.Info("Logged in successfully!")
-	a.Config.SetRequiresSpotifyAuthKey(false)
+	a.Config.SetRequiresSpotifyAuth(false)
 	a.handleSuccessInUI()
 
 	w.Write([]byte("<h1>Spotlightify Success!</h1><p>You have successfully authenticated with Spotify! You can now close this window.</p>"))

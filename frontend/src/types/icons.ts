@@ -27,6 +27,7 @@ import Podcast from "../assets/svg/podcast.svg";
 import QueueLight from "../assets/svg/queue-light.svg";
 import Queue from "../assets/svg/queue.svg";
 import Radio from "../assets/svg/radio.svg";
+import Refresh from "../assets/svg/refresh.svg";
 import Repeat from "../assets/svg/repeat.svg";
 import Search from "../assets/svg/search.svg";
 import Share from "../assets/svg/share.svg";
@@ -72,6 +73,7 @@ const Icon = {
   QueueLight,
   Queue,
   Radio,
+  Refresh,
   Repeat,
   Search,
   Share,

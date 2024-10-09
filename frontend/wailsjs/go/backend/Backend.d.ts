@@ -3,6 +3,7 @@
 import {model} from '../models';
 import {spotify} from '../models';
 import {backend} from '../models';
+import {context} from '../models';
 
 export function AddClientID(arg1:string):Promise<void>;
 
@@ -19,6 +20,8 @@ export function CheckIfAuthenticatedWithSpotify():Promise<boolean>;
 export function CloseAuthServer():Promise<void>;
 
 export function ExecuteCommand(arg1:string,arg2:{[key: string]: string}):Promise<model.ExecuteActionOutput>;
+
+export function GetActiveDevice():Promise<spotify.PlayerDevice>;
 
 export function GetAlbumsByQuery(arg1:string):Promise<Array<spotify.SimpleAlbum>>;
 
@@ -57,6 +60,8 @@ export function Next():Promise<void>;
 export function Pause():Promise<void>;
 
 export function PlayAlbum(arg1:string):Promise<void>;
+
+export function PlayAnythingToDevice(arg1:context.Context,arg2:spotify.PlayOptions):Promise<void>;
 
 export function PlayArtistsTopTracks(arg1:string):Promise<void>;
 
