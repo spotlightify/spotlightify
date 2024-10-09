@@ -30,6 +30,12 @@ func main() {
 	// Check for development mode
 	isDev := strings.ToLower(os.Getenv("SPOTLIGHTIFY_DEV")) == "true"
 	if isDev {
+		handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelDebug, // Set log level to Debug
+		})
+
+		// Set the default logger to use the custom handler
+		slog.SetDefault(slog.New(handler))
 		slog.Info("Running in development mode")
 	}
 

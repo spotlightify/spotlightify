@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sync"
@@ -23,6 +24,7 @@ const (
 	ConfigClientSecretKey        = "clientSecret"
 	ConfigSpotifyTokenKey        = "spotifyToken"
 	ConfigDefaultDeviceIDKey     = "defaultDevice"
+	ConfigActiveDeviceIDKey      = "activeDevice"
 )
 
 const (
@@ -46,33 +48,67 @@ func (s *SpotlightifyConfig) setConfigValue(key string, value any) {
 }
 
 func (s *SpotlightifyConfig) getConfigValue(key string) any {
+	slog.Debug("Getting config value for key", "key", key)
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.config.Get(key)
 }
 
-func (s *SpotlightifyConfig) GetRequiresSpotifyAuthKey() bool {
-	return s.getConfigValue(ConfigRequiresSpotifyAuthKey).(bool)
+func (s *SpotlightifyConfig) GetRequiresSpotifyAuth() bool {
+	value, ok := s.getConfigValue(ConfigRequiresSpotifyAuthKey).(bool)
+	if !ok {
+		slog.Error("Failed to get RequiresSpotifyAuthKey from config")
+		return false
+	}
+	return value
 }
 
-func (s *SpotlightifyConfig) GetDefaultDevice() bool {
-	return s.getConfigValue(ConfigDefaultDeviceIDKey).(bool)
+func (s *SpotlightifyConfig) GetDefaultDevice() string {
+	value, ok := s.getConfigValue(ConfigDefaultDeviceIDKey).(string)
+	if !ok {
+		slog.Error("Failed to get DefaultDevice from config")
+		return ""
+	}
+	return value
+}
+
+func (s *SpotlightifyConfig) GetActiveDevice() string {
+	value, ok := s.getConfigValue(ConfigActiveDeviceIDKey).(string)
+	if !ok {
+		slog.Error("Failed to get ActiveDevice from config")
+		return ""
+	}
+	return value
 }
 
 func (s *SpotlightifyConfig) SetDefaultDevice(value string) {
 	s.setConfigValue(ConfigDefaultDeviceIDKey, value)
 }
 
-func (s *SpotlightifyConfig) SetRequiresSpotifyAuthKey(value bool) {
+func (s *SpotlightifyConfig) SetActiveDevice(value string) {
+	s.setConfigValue(ConfigActiveDeviceIDKey, value)
+}
+
+func (s *SpotlightifyConfig) SetRequiresSpotifyAuth(value bool) {
 	s.setConfigValue(ConfigRequiresSpotifyAuthKey, value)
 }
 
 func (s *SpotlightifyConfig) GetClientID() string {
-	return s.getConfigValue(ConfigClientIDKey).(string)
+	value, ok := s.getConfigValue(ConfigClientIDKey).(string)
+	if !ok {
+		slog.Error("Failed to get ClientID from config")
+		return ""
+	}
+	return value
 }
 
 func (s *SpotlightifyConfig) GetClientSecret() string {
-	return s.getConfigValue(ConfigClientSecretKey).(string)
+	value, ok := s.getConfigValue(ConfigClientSecretKey).(string)
+	if !ok {
+		slog.Error("Failed to get ClientSecret from config")
+		return ""
+	}
+	return value
 }
 
 func (s *SpotlightifyConfig) SetSpotifyToken(token oauth2.Token) error {
@@ -113,6 +149,8 @@ func (s *SpotlightifyConfig) setDefaultConfigValues() {
 	s.config.SetDefault(ConfigClientSecretKey, "")
 	s.config.SetDefault(ConfigSpotifyTokenKey, nil)
 	s.config.SetDefault(ConfigDefaultDeviceIDKey, "")
+	s.config.SetDefault(ConfigActiveDeviceIDKey, "")
+	slog.Debug("Set default config values")
 }
 
 func (s *SpotlightifyConfig) createConfigFile() error {

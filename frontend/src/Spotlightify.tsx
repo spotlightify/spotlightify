@@ -58,7 +58,7 @@ function Spotlightify() {
 
   useEffect(() => {
     fetchSuggestions(debouncedQuery);
-  }, [fetchSuggestions, debouncedQuery]);
+  }, [fetchSuggestions, debouncedQuery, state.commandHistory]);
 
   useEffect(() => {
     const maxNumberOfSuggestions = 8;
