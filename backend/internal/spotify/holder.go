@@ -3,7 +3,7 @@ package spotify
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 	"sync"
 
 	"spotlightify-wails/backend/internal/constants"
@@ -27,13 +27,13 @@ type SpotifyClientHolder struct {
 func (s *SpotifyClientHolder) SetSpotifyInstance(client *spotify.Client) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.client = client
 
 	if client == nil {
-		log.Println("Spotify client instance not initialised")
+		slog.Warn("Spotify API client instance not set, client is nil")
 		return
 	}
-	log.Println("Spotify client instance initialised")
+	s.client = client
+	slog.Info("Spotify client instance initialised")
 	s.tokenGetterChan <- client
 }
 
@@ -66,7 +66,7 @@ func (s *SpotifyClientHolder) LoadSpotifyTokenFromConfig(loader SpotifyCredsLoad
 
 	clientSecret := loader.GetClientSecret()
 	if clientSecret == "" {
-		return errors.New("no client client secret found in config")
+		return errors.New("no client secret found in config")
 	}
 
 	auth := spotifyauth.New(spotifyauth.WithRedirectURL(constants.ServerURL),
@@ -79,12 +79,12 @@ func (s *SpotifyClientHolder) LoadSpotifyTokenFromConfig(loader SpotifyCredsLoad
 	return nil
 }
 
-func NewSpotifyClientHolder(tokenSaver SpotifyTokenSaver) *SpotifyClientHolder {
+func NewSpotifyClientHolder(config SpotifyTokenSaver) *SpotifyClientHolder {
 	tokenGetterChan := make(chan SpotifyTokenGetter)
 
 	// This go routine will run in the background and will save the token
 	// if either a new spotify client is set or the token is about to expire
-	go SaveSpotifyToken(tokenGetterChan, tokenSaver)
+	go SaveSpotifyToken(tokenGetterChan, config)
 
 	return &SpotifyClientHolder{
 		mu:              &sync.RWMutex{},

@@ -76,7 +76,7 @@ class PlayCommand extends BaseCommand {
           Hide();
           actions.resetPrompt();
           try {
-            await PlayTrack(track.id);
+            await PlayTrack(track.uri);
           } catch (e) {
             actions.setSuggestionList({
               items: [

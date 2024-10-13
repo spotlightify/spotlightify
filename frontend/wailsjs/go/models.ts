@@ -653,6 +653,57 @@ export namespace spotify {
 		}
 	}
 	
+	export class PlaybackOffset {
+	    position?: number;
+	    uri?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new PlaybackOffset(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.position = source["position"];
+	        this.uri = source["uri"];
+	    }
+	}
+	export class PlayOptions {
+	    context_uri?: string;
+	    uris?: string[];
+	    offset?: PlaybackOffset;
+	    position_ms?: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PlayOptions(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.context_uri = source["context_uri"];
+	        this.uris = source["uris"];
+	        this.offset = this.convertValues(source["offset"], PlaybackOffset);
+	        this.position_ms = source["position_ms"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
 	export class PlayerDevice {
 	    id: string;
 	    is_active: boolean;

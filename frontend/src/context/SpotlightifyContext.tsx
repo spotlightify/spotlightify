@@ -88,6 +88,11 @@ function spotlightifyReducer(
     }
     case "BATCH_ACTIONS":
       return action.payload.reduce((s, a) => spotlightifyReducer(s, a), state);
+    case "REFRESH_SUGGESTIONS": // spreading the commands into a new array to force re-render
+      return {
+        ...state,
+        commandHistory: [...state.commandHistory],
+      };
     default:
       return state;
   }
@@ -134,6 +139,7 @@ export const SpotlightifyProvider = ({
       resetPrompt: () => dispatch({ type: "RESET_PROMPT" }),
       batchActions: (actions: Action[]) =>
         dispatch({ type: "BATCH_ACTIONS", payload: actions }),
+      refreshSuggestions: () => dispatch({ type: "REFRESH_SUGGESTIONS" }),
     }),
     []
   );
