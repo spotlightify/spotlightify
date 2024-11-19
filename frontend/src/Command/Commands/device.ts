@@ -1,14 +1,14 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import Icon from "../../types/icons";
+import { DeviceIconSelector, HandleGenericError } from "./utils";
+import BaseCommand from "./baseCommand";
+import { PlayerDevice } from "../../../bindings/github.com/zmb3/spotify/v2/index";
+import { QueryClient } from "@tanstack/react-query";
 import {
   GetDevices,
   SetActiveDevice,
-} from "../../../wailsjs/go/backend/Backend";
-import { DeviceIconSelector, HandleGenericError } from "./utils";
-import BaseCommand from "./baseCommand";
-import { spotify } from "../../../wailsjs/go/models";
-import { QueryClient } from "@tanstack/react-query";
+} from "../../../bindings/spotlightify-wails/backend/backend";
 
 const GetDevicesKey = "getDevices";
 
@@ -42,7 +42,7 @@ class DeviceCommand extends BaseCommand {
   ): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
-    let devices: spotify.PlayerDevice[];
+    let devices: PlayerDevice[];
     try {
       devices = await queryClient.fetchQuery({
         queryFn: GetDevices,
@@ -96,7 +96,7 @@ class DeviceCommand extends BaseCommand {
         icon: DeviceIconSelector(device.type),
         id: device.id,
         action: async (actions) => {
-          Hide();
+          Window.Minimise();
           actions.resetPrompt();
           try {
             await SetActiveDevice(device.id);

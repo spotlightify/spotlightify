@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"runtime"
 	"spotlightify-wails/backend/configs"
-	"spotlightify-wails/backend/constants"
 	"spotlightify-wails/backend/internal/builders"
 	"spotlightify-wails/backend/internal/cache"
 	"spotlightify-wails/backend/internal/command"
@@ -25,7 +25,7 @@ import (
 	"strings"
 
 	"github.com/spf13/afero"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
 	"golang.design/x/hotkey"
 )
 
@@ -49,71 +49,69 @@ func registerCommands(managers *managers) {
 }
 
 type Backend struct {
-	managers   *managers
-	ctx        context.Context
-	authServer *server.AuthServer
+	managers           *managers
+	ctx                context.Context
+	authServer         *server.AuthServer
+	app                *application.App
+	spotlightifyWindow *application.WebviewWindow
 }
 
-func (a *Backend) Startup(ctx context.Context) {
-	a.ctx = ctx
+func (b *Backend) StartBackend(app *application.App, window *application.WebviewWindow) {
+	b.app = app
+	b.spotlightifyWindow = window
+
+	go b.createHotkey()
+	// This makes any playback commands use the active device when the app starts
+	// Spotlightify should be used to set the active device after this
+	device, err := b.GetActiveDevice()
+	if err != nil {
+		slog.Error("Failed to get active device", "error", err)
+		b.managers.config.SetActiveDevice("")
+	} else {
+		b.managers.config.SetActiveDevice(device.ID.String())
+	}
+}
+
+func (a *Backend) createHotkey() {
+	runtime.LockOSThread() // hotkey must be called from the main thread
+	defer runtime.UnlockOSThread()
+	// Register keybind
 	hk := keybind.GetHotkey()
-	err := hk.Register()
-	if err != nil {
-		log.Printf("Failed to register hotkey: %v", err)
-	}
-	go listenForHotkey(ctx, hk)
-}
-
-// Expose the ShowWindow function to the frontend
-func (a *Backend) ShowWindow() {
-	showWindow(a.ctx)
-}
-
-func listenForHotkey(ctx context.Context, hk *hotkey.Hotkey) {
-	for range hk.Keydown() {
-		slog.Info("Hotkey pressed")
-		showWindow(ctx)
-	}
-}
-
-func defaultShowWindow(ctx context.Context) {
-	keybind.ShowWindow(ctx)
-	runtime.WindowCenter(ctx)
-}
-
-func showWindow(ctx context.Context) {
-	screens, err := runtime.ScreenGetAll(ctx)
-	if err != nil {
-		slog.Error("Failed to get screens", "error", err)
-		defaultShowWindow(ctx)
-		return
-	}
-
-	currentScreenIndex := -1
-	for idx, screen := range screens {
-		if screen.IsCurrent {
-			currentScreenIndex = idx
-			break
+	if hk == nil {
+		slog.Error("Failed to get hotkey")
+	} else {
+		err := hk.Register()
+		if err != nil {
+			slog.Error("Failed to register hotkey", "Error", err)
 		}
 	}
 
-	if currentScreenIndex == -1 {
-		slog.Error("Failed to find current screen")
-		defaultShowWindow(ctx)
-		return
+	if hk == nil {
+		slog.Error("Hotkey did not register. Please report this issue on GitHub if it persists.")
 	}
-
-	currentScreen := screens[currentScreenIndex]
-	posX := (currentScreen.Size.Width - constants.Width) / 2
-	posY := currentScreen.Size.Height / 5
-	keybind.ShowWindow(ctx)
-	runtime.WindowSetPosition(ctx, posX, posY)
-	slog.Info("Setting window position", "x", posX, "y", posY)
+	go a.listenForHotkey(context.Background(), hk)
 }
 
-// domReady is called after front-end resources have been loaded
-func (a *Backend) DomReady(ctx context.Context) {
-	a.ctx = ctx
+func (a *Backend) OnStartup(ctx context.Context, _ application.ServiceOptions) error {
+	return nil
+}
+
+func (a *Backend) listenForHotkey(ctx context.Context, hk *hotkey.Hotkey) {
+	slog.Info("Listening for hotkey")
+	for range hk.Keydown() {
+		if a.app == nil {
+			slog.Error("Could not show window because app is nil")
+			continue
+		}
+		slog.Info("Hotkey pressed")
+		a.ShowWindow(ctx)
+	}
+}
+
+func (a *Backend) ShowWindow(ctx context.Context) {
+	a.spotlightifyWindow.Center()
+	a.spotlightifyWindow.Show()
+	a.spotlightifyWindow.Focus()
 }
 
 func (b *Backend) getCommandsByKeyword(search string) model.SuggestionList {
@@ -160,7 +158,7 @@ func (b *Backend) ExecuteCommand(commandId string, parameters map[string]string)
 	return command.Execute(parameters, ctx)
 }
 
-func StartBackend() *Backend {
+func CreateBackend() *Backend {
 	fileSystem := afero.NewOsFs()
 	setupDirectories(fileSystem) // TODO
 
@@ -185,16 +183,5 @@ func StartBackend() *Backend {
 		managers:   managers,
 		authServer: &server.AuthServer{},
 	}
-
-	// This makes any playback commands use the active device when the app starts
-	// Spotlightify should be used to set the active device after this
-	device, err := backend.GetActiveDevice()
-	if err != nil {
-		slog.Error("Failed to get active device", "error", err)
-		managers.config.SetActiveDevice("")
-	} else {
-		managers.config.SetActiveDevice(device.ID.String())
-	}
-
 	return backend
 }

@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { SpotlightifyActions } from "../types/command";
-import { EventsOn } from "../../wailsjs/runtime/runtime";
 import Icon from "../types/icons";
+import { Events } from "@wailsio/runtime";
 
 interface props {
   actions: SpotlightifyActions;
@@ -11,7 +11,7 @@ interface props {
 
 function useAuthListeners({ actions }: props) {
   useEffect(() => {
-    const cancel = EventsOn("auth_success", () => {
+    const cancel = Events.On("auth_success", () => {
       actions.resetPrompt();
       actions.setSuggestionList({
         items: [
@@ -26,9 +26,8 @@ function useAuthListeners({ actions }: props) {
     });
     return () => cancel();
   }, [actions]);
-
   useEffect(() => {
-    const cancel = EventsOn("auth_error", (err: string) => {
+    const cancel = Events.On("auth_error", (err: string) => {
       actions.setSuggestionList({
         items: [
           {

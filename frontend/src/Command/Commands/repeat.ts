@@ -1,13 +1,14 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import Icon from "../../types/icons";
-import {
-  ChangeRepeatState,
-  GetRepeatState,
-} from "../../../wailsjs/go/backend/Backend";
+import { Backend } from "../../../bindings/spotlightify-wails/backend";
 import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { QueryClient } from "@tanstack/react-query";
+import {
+  ChangeRepeatState,
+  GetRepeatState,
+} from "../../../bindings/spotlightify-wails/backend/backend";
 
 const repeatKey = "isShuffled";
 
@@ -28,7 +29,7 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-off",
       action: async (actions) => {
-        Hide();
+        Window.Minimise();
         try {
           await ChangeRepeatState("off");
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
@@ -46,7 +47,7 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-context",
       action: async (actions) => {
-        Hide();
+        Window.Minimise();
         try {
           await ChangeRepeatState("context");
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
@@ -64,7 +65,7 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-track",
       action: async (actions) => {
-        Hide();
+        Window.Minimise();
         try {
           await ChangeRepeatState("track");
           queryClient.invalidateQueries({ queryKey: [repeatKey] });

@@ -1,9 +1,9 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import Icon from "../../types/icons";
-import { Pause } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
+import { Pause } from "../../../bindings/spotlightify-wails/backend/backend";
 
 class PauseCommand extends BaseCommand {
   constructor() {
@@ -24,7 +24,7 @@ class PauseCommand extends BaseCommand {
       icon: Icon.Pause,
       id: this.id,
       action: async (actions) => {
-        Hide();
+        Window.Minimise();
         actions.resetPrompt();
         try {
           await Pause();

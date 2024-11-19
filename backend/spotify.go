@@ -6,10 +6,9 @@ import (
 	"log/slog"
 	"spotlightify-wails/backend/internal/constants"
 
+	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 func (b *Backend) GetTracksByQuery(query string) ([]spotify.SimpleTrack, error) {
@@ -595,6 +594,20 @@ func (b *Backend) SetAuthenticatedWithSpotify(authenticated bool) {
 	b.managers.config.SetRequiresSpotifyAuth(authenticated)
 }
 
+type authEventEmitter struct {
+	window *application.WebviewWindow
+}
+
+func (a *authEventEmitter) EmitSuccess() {
+	slog.Info("Auth Success")
+	a.window.EmitEvent("auth_success", "auth_success")
+}
+
+func (a *authEventEmitter) EmitFailure(err error) {
+	slog.Error("Auth Failure", "error", err)
+	a.window.EmitEvent("auth_failure", err.Error())
+}
+
 func (b *Backend) AuthenticateWithSpotify() error {
 	clientID := b.managers.config.GetClientID()
 	if clientID == "" {
@@ -606,7 +619,7 @@ func (b *Backend) AuthenticateWithSpotify() error {
 		return fmt.Errorf("client secret not set")
 	}
 
-	b.authServer.StartAuthServer(b.ctx, b.managers.config, b.managers.spotifyHolder)
+	b.authServer.StartAuthServer(b.ctx, b.managers.config, b.managers.spotifyHolder, &authEventEmitter{window: b.spotlightifyWindow})
 
 	auth := spotifyauth.New(
 		spotifyauth.WithRedirectURL(constants.ServerURL+"/auth/callback"),
@@ -617,7 +630,7 @@ func (b *Backend) AuthenticateWithSpotify() error {
 
 	url := auth.AuthURL(constants.SpotifyState)
 
-	runtime.BrowserOpenURL(b.ctx, url)
+	b.app.BrowserOpenURL(url)
 	return nil
 }
 
