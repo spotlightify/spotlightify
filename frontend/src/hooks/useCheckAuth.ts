@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { CommandHistoryItem, SpotlightifyActions } from "../types/command";
-import { CheckIfAuthenticatedWithSpotify } from "../../wailsjs/go/backend/Backend";
 import AuthenticateCommand from "../Command/Commands/authenticate/authenticate";
+import { CheckIfAuthenticatedWithSpotify } from "../../bindings/spotlightify-wails/backend/backend";
 
 interface props {
   actions: SpotlightifyActions;

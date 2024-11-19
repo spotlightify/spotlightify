@@ -1,9 +1,9 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import Icon from "../../types/icons";
-import { Previous } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
+import { Previous } from "../../../bindings/spotlightify-wails/backend/backend";
 
 class PreviousCommand extends BaseCommand {
   constructor() {
@@ -24,7 +24,7 @@ class PreviousCommand extends BaseCommand {
       icon: Icon.Backward,
       id: this.id,
       action: async (actions) => {
-        Hide();
+        Window.Minimise();
         actions.resetPrompt();
         try {
           await Previous();

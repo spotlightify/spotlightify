@@ -1,9 +1,9 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import Icon from "../../types/icons";
-import { Seek } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
+import { Seek } from "../../../bindings/spotlightify-wails/backend/backend";
 
 const second = 1000;
 const minute = 60 * second;
@@ -109,7 +109,7 @@ class GotoCommand extends BaseCommand {
           icon: Icon.GoArrow,
           id: this.id,
           action: async (actions) => {
-            Hide();
+            Window.Minimise();
             actions.resetPrompt();
             try {
               Seek(timeMS);

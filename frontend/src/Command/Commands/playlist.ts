@@ -1,14 +1,14 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
+import { Window } from "@wailsio/runtime";
+import icons from "../../types/icons";
+import { SimplePlaylist } from "../../../bindings/github.com/zmb3/spotify/v2/index";
 import {
   GetPlaylistsByQuery,
   PlayPlaylist,
   ShowWindow,
-} from "../../../wailsjs/go/backend/Backend";
-import { Hide } from "../../../wailsjs/runtime";
-import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
+} from "../../../bindings/spotlightify-wails/backend/backend";
 class PlaylistCommand extends BaseCommand {
   constructor() {
     super("playlist", "Playlist", "playlist", 400, "playlist", {});
@@ -41,7 +41,7 @@ class PlaylistCommand extends BaseCommand {
       return { items: suggestions };
     }
 
-    let playlists = [] as spotify.SimplePlaylist[];
+    let playlists = [] as SimplePlaylist[];
     try {
       playlists = await GetPlaylistsByQuery(input);
     } catch (e) {
@@ -71,7 +71,7 @@ class PlaylistCommand extends BaseCommand {
         icon: playlist.images[0].url ?? icons.Playlist,
         id: playlist.id,
         action: async (actions) => {
-          Hide();
+          Window.Minimise();
           actions.resetPrompt();
           try {
             await PlayPlaylist(playlist.uri);

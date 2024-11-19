@@ -1,11 +1,11 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { ClipboardSetText } from "../../../wailsjs/runtime";
+import { Clipboard } from "@wailsio/runtime";
 import Icon from "../../types/icons";
-import { GetCurrentlyPlayingTrack } from "../../../wailsjs/go/backend/Backend";
+import { CurrentlyPlayingTrack } from "../../../bindings/spotlightify-wails/backend";
 import { CombinedArtistsString, HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
-import { backend } from "../../../wailsjs/go/models";
 import { QueryClient } from "@tanstack/react-query";
+import { GetCurrentlyPlayingTrack } from "../../../bindings/spotlightify-wails/backend/backend";
 
 class CurrentlyPlayingCommand extends BaseCommand {
   constructor() {
@@ -44,14 +44,14 @@ class CurrentlyPlayingCommand extends BaseCommand {
     parameters: Record<string, string>,
     queryClient: QueryClient
   ): Promise<SuggestionList> {
-    let suggestions = [] as Suggestion[];
+    const suggestions: Suggestion[] = [];
 
-    let currentlyPlaying: backend.CurrentlyPlayingTrack;
+    let currentlyPlaying: CurrentlyPlayingTrack;
     try {
       currentlyPlaying = await queryClient.fetchQuery({
         queryKey: ["currentlyPlaying"],
         queryFn: GetCurrentlyPlayingTrack,
-        staleTime: 10000,
+        staleTime: 5000,
       });
     } catch (e) {
       suggestions.push({
@@ -93,7 +93,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
           if (!trackUrl) {
             throw new Error("No Spotify URL available for this track");
           }
-          await ClipboardSetText(trackUrl);
+          await Clipboard.SetText(trackUrl);
           actions.setCurrentCommandParameters({ shared: "true" });
         } catch (e) {
           HandleGenericError("Copy to clipboard", e, actions.setSuggestionList);

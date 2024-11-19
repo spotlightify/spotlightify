@@ -8,3 +8,5 @@ build/
 .erb/
 .DS_Store
 .idea/
+
+bin/

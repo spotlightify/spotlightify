@@ -1,20 +1,16 @@
-import {
-  AuthenticateWithSpotify,
-  CloseAuthServer,
-  GetClientID,
-  GetClientSecret,
-} from "../../../../wailsjs/go/backend/Backend";
-import {
-  BrowserOpenURL,
-  Hide,
-  Quit,
-} from "../../../../wailsjs/runtime/runtime";
+import { Browser, Window, Application } from "@wailsio/runtime";
 import { Suggestion, SuggestionList } from "../../../types/command";
 import Icon from "../../../types/icons";
 import BaseCommand from "../baseCommand";
 import { HandleGenericError } from "../utils";
 import ClientIDCommand from "./client_id";
 import ClientSecretCommand from "./client_secret";
+import {
+  AuthenticateWithSpotify,
+  CloseAuthServer,
+  GetClientID,
+  GetClientSecret,
+} from "../../../../bindings/spotlightify-wails/backend/backend";
 
 class AuthenticateCommand extends BaseCommand {
   private firstTime: boolean = false;
@@ -34,7 +30,7 @@ class AuthenticateCommand extends BaseCommand {
       icon: Icon.Ellipsis,
       id: "open-instructions",
       action: async (_actions) => {
-        BrowserOpenURL("https://spotlightify.github.io/setup");
+        Browser.OpenURL("https://spotlightify.github.io/setup");
       },
     };
 
@@ -125,7 +121,6 @@ class AuthenticateCommand extends BaseCommand {
       authenticateSuggestion,
     ];
 
-    console.log("firstTime", this.firstTime);
     if (this.firstTime) {
       const exitSuggestion: Suggestion = {
         title: "Exit",
@@ -133,10 +128,10 @@ class AuthenticateCommand extends BaseCommand {
         icon: Icon.Exit,
         id: "exit-auth-menu",
         action: async (actions) => {
-          Hide();
+          Window.Minimise();
           actions.resetPrompt();
           try {
-            await Quit();
+            await Application.Quit();
           } catch (e) {
             HandleGenericError("Exit", e, actions.setSuggestionList);
           }

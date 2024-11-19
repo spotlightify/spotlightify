@@ -21,8 +21,8 @@ import RepeatCommand from "../Command/Commands/repeat";
 import ExitCommand from "../Command/Commands/exit";
 import ArtistCommand from "../Command/Commands/artist";
 import AuthenticateCommand from "../Command/Commands/authenticate/authenticate";
-import { WindowHide } from "../../wailsjs/runtime/runtime";
 import PlayLikedSongs from "../Command/Commands/liked";
+import { Window } from "@wailsio/runtime";
 
 export interface CommandOptions {
   parameters?: Record<string, string>;
@@ -83,7 +83,7 @@ function useCommand() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (!activeCommand) {
-          WindowHide();
+          Window.Minimise();
         }
         if (!activeCommandOptions?.lockCommandStack) {
           actions.popCommand();

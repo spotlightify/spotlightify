@@ -16,7 +16,7 @@ type AuthServer struct {
 	isRunning bool
 }
 
-func (a *AuthServer) StartAuthServer(wailsContext context.Context, config *configs.SpotlightifyConfig, clientHolder *spot.SpotifyClientHolder) {
+func (a *AuthServer) StartAuthServer(wailsContext context.Context, config *configs.SpotlightifyConfig, clientHolder *spot.SpotifyClientHolder, authEventEmitter AuthEventEmitter) {
 	// TODO We need to check if the server is already running
 	if a.isRunning {
 		slog.Info("Server is running")
@@ -33,10 +33,11 @@ func (a *AuthServer) StartAuthServer(wailsContext context.Context, config *confi
 	}
 
 	SetupAuthenticationRoutes(router, &AuthenticationHandlers{
-		Config:         config,
-		ClientHolder:   clientHolder,
-		ShutdownServer: a.server.Shutdown,
-		WailsContext:   wailsContext,
+		Config:           config,
+		ClientHolder:     clientHolder,
+		ShutdownServer:   a.server.Shutdown,
+		WailsContext:     wailsContext,
+		AuthEventEmitter: authEventEmitter,
 	})
 
 	go serve(a.server)

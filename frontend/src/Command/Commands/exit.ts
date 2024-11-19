@@ -1,5 +1,5 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide, Quit } from "../../../wailsjs/runtime";
+import { Window, Application } from "@wailsio/runtime";
 import Icon from "../../types/icons";
 import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
@@ -23,10 +23,10 @@ class ExitCommand extends BaseCommand {
       icon: Icon.Exit,
       id: this.id,
       action: async (actions) => {
-        Hide();
+        Window.Minimise();
         actions.resetPrompt();
         try {
-          await Quit();
+          await Application.Quit();
         } catch (e) {
           HandleGenericError("Exit", e, actions.setSuggestionList);
         }

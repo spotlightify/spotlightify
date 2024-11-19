@@ -1,8 +1,7 @@
-import { spotify } from "../../../wailsjs/go/models";
-import SimpleArtist = spotify.SimpleArtist;
+import { SimpleArtist } from "../../../bindings/github.com/zmb3/spotify/v2/index";
 import { SuggestionList } from "../../types/command";
 import Icon, { SVGIcon } from "../../types/icons";
-import { ShowWindow } from "../../../wailsjs/go/backend/Backend";
+import { ShowWindow } from "../../../bindings/spotlightify-wails/backend/backend";
 
 // TODO: at some point, we should probably move this to the backend for efficiency
 export function CombinedArtistsString(artists: SimpleArtist[]): string {

@@ -13,7 +13,6 @@ import (
 	spot "spotlightify-wails/backend/internal/spotify"
 
 	"github.com/gorilla/mux"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
@@ -27,11 +26,17 @@ var (
 	auth        *spotifyauth.Authenticator
 )
 
+type AuthEventEmitter interface {
+	EmitSuccess()
+	EmitFailure(err error)
+}
+
 type AuthenticationHandlers struct {
-	Config         *configs.SpotlightifyConfig
-	ClientHolder   *spot.SpotifyClientHolder
-	WailsContext   context.Context
-	ShutdownServer func(context.Context) error
+	Config           *configs.SpotlightifyConfig
+	ClientHolder     *spot.SpotifyClientHolder
+	WailsContext     context.Context
+	ShutdownServer   func(context.Context) error
+	AuthEventEmitter AuthEventEmitter
 }
 
 func SetupAuthenticationRoutes(r *mux.Router, handlers *AuthenticationHandlers) {
@@ -53,11 +58,11 @@ type AccessToken struct {
 }
 
 func (a *AuthenticationHandlers) handleSuccessInUI() {
-	runtime.EventsEmit(a.WailsContext, "auth_success", "auth_success")
+	a.AuthEventEmitter.EmitSuccess()
 }
 
 func (a *AuthenticationHandlers) handleFailureInUI(err error) {
-	runtime.EventsEmit(a.WailsContext, "auth_failure", err.Error())
+	a.AuthEventEmitter.EmitFailure(err)
 }
 
 func (a *AuthenticationHandlers) callbackHandler(w http.ResponseWriter, r *http.Request) {

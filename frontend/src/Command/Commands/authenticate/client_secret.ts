@@ -1,4 +1,4 @@
-import { AddClientSecret } from "../../../../wailsjs/go/backend/Backend";
+import { AddClientSecret } from "../../../../bindings/spotlightify-wails/backend/backend";
 import { Suggestion, SuggestionList } from "../../../types/command";
 import Icon from "../../../types/icons";
 import BaseCommand from "../baseCommand";

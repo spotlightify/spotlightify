@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint src/**/*.ts src/**/*.tsx"
+    "dev": "vite --port $PORT",
+    "build": "vite build --minify false --mode development",
+    "build:prod": "vite build --mode production",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.51.23",
@@ -16,6 +16,7 @@
     "react-router-dom": "^6.24.1"
   },
   "devDependencies": {
+    "@wailsio/runtime": "latest",
     "@eslint/js": "^9.10.0",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",

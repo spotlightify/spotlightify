@@ -7,7 +7,7 @@ import useAction from "./hooks/useAction";
 import useCommand from "./hooks/useCommand";
 import useSuggestion from "./hooks/useSuggestion";
 import useDebounce from "./hooks/useDebounce";
-import { Hide, WindowSetSize } from "../wailsjs/runtime/runtime";
+import { Window } from "@wailsio/runtime";
 import { useSpotlightify } from "./hooks/useSpotlightify";
 import useAuthListeners from "./hooks/useAuthListeners";
 import useCheckAuth from "./hooks/useCheckAuth";
@@ -44,7 +44,7 @@ function Spotlightify() {
   useEffect(() => {
     const onBlur = () => {
       if (!state.activeCommand?.options?.keepPromptOpen) {
-        Hide();
+        Window.Minimise();
         actions.batchActions([
           { type: "CLEAR_COMMANDS" },
           { type: "SET_PROMPT_INPUT", payload: "" },
@@ -62,7 +62,7 @@ function Spotlightify() {
 
   useEffect(() => {
     const maxNumberOfSuggestions = 8;
-    WindowSetSize(
+    Window.SetSize(
       650,
       65 + Math.min(maxNumberOfSuggestions, suggestions.length) * 58
     );

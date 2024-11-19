@@ -1,15 +1,15 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
+import { SimpleAlbum } from "../../../bindings/github.com/zmb3/spotify/v2/index";
 import { CombinedArtistsString } from "./utils";
 import {
   GetAlbumsByQuery,
   PlayAlbum,
   ShowWindow,
-} from "../../../wailsjs/go/backend/Backend";
+} from "../../../bindings/spotlightify-wails/backend/backend";
 
 class AlbumCommand extends BaseCommand {
   constructor() {
@@ -43,7 +43,7 @@ class AlbumCommand extends BaseCommand {
       return Promise.resolve({ items: suggestions });
     }
 
-    let albums = [] as spotify.SimpleAlbum[];
+    let albums = [] as SimpleAlbum[];
     try {
       albums = await GetAlbumsByQuery(input);
     } catch (e) {
@@ -73,7 +73,7 @@ class AlbumCommand extends BaseCommand {
         icon: album.images[2].url ?? icons.Album,
         id: album.id,
         action: async (actions) => {
-          Hide();
+          Window.Minimise();
           actions.resetPrompt();
           try {
             await PlayAlbum(album.uri);

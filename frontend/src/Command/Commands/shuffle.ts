@@ -1,10 +1,14 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import Icon from "../../types/icons";
-import { ChangeShuffle, IsShuffled } from "../../../wailsjs/go/backend/Backend";
+import { Backend } from "../../../bindings/spotlightify-wails/backend";
 import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { QueryClient } from "@tanstack/react-query";
+import {
+  ChangeShuffle,
+  IsShuffled,
+} from "../../../bindings/spotlightify-wails/backend/backend";
 
 const shuffleKey = "isShuffled";
 
@@ -45,24 +49,15 @@ class ShuffleCommand extends BaseCommand {
       icon: isShuffled ? Icon.Shuffle : Icon.ShuffleOff,
       id: this.id,
       action: async (actions) => {
-        Hide();
         actions.resetPrompt();
+        Window.Minimise();
         try {
-          Hide();
-          try {
-            await ChangeShuffle(!isShuffled);
-          } catch (e) {
-            HandleGenericError(
-              "Shuffle Playlist",
-              e,
-              actions.setSuggestionList
-            );
-          }
-          actions.resetPrompt();
-          queryClient.resetQueries({ queryKey: [shuffleKey] });
+          await ChangeShuffle(!isShuffled);
         } catch (e) {
           HandleGenericError("Shuffle Playlist", e, actions.setSuggestionList);
         }
+        actions.resetPrompt();
+        queryClient.resetQueries({ queryKey: [shuffleKey] });
         return Promise.resolve();
       },
     };

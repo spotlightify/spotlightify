@@ -1,14 +1,14 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
+import { FullShow } from "../../../bindings/github.com/zmb3/spotify/v2";
 import {
   GetShowsByQuery,
   PlayPodcast,
   ShowWindow,
-} from "../../../wailsjs/go/backend/Backend";
+} from "../../../bindings/spotlightify-wails/backend/backend";
 
 class PodcastCommand extends BaseCommand {
   constructor() {
@@ -42,7 +42,7 @@ class PodcastCommand extends BaseCommand {
       return Promise.resolve({ items: suggestions });
     }
 
-    let podcasts = [] as spotify.FullShow[];
+    let podcasts = [] as FullShow[];
     try {
       podcasts = await GetShowsByQuery(input);
     } catch (e) {
@@ -72,7 +72,7 @@ class PodcastCommand extends BaseCommand {
         icon: podcast.images[2].url ?? icons.Podcast,
         id: podcast.id,
         action: async (actions) => {
-          Hide();
+          Window.Minimise();
           actions.resetPrompt();
           try {
             await PlayPodcast(podcast.uri);

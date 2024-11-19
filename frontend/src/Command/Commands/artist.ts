@@ -1,14 +1,14 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
-import { Hide } from "../../../wailsjs/runtime";
+import { Window } from "@wailsio/runtime";
 import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
+import { FullArtist } from "../../../bindings/github.com/zmb3/spotify/v2/index";
 import {
   GetArtistsByQuery,
   PlayArtistsTopTracks,
   ShowWindow,
-} from "../../../wailsjs/go/backend/Backend";
+} from "../../../bindings/spotlightify-wails/backend/backend";
 
 class ArtistCommand extends BaseCommand {
   constructor() {
@@ -42,7 +42,7 @@ class ArtistCommand extends BaseCommand {
       return Promise.resolve({ items: suggestions });
     }
 
-    let artists = [] as spotify.FullArtist[];
+    let artists = [] as FullArtist[];
     try {
       artists = await GetArtistsByQuery(input);
     } catch (e) {
@@ -72,7 +72,7 @@ class ArtistCommand extends BaseCommand {
         icon: artist.images[2].url ?? icons.Artist,
         id: artist.id,
         action: async (actions) => {
-          Hide();
+          Window.Minimise();
           actions.resetPrompt();
           try {
             await PlayArtistsTopTracks(artist.id);
