@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useEffect, useMemo } from "react";
 import logo from "./assets/svg/spotify-logo.svg";
 import Prompt from "./components/Prompt";
@@ -15,6 +15,7 @@ import useCheckAuth from "./hooks/useCheckAuth";
 function Spotlightify() {
   const { state, actions } = useSpotlightify();
   const activeCommand = state.activeCommand?.command;
+  const [isDragged, setIsDragged] = useState(false);
 
   useAuthListeners({ actions });
   useCheckAuth({ actions, commandHistory: state.commandHistory });
@@ -42,7 +43,7 @@ function Spotlightify() {
   );
 
   useEffect(() => {
-    const onBlur = () => {
+    window.onblur = () => {
       if (!state.activeCommand?.options?.keepPromptOpen) {
         Hide();
         actions.batchActions([
@@ -52,8 +53,6 @@ function Spotlightify() {
         ]);
       }
     };
-    window.addEventListener("blur", onBlur);
-    return () => window.removeEventListener("blur", onBlur);
   }, [state.activeCommand, actions]);
 
   useEffect(() => {

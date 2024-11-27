@@ -28,7 +28,7 @@ function useAuthListeners({ actions }: props) {
   }, [actions]);
 
   useEffect(() => {
-    const cancel = EventsOn("auth_error", (err: string) => {
+    const cancel = EventsOn("auth_failure", (err: string) => {
       actions.setSuggestionList({
         items: [
           {

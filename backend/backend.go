@@ -109,6 +109,7 @@ func showWindow(ctx context.Context) {
 	keybind.ShowWindow(ctx)
 	runtime.WindowSetPosition(ctx, posX, posY)
 	slog.Info("Setting window position", "x", posX, "y", posY)
+	runtime.EventsEmit(ctx, "focus_window")
 }
 
 // domReady is called after front-end resources have been loaded

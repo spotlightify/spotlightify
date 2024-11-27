@@ -1,5 +1,6 @@
 import React from "react";
 import { useEffect, useRef } from "react";
+import { EventsOn } from "../../../wailsjs/runtime/runtime";
 
 interface Props {
   value: string;
@@ -17,7 +18,15 @@ function Prompt({ value, onChange, placeHolder }: Props) {
     ref.current.addEventListener("blur", () => {
       ref.current!.focus();
     });
-  });
+  }, [ref]);
+
+  useEffect(() => {
+    const cancel = EventsOn("focus_window", () => {
+      ref.current!.focus();
+      console.log("focus_window");
+    });
+    return () => cancel();
+  }, []);
 
   return (
     <input

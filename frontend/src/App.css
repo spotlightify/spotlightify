@@ -40,7 +40,6 @@ body {
   flex-direction: row;
   padding: 10px;
   gap: 10px;
-  -webkit-app-region: drag;
   --wails-draggable: drag;
 }
 

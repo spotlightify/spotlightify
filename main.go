@@ -57,6 +57,8 @@ func main() {
 		// OS specific options
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,
+			DisablePinchZoom:     true,
+			Theme:                windows.Dark,
 		},
 		Mac: &mac.Options{
 			WebviewIsTransparent: true,
