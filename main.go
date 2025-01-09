@@ -52,8 +52,7 @@ func main() {
 		OnStartup:         backend.Startup,
 		OnDomReady:        backend.DomReady,
 		Frameless:         true,
-		StartHidden:       isDev,
-
+		StartHidden:       true,
 		// OS specific options
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,

@@ -62,6 +62,7 @@ func (a *Backend) Startup(ctx context.Context) {
 		log.Printf("Failed to register hotkey: %v", err)
 	}
 	go listenForHotkey(ctx, hk)
+	a.ShowWindow()
 }
 
 // Expose the ShowWindow function to the frontend
