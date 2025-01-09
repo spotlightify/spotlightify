@@ -49,7 +49,15 @@ func (b *Backend) GetPlaylistsByQuery(query string) ([]spotify.SimplePlaylist, e
 		return []spotify.SimplePlaylist{}, err
 	}
 
-	return results.Playlists.Playlists, nil
+	// Filter out playlists with empty names
+	filteredPlaylists := make([]spotify.SimplePlaylist, 0)
+	for _, playlist := range results.Playlists.Playlists {
+		if playlist.Name != "" {
+			filteredPlaylists = append(filteredPlaylists, playlist)
+		}
+	}
+
+	return filteredPlaylists, nil
 }
 
 func (b *Backend) GetArtistsByQuery(query string) ([]spotify.FullArtist, error) {
