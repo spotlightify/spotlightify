@@ -30,10 +30,6 @@ export function CloseAuthServer() {
   return window['go']['backend']['Backend']['CloseAuthServer']();
 }
 
-export function ExecuteCommand(arg1, arg2) {
-  return window['go']['backend']['Backend']['ExecuteCommand'](arg1, arg2);
-}
-
 export function GetActiveDevice() {
   return window['go']['backend']['Backend']['GetActiveDevice']();
 }
@@ -76,10 +72,6 @@ export function GetRepeatState() {
 
 export function GetShowsByQuery(arg1) {
   return window['go']['backend']['Backend']['GetShowsByQuery'](arg1);
-}
-
-export function GetSuggestions(arg1, arg2, arg3) {
-  return window['go']['backend']['Backend']['GetSuggestions'](arg1, arg2, arg3);
 }
 
 export function GetTracksByQuery(arg1) {
