@@ -652,5 +652,8 @@ func (b *Backend) PlayLiked() {
 		uris = append(uris, track.SimpleTrack.URI)
 	}
 
-	client.PlayOpt(ctx, &spotify.PlayOptions{URIs: uris})
+	err = client.PlayOpt(ctx, &spotify.PlayOptions{URIs: uris})
+	if err != nil {
+		slog.Error("error playing liked tracks", "error", err)
+	}
 }
