@@ -3,7 +3,7 @@ package constants
 import "fmt"
 
 const (
-	Port         = ":49264"
+	Port         = ":9123"
 	ServerURL    = "http://localhost" + Port
 	SpotifyState = "spotlightify-state"
 )
