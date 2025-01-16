@@ -41,8 +41,11 @@
   - [Built With](#built-with)
 - [Development](#development)
   - [Prerequisites](#prerequisites)
+    - [Linux specific](#linux-specific)
   - [Live development build](#live-development-build)
   - [Building](#building)
+    - [Windows and macOS](#windows-and-macos)
+    - [Linux](#linux)
 - [Usage](#usage)
   - [List of Commands](#list-of-commands)
 - [Contributing](#contributing)
@@ -58,9 +61,7 @@ Spotlightify is a GUI based application designed to allow users to quickly inter
 across Windows, Linux and macOS. Created with simplicity and efficiency in mind, Spotlightify allows users to
 seamlessly control their music experience without having to navigate through Spotify's native interface.
 
-
 https://github.com/user-attachments/assets/77118ce9-cb8c-443f-9008-b1cd8817db74
-
 
 ### Built With
 
@@ -87,6 +88,11 @@ Development of this application is currently taking place on macOS, so Windows a
 - Spotify Premium Account
   - Spotify API Application, instructions can be found [here](https://spotlightify.petermurph.ie/setup)
 
+#### Linux specific
+
+- CGO enabled (run the following command: `go env -w CGO_ENABLED=1`)
+  - The GCC compiler must be installed.
+
 ### Live development build
 
 To run in live development mode, run the following command in the project directory:
@@ -97,7 +103,17 @@ wails dev
 
 ### Building
 
+#### Windows and macOS
+
 To build a redistributable, production mode package, run the following in the project directory:
+
+```shell
+wails build
+```
+
+#### Linux
+
+CGO is required to build
 
 ```shell
 wails build
