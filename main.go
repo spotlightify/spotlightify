@@ -24,7 +24,6 @@ var icon []byte
 
 func main() {
 	// Create an instance of the app structure
-	app := NewApp()
 	backend := backend.StartBackend()
 
 	// Check for development mode
@@ -66,7 +65,6 @@ func main() {
 		},
 
 		Bind: []interface{}{
-			app,
 			backend,
 		},
 	})
