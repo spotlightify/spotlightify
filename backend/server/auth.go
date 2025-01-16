@@ -7,6 +7,7 @@ import (
 	"spotlightify-wails/backend/configs"
 	"spotlightify-wails/backend/internal/constants"
 	spot "spotlightify-wails/backend/internal/spotify"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -28,8 +29,9 @@ func (a *AuthServer) StartAuthServer(wailsContext context.Context, config *confi
 	slog.Info("Starting auth server on port", "port", constants.Port)
 
 	a.server = &http.Server{
-		Addr:    constants.Port,
-		Handler: router,
+		Addr:              constants.Port,
+		Handler:           router,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	SetupAuthenticationRoutes(router, &AuthenticationHandlers{

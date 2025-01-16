@@ -16,6 +16,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
+
+	_ "embed"
 )
 
 const (
@@ -26,6 +28,9 @@ var (
 	redirectURI string
 	auth        *spotifyauth.Authenticator
 )
+
+//go:embed success.html
+var successHTML string
 
 type AuthenticationHandlers struct {
 	Config         *configs.SpotlightifyConfig
@@ -111,6 +116,9 @@ func (a *AuthenticationHandlers) callbackHandler(w http.ResponseWriter, r *http.
 	a.Config.SetRequiresSpotifyAuth(false)
 	a.handleSuccessInUI()
 
-	w.Write([]byte("<h1>Spotlightify Success!</h1><p>You have successfully authenticated with Spotify! You can now close this window.</p>"))
+	_, err = w.Write([]byte(successHTML))
+	if err != nil {
+		slog.Error("Error writing success HTML", "error", err)
+	}
 	shutdownServer()
 }

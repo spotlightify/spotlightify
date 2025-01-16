@@ -34,7 +34,7 @@ class AuthenticateCommand extends BaseCommand {
       icon: Icon.Ellipsis,
       id: "open-instructions",
       action: async (_actions) => {
-        BrowserOpenURL("https://spotlightify.github.io/setup");
+        BrowserOpenURL("https://spotlightify.petermurph.ie/setup");
       },
     };
 

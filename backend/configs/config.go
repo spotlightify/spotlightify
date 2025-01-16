@@ -44,7 +44,10 @@ func (s *SpotlightifyConfig) setConfigValue(key string, value any) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.config.Set(key, value)
-	s.config.WriteConfig()
+	err := s.config.WriteConfig()
+	if err != nil {
+		slog.Error("Failed to write config", "error", err)
+	}
 }
 
 func (s *SpotlightifyConfig) getConfigValue(key string) any {

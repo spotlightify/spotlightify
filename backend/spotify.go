@@ -633,18 +633,18 @@ func (b *Backend) CloseAuthServer() {
 	b.authServer.StopAuthServer()
 }
 
-func (b *Backend) PlayLiked() {
+func (b *Backend) PlayLiked() error {
 	ctx := context.Background()
 	client, err := b.managers.spotifyHolder.GetSpotifyInstance()
 	if err != nil {
 		slog.Error("error getting spotify instance", "error", err)
-		return
+		return err
 	}
 
 	likedTracks, err := client.CurrentUsersTracks(ctx, spotify.Limit(50))
 	if err != nil {
 		slog.Error("error getting liked tracks", "error", err)
-		return
+		return err
 	}
 
 	uris := []spotify.URI{}
@@ -652,5 +652,9 @@ func (b *Backend) PlayLiked() {
 		uris = append(uris, track.SimpleTrack.URI)
 	}
 
-	client.PlayOpt(ctx, &spotify.PlayOptions{URIs: uris})
+	err = client.PlayOpt(ctx, &spotify.PlayOptions{URIs: uris})
+	if err != nil {
+		slog.Error("error playing liked tracks", "error", err)
+	}
+	return err
 }
