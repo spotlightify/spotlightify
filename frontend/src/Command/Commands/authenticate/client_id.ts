@@ -5,7 +5,7 @@ import BaseCommand from "../baseCommand";
 
 class ClientIDCommand extends BaseCommand {
   constructor() {
-    super("client_id", "ClientID", "ClientID:", 0, "authenticate", {});
+    super("client_id", "Client ID", "Client ID", 0, "authenticate", {});
   }
 
   getSuggestions(
