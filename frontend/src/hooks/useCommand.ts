@@ -83,6 +83,11 @@ function useCommand() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (!activeCommand) {
+          actions.batchActions([
+            { type: "CLEAR_COMMANDS" },
+            { type: "SET_PROMPT_INPUT", payload: "" },
+            { type: "SET_SUGGESTION_LIST", payload: { items: [] } },
+          ]);
           WindowHide();
         }
         if (!activeCommandOptions?.lockCommandStack) {
