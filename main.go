@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/tidwall/gjson"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
@@ -16,15 +17,34 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
+//go:embed wails.json
+var wailsJson string
+
 //go:embed all:frontend/dist
 var assets embed.FS
 
 //go:embed build/appicon.png
 var icon []byte
 
+func getVersion() string {
+	var versionString = "0.1.0 beta"
+	if wailsJson != "" {
+		version := gjson.Get(wailsJson, "info.productVersion")
+		if !version.Exists() {
+			slog.Warn("Version not found in wails.json, using default")
+		} else if version.String() == "" {
+			slog.Warn("Empty version in wails.json, using default")
+		} else {
+			versionString = version.String() + " beta"
+			slog.Info("Version: ", versionString)
+		}
+	}
+	return versionString
+}
+
 func main() {
 	// Create an instance of the app structure
-	backend := backend.StartBackend()
+	backend := backend.StartBackend(getVersion())
 
 	// Check for development mode
 	isDev := strings.ToLower(os.Getenv("SPOTLIGHTIFY_DEV")) == "true"

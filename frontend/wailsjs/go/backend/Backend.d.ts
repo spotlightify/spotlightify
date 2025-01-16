@@ -42,6 +42,8 @@ export function GetShowsByQuery(arg1:string):Promise<Array<spotify.FullShow>>;
 
 export function GetTracksByQuery(arg1:string):Promise<Array<spotify.SimpleTrack>>;
 
+export function GetVersion():Promise<string>;
+
 export function GetVolume():Promise<number>;
 
 export function IsCurrentSongLiked():Promise<boolean>;

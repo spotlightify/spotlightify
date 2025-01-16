@@ -40,6 +40,7 @@ import Sun from "../assets/svg/sun.svg";
 import Track from "../assets/svg/track.svg";
 import VolumeLight from "../assets/svg/volume-light.svg";
 import Volume from "../assets/svg/volume.svg";
+import Info from "../assets/svg/info.svg";
 
 export type SVGIcon = string;
 
@@ -61,6 +62,7 @@ const Icon = {
   GoArrow,
   HeartNoFill,
   Heart,
+  Info,
   Moon,
   NoTexture,
   PauseButtonLight,
