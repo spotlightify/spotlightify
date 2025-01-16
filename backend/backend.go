@@ -25,6 +25,7 @@ type Backend struct {
 	managers   *managers
 	ctx        context.Context
 	authServer *server.AuthServer
+	version    string
 }
 
 func (a *Backend) Startup(ctx context.Context) {
@@ -90,7 +91,7 @@ func (a *Backend) DomReady(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func StartBackend() *Backend {
+func StartBackend(version string) *Backend {
 	fileSystem := afero.NewOsFs()
 	setupDirectories(fileSystem) // TODO
 
@@ -110,6 +111,7 @@ func StartBackend() *Backend {
 	backend := &Backend{
 		managers:   managers,
 		authServer: &server.AuthServer{},
+		version:    version,
 	}
 
 	// This makes any playback commands use the active device when the app starts
@@ -123,4 +125,8 @@ func StartBackend() *Backend {
 	}
 
 	return backend
+}
+
+func (b *Backend) GetVersion() string {
+	return b.version
 }

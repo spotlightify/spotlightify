@@ -23,7 +23,7 @@ import ArtistCommand from "../Command/Commands/artist";
 import AuthenticateCommand from "../Command/Commands/authenticate/authenticate";
 import { WindowHide } from "../../wailsjs/runtime/runtime";
 import PlayLikedSongs from "../Command/Commands/liked";
-
+import VersionCommand from "../Command/Commands/version";
 export interface CommandOptions {
   parameters?: Record<string, string>;
   keepPromptOpen?: boolean;
@@ -70,6 +70,7 @@ function useCommand() {
       commandRegistry.register(new AuthenticateCommand());
 
       commandRegistry.register(new ExitCommand());
+      commandRegistry.register(new VersionCommand());
     }
   }, [commandRegistry]);
 

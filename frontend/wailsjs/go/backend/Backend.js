@@ -78,6 +78,10 @@ export function GetTracksByQuery(arg1) {
   return window['go']['backend']['Backend']['GetTracksByQuery'](arg1);
 }
 
+export function GetVersion() {
+  return window['go']['backend']['Backend']['GetVersion']();
+}
+
 export function GetVolume() {
   return window['go']['backend']['Backend']['GetVolume']();
 }
