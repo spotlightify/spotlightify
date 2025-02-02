@@ -5,7 +5,7 @@ import {
   ChangeRepeatState,
   GetRepeatState,
 } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -34,7 +34,7 @@ class RepeatCommand extends BaseCommand {
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError("Repeat Off", e, actions.setSuggestionList);
+          HandleError("Repeat Off", e, actions);
         }
         return Promise.resolve();
       },
@@ -52,7 +52,7 @@ class RepeatCommand extends BaseCommand {
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError("Repeat Context", e, actions.setSuggestionList);
+          HandleError("Repeat Context", e, actions);
         }
         return Promise.resolve();
       },
@@ -70,7 +70,7 @@ class RepeatCommand extends BaseCommand {
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError("Repeat Track", e, actions.setSuggestionList);
+          HandleError("Repeat Track", e, actions);
         }
         return Promise.resolve();
       },

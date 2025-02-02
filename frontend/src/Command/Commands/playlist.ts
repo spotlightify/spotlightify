@@ -9,6 +9,7 @@ import {
 import { Hide } from "../../../wailsjs/runtime";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
+import { HandleError } from "./utils";
 class PlaylistCommand extends BaseCommand {
   constructor() {
     super("playlist", "Playlist", "playlist", 400, "playlist", {});
@@ -76,16 +77,7 @@ class PlaylistCommand extends BaseCommand {
           try {
             await PlayPlaylist(playlist.uri);
           } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play playlist",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
+            HandleError("playlist", e, actions);
             ShowWindow();
           }
           return Promise.resolve();

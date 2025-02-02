@@ -2,7 +2,7 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import { ClipboardSetText } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { GetCurrentlyPlayingTrack } from "../../../wailsjs/go/backend/Backend";
-import { CombinedArtistsString, HandleGenericError } from "./utils";
+import { CombinedArtistsString, HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { backend } from "../../../wailsjs/go/models";
 import { QueryClient } from "@tanstack/react-query";
@@ -96,7 +96,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
           await ClipboardSetText(trackUrl);
           actions.setCurrentCommandParameters({ shared: "true" });
         } catch (e) {
-          HandleGenericError("Copy to clipboard", e, actions.setSuggestionList);
+          HandleError("Copy to clipboard", e, actions);
         }
       },
     });

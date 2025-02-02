@@ -12,7 +12,7 @@ import {
 import { Suggestion, SuggestionList } from "../../../types/command";
 import Icon from "../../../types/icons";
 import BaseCommand from "../baseCommand";
-import { HandleGenericError } from "../utils";
+import { HandleError } from "../utils";
 import ClientIDCommand from "./client_id";
 import ClientSecretCommand from "./client_secret";
 
@@ -108,11 +108,7 @@ class AuthenticateCommand extends BaseCommand {
         try {
           await AuthenticateWithSpotify();
         } catch (e) {
-          HandleGenericError(
-            "spotify authentication",
-            e,
-            actions.setSuggestionList
-          );
+          HandleError("spotify authentication", e, actions);
           return;
         }
       },
@@ -125,7 +121,6 @@ class AuthenticateCommand extends BaseCommand {
       authenticateSuggestion,
     ];
 
-    console.log("firstTime", this.firstTime);
     if (this.firstTime) {
       const exitSuggestion: Suggestion = {
         title: "Exit",
@@ -138,7 +133,7 @@ class AuthenticateCommand extends BaseCommand {
           try {
             await Quit();
           } catch (e) {
-            HandleGenericError("Exit", e, actions.setSuggestionList);
+            HandleError("Exit", e, actions);
           }
           return Promise.resolve();
         },
@@ -148,7 +143,6 @@ class AuthenticateCommand extends BaseCommand {
 
     return Promise.resolve({
       items: items,
-      // type: "static",
     });
   }
 

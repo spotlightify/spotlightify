@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"spotlightify-wails/backend/internal/constants"
+	"spotlightify-wails/backend/utils"
 
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
@@ -258,8 +259,13 @@ func (b *Backend) Pause() error {
 	err = client.Pause(ctx)
 	if err != nil {
 		slog.Error("error pausing track", "error", err)
+		return utils.AppError{
+			Title:       "Unable to pause track",
+			Description: "This is likely due to spotify's state not allowing the action to be performed",
+			Technical:   err.Error(),
+		}
 	}
-	return err
+	return nil
 }
 
 func (b *Backend) Next() error {

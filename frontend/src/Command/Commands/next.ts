@@ -2,7 +2,7 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { Next } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 
 class NextCommand extends BaseCommand {
@@ -29,7 +29,7 @@ class NextCommand extends BaseCommand {
         try {
           await Next();
         } catch (e) {
-          HandleGenericError("Next Track", e, actions.setSuggestionList);
+          HandleError("Next Track", e, actions);
         }
         return Promise.resolve();
       },

@@ -3,7 +3,7 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { Pause } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 
 class PauseCommand extends BaseCommand {
   constructor() {
@@ -29,7 +29,7 @@ class PauseCommand extends BaseCommand {
         try {
           await Pause();
         } catch (e) {
-          HandleGenericError("Pause", e, actions.setSuggestionList);
+          HandleError("Pause", e, actions);
         }
         return Promise.resolve();
       },

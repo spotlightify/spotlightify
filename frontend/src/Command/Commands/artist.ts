@@ -9,6 +9,7 @@ import {
   PlayArtistsTopTracks,
   ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
+import { HandleError } from "./utils";
 
 class ArtistCommand extends BaseCommand {
   constructor() {
@@ -77,16 +78,7 @@ class ArtistCommand extends BaseCommand {
           try {
             await PlayArtistsTopTracks(artist.id);
           } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play artist",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
+            HandleError("artist", e, actions);
             ShowWindow();
           }
           return Promise.resolve();
