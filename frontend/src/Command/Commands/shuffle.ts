@@ -2,7 +2,7 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { ChangeShuffle, IsShuffled } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -52,16 +52,12 @@ class ShuffleCommand extends BaseCommand {
           try {
             await ChangeShuffle(!isShuffled);
           } catch (e) {
-            HandleGenericError(
-              "Shuffle Playlist",
-              e,
-              actions.setSuggestionList
-            );
+            HandleError("Shuffle Playlist", e, actions);
           }
           actions.resetPrompt();
           queryClient.resetQueries({ queryKey: [shuffleKey] });
         } catch (e) {
-          HandleGenericError("Shuffle Playlist", e, actions.setSuggestionList);
+          HandleError("Shuffle Playlist", e, actions);
         }
         return Promise.resolve();
       },

@@ -2,28 +2,31 @@ import { useCallback, useEffect, useMemo } from "react";
 import { CommandRegistry } from "../Command/registery";
 import { Command } from "../types/command";
 import { useSpotlightify } from "./useSpotlightify";
-import PlayCommand from "../Command/Commands/play";
-import PauseCommand from "../Command/Commands/pause";
-import Queue from "../Command/Commands/queue";
-import NextCommand from "../Command/Commands/next";
-import PreviousCommand from "../Command/Commands/previous";
-import ResumeCommand from "../Command/Commands/resume";
-import DeviceCommand from "../Command/Commands/device";
-import VolumeCommand from "../Command/Commands/volume";
-import AlbumCommand from "../Command/Commands/album";
-import LikeCommand from "../Command/Commands/like";
-import GotoCommand from "../Command/Commands/goto";
-import PlaylistCommand from "../Command/Commands/playlist";
-import PodcastCommand from "../Command/Commands/podcast";
-import CurrentlyPlayingCommand from "../Command/Commands/currentlyplaying";
-import ShuffleCommand from "../Command/Commands/shuffle";
-import RepeatCommand from "../Command/Commands/repeat";
-import ExitCommand from "../Command/Commands/exit";
-import ArtistCommand from "../Command/Commands/artist";
+import {
+  PlayCommand,
+  PauseCommand,
+  QueueCommand,
+  NextCommand,
+  PreviousCommand,
+  ResumeCommand,
+  DeviceCommand,
+  VolumeCommand,
+  AlbumCommand,
+  LikeCommand,
+  GotoCommand,
+  PlaylistCommand,
+  PodcastCommand,
+  CurrentlyPlayingCommand,
+  ShuffleCommand,
+  RepeatCommand,
+  ExitCommand,
+  ArtistCommand,
+  PlayLikedSongs,
+  VersionCommand,
+} from "../Command/Commands";
 import AuthenticateCommand from "../Command/Commands/authenticate/authenticate";
 import { WindowHide } from "../../wailsjs/runtime/runtime";
-import PlayLikedSongs from "../Command/Commands/liked";
-import VersionCommand from "../Command/Commands/version";
+
 export interface CommandOptions {
   parameters?: Record<string, string>;
   keepPromptOpen?: boolean;
@@ -45,7 +48,7 @@ function useCommand() {
     if (commandRegistry.getAllCommands().length === 0) {
       // Ensures that commands are only registered once in STRICT Mode
       commandRegistry.register(new PlayCommand());
-      commandRegistry.register(new Queue());
+      commandRegistry.register(new QueueCommand());
       commandRegistry.register(new PlaylistCommand());
       commandRegistry.register(new AlbumCommand());
       commandRegistry.register(new ArtistCommand());

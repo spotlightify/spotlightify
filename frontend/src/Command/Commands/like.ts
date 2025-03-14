@@ -5,7 +5,7 @@ import {
   IsCurrentSongLiked,
   LikeCurrentSong,
 } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -61,7 +61,7 @@ class LikeCommand extends BaseCommand {
           queryClient.invalidateQueries({ queryKey: [isCurrentSongLikedKey] });
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError("Like Track", e, actions.setSuggestionList);
+          HandleError("Like Track", e, actions);
         }
         return Promise.resolve();
       },

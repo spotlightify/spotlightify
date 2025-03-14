@@ -5,7 +5,7 @@ import {
   GetDevices,
   SetActiveDevice,
 } from "../../../wailsjs/go/backend/Backend";
-import { DeviceIconSelector, HandleGenericError } from "./utils";
+import { DeviceIconSelector, HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { spotify } from "../../../wailsjs/go/models";
 import { QueryClient } from "@tanstack/react-query";
@@ -102,7 +102,7 @@ class DeviceCommand extends BaseCommand {
             await SetActiveDevice(device.id);
             queryClient.invalidateQueries({ queryKey: [GetDevicesKey] });
           } catch (e) {
-            HandleGenericError("Pause", e, actions.setSuggestionList);
+            HandleError("Pause", e, actions);
           }
           return Promise.resolve();
         },

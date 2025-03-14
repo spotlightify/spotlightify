@@ -9,7 +9,7 @@ import {
 import { Hide } from "../../../wailsjs/runtime";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
+import { CombinedArtistsString, HandleError } from "./utils";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -78,16 +78,7 @@ class PlayCommand extends BaseCommand {
           try {
             await QueueTrack(track.id);
           } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to queue track",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
+            HandleError("queue", e, actions);
             ShowWindow();
           }
           return Promise.resolve();

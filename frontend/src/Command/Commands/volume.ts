@@ -3,7 +3,7 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { GetVolume, SetVolume } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 import { QueryClient } from "@tanstack/react-query";
 
 const VolumeQueryKey = "volume";
@@ -72,7 +72,7 @@ class VolumeCommand extends BaseCommand {
             try {
               await SetVolume(volumeNumber);
             } catch (e) {
-              HandleGenericError("Set Volume", e, actions.setSuggestionList);
+              HandleError("Set Volume", e, actions);
             }
             queryClient.invalidateQueries({ queryKey: [VolumeQueryKey] });
             return Promise.resolve;

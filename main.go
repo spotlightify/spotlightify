@@ -3,10 +3,10 @@ package main
 import (
 	"embed"
 	"log/slog"
+	"os"
 	"spotlightify-wails/backend"
 	"spotlightify-wails/backend/constants"
-
-	"os"
+	"spotlightify-wails/backend/utils"
 	"strings"
 
 	"github.com/tidwall/gjson"
@@ -26,7 +26,7 @@ var assets embed.FS
 //go:embed build/appicon.png
 var icon []byte
 
-func getVersion() string {
+func getVersion(isDev bool) string {
 	var versionString = "0.1.0 beta"
 	if wailsJson != "" {
 		version := gjson.Get(wailsJson, "info.productVersion")
@@ -39,13 +39,15 @@ func getVersion() string {
 			slog.Info("Version: ", versionString)
 		}
 	}
+
+	if isDev {
+		versionString = versionString + " (dev)"
+	}
+
 	return versionString
 }
 
 func main() {
-	// Create an instance of the app structure
-	backend := backend.StartBackend(getVersion())
-
 	// Check for development mode
 	isDev := strings.ToLower(os.Getenv("SPOTLIGHTIFY_DEV")) == "true"
 	if isDev {
@@ -57,6 +59,9 @@ func main() {
 		slog.SetDefault(slog.New(handler))
 		slog.Info("Running in development mode")
 	}
+
+	// Create an instance of the app structure
+	backend := backend.StartBackend(getVersion(isDev))
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -72,6 +77,7 @@ func main() {
 		OnDomReady:        backend.DomReady,
 		Frameless:         true,
 		StartHidden:       true,
+		ErrorFormatter:    formatError,
 		// OS specific options
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,
@@ -92,4 +98,19 @@ func main() {
 	if err != nil {
 		println("Error:", err.Error())
 	}
+}
+
+func formatError(err error) any {
+	// Handle wrapped errors (multiple errors)
+	if uw, ok := err.(interface{ Unwrap() []error }); ok {
+		errs := uw.Unwrap()
+		appErrors := make([]utils.AppError, len(errs))
+		for i, err := range errs {
+			appErrors[i] = utils.CreateAppError(err)
+		}
+		return appErrors
+	}
+
+	// Handle single error
+	return utils.CreateAppError(err)
 }

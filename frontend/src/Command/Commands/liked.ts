@@ -2,7 +2,7 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { PlayLiked } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 
 class PlayLikedSongs extends BaseCommand {
@@ -29,7 +29,7 @@ class PlayLikedSongs extends BaseCommand {
         try {
           await PlayLiked();
         } catch (e) {
-          HandleGenericError("Liked", e, actions.setSuggestionList);
+          HandleError("Liked", e, actions);
         }
         return Promise.resolve();
       },

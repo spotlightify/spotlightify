@@ -3,7 +3,7 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { Seek } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 
 const second = 1000;
 const minute = 60 * second;
@@ -114,7 +114,7 @@ class GotoCommand extends BaseCommand {
             try {
               Seek(timeMS);
             } catch (e) {
-              HandleGenericError("Go To", e, actions.setSuggestionList);
+              HandleError("Go To", e, actions);
             }
             return Promise.resolve();
           },

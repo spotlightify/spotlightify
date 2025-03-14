@@ -1,7 +1,7 @@
 import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide, Quit } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 
 class ExitCommand extends BaseCommand {
@@ -28,7 +28,7 @@ class ExitCommand extends BaseCommand {
         try {
           await Quit();
         } catch (e) {
-          HandleGenericError("Exit", e, actions.setSuggestionList);
+          HandleError("Exit", e, actions);
         }
         return Promise.resolve();
       },

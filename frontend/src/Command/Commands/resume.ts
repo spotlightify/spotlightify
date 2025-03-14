@@ -2,7 +2,7 @@ import { Suggestion, SuggestionList } from "../../types/command";
 import { Hide } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { Resume } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { HandleError } from "./utils";
 import BaseCommand from "./baseCommand";
 
 class ResumeCommand extends BaseCommand {
@@ -29,7 +29,7 @@ class ResumeCommand extends BaseCommand {
         try {
           await Resume();
         } catch (e) {
-          HandleGenericError("Resume", e, actions.setSuggestionList);
+          HandleError("Resume", e, actions);
         }
         return Promise.resolve();
       },
