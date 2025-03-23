@@ -3,12 +3,9 @@ import {
   CloseAuthServer,
   GetClientID,
   GetClientSecret,
+  HideWindow,
 } from "../../../../wailsjs/go/backend/Backend";
-import {
-  BrowserOpenURL,
-  Hide,
-  Quit,
-} from "../../../../wailsjs/runtime/runtime";
+import { BrowserOpenURL, Quit } from "../../../../wailsjs/runtime/runtime";
 import { Suggestion, SuggestionList } from "../../../types/command";
 import Icon from "../../../types/icons";
 import BaseCommand from "../baseCommand";
@@ -133,7 +130,7 @@ class AuthenticateCommand extends BaseCommand {
         icon: Icon.Exit,
         id: "exit-auth-menu",
         action: async (actions) => {
-          Hide();
+          HideWindow();
           actions.resetPrompt();
           try {
             await Quit();
@@ -158,6 +155,7 @@ class AuthenticateCommand extends BaseCommand {
       description: "Autneticate with Spotify",
       icon: Icon.SpotifyLogo,
       id: this.id,
+      type: "command",
       action: async (actions) => {
         actions.batchActions([
           {

@@ -26,7 +26,7 @@ var assets embed.FS
 //go:embed build/appicon.png
 var icon []byte
 
-func getVersion() string {
+func getVersion(isDev bool) string {
 	var versionString = "0.1.0 beta"
 	if wailsJson != "" {
 		version := gjson.Get(wailsJson, "info.productVersion")
@@ -39,13 +39,15 @@ func getVersion() string {
 			slog.Info("Version: ", versionString)
 		}
 	}
+
+	if isDev {
+		versionString = versionString + " (dev)"
+	}
+
 	return versionString
 }
 
 func main() {
-	// Create an instance of the app structure
-	backend := backend.StartBackend(getVersion())
-
 	// Check for development mode
 	isDev := strings.ToLower(os.Getenv("SPOTLIGHTIFY_DEV")) == "true"
 	if isDev {
@@ -57,6 +59,9 @@ func main() {
 		slog.SetDefault(slog.New(handler))
 		slog.Info("Running in development mode")
 	}
+
+	version := getVersion(isDev)
+	backend := backend.StartBackend(version)
 
 	// Create application with options
 	err := wails.Run(&options.App{

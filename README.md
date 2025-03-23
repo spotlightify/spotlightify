@@ -138,7 +138,7 @@ Here is the current list of available functions:
 | Artist           | Find and play songs from a saved/followed artist   | artist            |
 | Liked            | Plays saved/liked music                            | liked             |
 | Volume           | Changes music volume                               | volume            |
-| Go to            | Seeks a position in a song                         | goto              |
+| Seek             | Seeks a position in a song                         | seek              |
 | Resume           | Resumes music playback                             | resume            |
 | Skip             | Skips the current song                             | next              |
 | Previous         | Plays pervious song                                | previous          |

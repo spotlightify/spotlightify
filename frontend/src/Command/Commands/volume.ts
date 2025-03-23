@@ -1,6 +1,6 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { GetVolume, SetVolume } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
@@ -29,6 +29,7 @@ class VolumeCommand extends BaseCommand {
       description: "Set the volume level",
       icon: Icon.Volume,
       id: this.id,
+      type: "command",
       action: async (actions) => {
         actions.batchActions([
           { type: "SET_PLACEHOLDER_TEXT", payload: "0 - 10" },
@@ -67,7 +68,7 @@ class VolumeCommand extends BaseCommand {
           icon: Icon.Volume,
           id: this.id,
           action: async (actions) => {
-            Hide();
+            HideWindow();
             actions.resetPrompt();
             try {
               await SetVolume(volumeNumber);

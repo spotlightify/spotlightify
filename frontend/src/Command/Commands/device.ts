@@ -1,5 +1,5 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import {
   GetDevices,
@@ -20,10 +20,10 @@ class DeviceCommand extends BaseCommand {
   async getPlaceholderSuggestion(): Promise<Suggestion> {
     return {
       title: "Device",
-      description:
-        "Set the active device, will make this the device default for playback through Spotlightify",
+      description: "Set the active device and default device for playback",
       icon: Icon.Device,
       id: this.id,
+      type: "command",
       action: async (actions) => {
         actions.batchActions([
           { type: "SET_PLACEHOLDER_TEXT", payload: "Select a device" },
@@ -96,7 +96,7 @@ class DeviceCommand extends BaseCommand {
         icon: DeviceIconSelector(device.type),
         id: device.id,
         action: async (actions) => {
-          Hide();
+          HideWindow();
           actions.resetPrompt();
           try {
             await SetActiveDevice(device.id);

@@ -1,7 +1,7 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
 import {
@@ -21,6 +21,7 @@ class ArtistCommand extends BaseCommand {
       description: "Play an artist",
       icon: Icon.Artist,
       id: this.id,
+      type: "command",
       action: (actions) => {
         actions.batchActions([
           { type: "SET_PLACEHOLDER_TEXT", payload: "Enter an artist to play" },
@@ -72,7 +73,7 @@ class ArtistCommand extends BaseCommand {
         icon: artist.images[2].url ?? icons.Artist,
         id: artist.id,
         action: async (actions) => {
-          Hide();
+          HideWindow();
           actions.resetPrompt();
           try {
             await PlayArtistsTopTracks(artist.id);

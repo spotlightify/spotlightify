@@ -86,6 +86,10 @@ export function GetVolume() {
   return window['go']['backend']['Backend']['GetVolume']();
 }
 
+export function HideWindow() {
+  return window['go']['backend']['Backend']['HideWindow']();
+}
+
 export function IsCurrentSongLiked() {
   return window['go']['backend']['Backend']['IsCurrentSongLiked']();
 }
@@ -156,6 +160,10 @@ export function SetActiveDevice(arg1) {
 
 export function SetAuthenticatedWithSpotify(arg1) {
   return window['go']['backend']['Backend']['SetAuthenticatedWithSpotify'](arg1);
+}
+
+export function SetDisableHide(arg1) {
+  return window['go']['backend']['Backend']['SetDisableHide'](arg1);
 }
 
 export function SetVolume(arg1) {

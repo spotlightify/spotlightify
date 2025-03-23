@@ -1,5 +1,5 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { Previous } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
@@ -23,8 +23,9 @@ class PreviousCommand extends BaseCommand {
       description: "Play the previous track",
       icon: Icon.Backward,
       id: this.id,
+      type: "action",
       action: async (actions) => {
-        Hide();
+        HideWindow();
         actions.resetPrompt();
         try {
           await Previous();

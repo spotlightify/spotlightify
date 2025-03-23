@@ -1,6 +1,7 @@
 // import {QueryClient} from "@tanstack/react-query";
 
 import { QueryClient } from "@tanstack/react-query";
+import { DeveloperOptions } from "../context/SpotlightifyContext";
 
 export interface Command {
   id: string;
@@ -32,6 +33,7 @@ export interface Suggestion {
   icon: string;
   id: string;
   action?: SuggestionAction;
+  type?: "action" | "command";
 }
 
 export type SuggestionAction = (
@@ -66,7 +68,8 @@ export type Action =
   | { type: "RESET_PROMPT" }
   | { type: "SET_CURRENT_COMMAND_PARAMETERS"; payload: Record<string, string> }
   | { type: "BATCH_ACTIONS"; payload: Action[] }
-  | { type: "REFRESH_SUGGESTIONS" };
+  | { type: "REFRESH_SUGGESTIONS" }
+  | { type: "SET_DEVELOPER_OPTIONS"; payload: DeveloperOptions };
 
 export interface SpotlightifyActions {
   setPromptInput: (input: string) => void;
@@ -80,4 +83,5 @@ export interface SpotlightifyActions {
   resetPrompt: () => void;
   batchActions: (actions: Action[]) => void;
   refreshSuggestions: () => void;
+  setDeveloperOptions: (options: DeveloperOptions) => void;
 }

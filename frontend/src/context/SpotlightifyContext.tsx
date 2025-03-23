@@ -8,6 +8,11 @@ import {
   SuggestionList,
 } from "../types/command";
 
+export interface DeveloperOptions {
+  disableHide: boolean;
+  disableBlur: boolean;
+}
+
 export interface SpotlightifyState {
   promptInput: string;
   activeCommand: CommandHistoryItem | null;
@@ -15,6 +20,7 @@ export interface SpotlightifyState {
   suggestions: SuggestionList;
   errorOccurred: boolean;
   placeholderText: string;
+  developerOptions: DeveloperOptions;
 }
 
 function spotlightifyReducer(
@@ -93,6 +99,8 @@ function spotlightifyReducer(
         ...state,
         commandHistory: [...state.commandHistory],
       };
+    case "SET_DEVELOPER_OPTIONS":
+      return { ...state, developerOptions: action.payload };
     default:
       return state;
   }
@@ -115,6 +123,10 @@ export const SpotlightifyProvider = ({
     suggestions: { items: [] },
     errorOccurred: false,
     placeholderText: "Spotlightify Search",
+    developerOptions: {
+      disableHide: false,
+      disableBlur: false,
+    },
   });
 
   const actions: SpotlightifyActions = useMemo(
@@ -140,6 +152,8 @@ export const SpotlightifyProvider = ({
       batchActions: (actions: Action[]) =>
         dispatch({ type: "BATCH_ACTIONS", payload: actions }),
       refreshSuggestions: () => dispatch({ type: "REFRESH_SUGGESTIONS" }),
+      setDeveloperOptions: (options: DeveloperOptions) =>
+        dispatch({ type: "SET_DEVELOPER_OPTIONS", payload: options }),
     }),
     []
   );

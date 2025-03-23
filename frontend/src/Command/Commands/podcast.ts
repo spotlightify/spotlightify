@@ -1,7 +1,7 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
 import {
@@ -21,6 +21,7 @@ class PodcastCommand extends BaseCommand {
       description: "Play the latest episode of a podcast",
       icon: Icon.Podcast,
       id: this.id,
+      type: "command",
       action: (actions) => {
         actions.batchActions([
           { type: "SET_PLACEHOLDER_TEXT", payload: "Enter a podcast to play" },
@@ -72,7 +73,7 @@ class PodcastCommand extends BaseCommand {
         icon: podcast.images[2].url ?? icons.Podcast,
         id: podcast.id,
         action: async (actions) => {
-          Hide();
+          HideWindow();
           actions.resetPrompt();
           try {
             await PlayPodcast(podcast.uri);
