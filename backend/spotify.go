@@ -74,7 +74,15 @@ func (b *Backend) GetArtistsByQuery(query string) ([]spotify.FullArtist, error) 
 		return []spotify.FullArtist{}, err
 	}
 
-	return results.Artists.Artists, nil
+	// Filter out artists with no images
+	filteredArtists := make([]spotify.FullArtist, 0)
+	for _, artist := range results.Artists.Artists {
+		if len(artist.Images) > 0 {
+			filteredArtists = append(filteredArtists, artist)
+		}
+	}
+
+	return filteredArtists, nil
 }
 
 func (b *Backend) GetAlbumsByQuery(query string) ([]spotify.SimpleAlbum, error) {

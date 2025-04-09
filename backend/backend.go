@@ -28,6 +28,24 @@ type Backend struct {
 	version    string
 }
 
+// Keep track of always show setting
+var disableHide bool = false
+
+// SetDisableHide enables or disables the "hide" feature
+// When enabled, the window will not hide when unfocused
+func (a *Backend) SetDisableHide(show bool) {
+	slog.Info("Setting disable hide", "enabled", show)
+	disableHide = show
+}
+
+func (a *Backend) HideWindow() {
+	slog.Debug("Hiding window", "disableHide", disableHide)
+	if disableHide {
+		return
+	}
+	runtime.Hide(a.ctx)
+}
+
 func (a *Backend) Startup(ctx context.Context) {
 	a.ctx = ctx
 	hk := keybind.GetHotkey()

@@ -1,6 +1,6 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { Seek } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
@@ -55,17 +55,18 @@ function processTime(time: string): number {
   return totalMS;
 }
 
-class GotoCommand extends BaseCommand {
+class SeekCommand extends BaseCommand {
   constructor() {
-    super("goto", "Go To", "goto", 1, "goto <location>", {});
+    super("seek", "Seek", "seek", 1, "seek", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
     return {
-      title: "Go To",
-      description: "Go to a specific time in the track",
+      title: "Seek",
+      description: "Seek to a specific time in the track",
       icon: Icon.GoArrow,
       id: this.id,
+      type: "command",
       action: async (actions) => {
         actions.batchActions([
           {
@@ -104,17 +105,17 @@ class GotoCommand extends BaseCommand {
     return Promise.resolve({
       items: [
         {
-          title: "Go To",
-          description: "Go to timestamp at " + location,
+          title: "Seek",
+          description: "Seek to timestamp at " + location,
           icon: Icon.GoArrow,
           id: this.id,
           action: async (actions) => {
-            Hide();
+            HideWindow();
             actions.resetPrompt();
             try {
               Seek(timeMS);
             } catch (e) {
-              HandleGenericError("Go To", e, actions.setSuggestionList);
+              HandleGenericError("Seek", e, actions.setSuggestionList);
             }
             return Promise.resolve();
           },
@@ -124,4 +125,4 @@ class GotoCommand extends BaseCommand {
   }
 }
 
-export default GotoCommand;
+export default SeekCommand;

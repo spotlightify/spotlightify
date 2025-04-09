@@ -44,31 +44,6 @@ body {
   --wails-draggable: drag;
 }
 
-.command-title-container {
-  display: flex;
-  gap: 4px;
-}
-
-.command-title-container .command-title-container__title,
-.command-title-container .command-title-container__title:hover {
-  border: 2px solid #1db954;
-  color: #1db954;
-  font-size: 14px;
-  border-radius: 5px;
-  padding: 4px;
-  cursor: default;
-}
-
-.command-title-container .command-title-container__title--error,
-.command-title-container .command-title-container__title--error:hover {
-  border: 2px solid #e62525;
-  color: #e62525;
-  font-size: 14px;
-  border-radius: 5px;
-  padding: 4px;
-  cursor: default;
-}
-
 .input-prompt {
   flex-grow: 1;
   height: var(--base-children-height);
@@ -148,7 +123,6 @@ button {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: calc(650px - 80px);
 }
 
 .suggestion-item__description {
@@ -156,7 +130,6 @@ button {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: calc(650px - 80px);
 }
 
 .suggestion-item__icon-wrapper {

@@ -1,7 +1,7 @@
 import BaseCommand from "./baseCommand";
 import { Suggestion, SuggestionList } from "../../types/command";
 import Icon from "../../types/icons";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
 import { CombinedArtistsString } from "./utils";
@@ -22,6 +22,7 @@ class AlbumCommand extends BaseCommand {
       description: "Play an album",
       icon: Icon.Album,
       id: this.id,
+      type: "command",
       action: (actions) => {
         actions.batchActions([
           { type: "SET_PLACEHOLDER_TEXT", payload: "Enter an album to play" },
@@ -73,7 +74,7 @@ class AlbumCommand extends BaseCommand {
         icon: album.images[2].url ?? icons.Album,
         id: album.id,
         action: async (actions) => {
-          Hide();
+          HideWindow();
           actions.resetPrompt();
           try {
             await PlayAlbum(album.uri);

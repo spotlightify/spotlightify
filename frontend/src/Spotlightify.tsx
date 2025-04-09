@@ -3,14 +3,16 @@ import { useEffect, useMemo } from "react";
 import logo from "./assets/svg/spotify-logo.svg";
 import Prompt from "./components/Prompt";
 import SuggestionsContainer from "./components/Suggestion/SuggestionsContainer";
+import CommandTitle from "./components/CommandTitle";
 import useAction from "./hooks/useAction";
 import useCommand from "./hooks/useCommand";
 import useSuggestion from "./hooks/useSuggestion";
 import useDebounce from "./hooks/useDebounce";
-import { Hide, WindowSetSize } from "../wailsjs/runtime/runtime";
+import { WindowSetSize } from "../wailsjs/runtime/runtime";
 import { useSpotlightify } from "./hooks/useSpotlightify";
 import useAuthListeners from "./hooks/useAuthListeners";
 import useCheckAuth from "./hooks/useCheckAuth";
+import { HideWindow } from "../wailsjs/go/backend/Backend";
 
 function Spotlightify() {
   const { state, actions } = useSpotlightify();
@@ -27,12 +29,18 @@ function Spotlightify() {
   const { handleAction } = useAction();
 
   const debouncedQuery = useDebounce(
-    state.promptInput,
+    state.promptInput.toLowerCase().trim(),
     activeCommand?.debounceMS ?? 0
   );
 
   const onPromptChange = (event: { target: { value: string } }) => {
     const { value } = event.target;
+    if (value.endsWith(" ") && suggestions.length > 0) {
+      const firstSuggestion = suggestions[0];
+      if (firstSuggestion.type === "command" && firstSuggestion.action) {
+        handleAction(firstSuggestion.action);
+      }
+    }
     actions.setPromptInput(value);
   };
 
@@ -43,8 +51,15 @@ function Spotlightify() {
 
   useEffect(() => {
     const onBlur = () => {
+      // Check if blur events are disabled in developer options
+      if (state.developerOptions.disableBlur) {
+        console.log("Blur event ignored (disabled in developer options)");
+        return;
+      }
+
+      // Check command options
       if (!state.activeCommand?.options?.keepPromptOpen) {
-        Hide();
+        HideWindow();
         actions.batchActions([
           { type: "CLEAR_COMMANDS" },
           { type: "SET_PROMPT_INPUT", payload: "" },
@@ -54,7 +69,7 @@ function Spotlightify() {
     };
     window.addEventListener("blur", onBlur);
     return () => window.removeEventListener("blur", onBlur);
-  }, [state.activeCommand, actions]);
+  }, [state.activeCommand, actions, state.developerOptions.disableBlur]);
 
   useEffect(() => {
     fetchSuggestions(debouncedQuery);
@@ -68,17 +83,16 @@ function Spotlightify() {
     );
   }, [suggestions.length]);
 
-  const windows10Style = useMemo(() => {
+  // Apply Windows 10 specific styles if needed
+  const baseStyle = useMemo(() => {
     if (isWindows10) {
-      return {
-        borderRadius: 0,
-      };
+      return { borderRadius: 0 };
     }
     return {};
   }, [isWindows10]);
 
   return (
-    <div className="base" style={windows10Style}>
+    <div className="base" style={baseStyle}>
       <div className="input-wrapper">
         <img
           className="spotify-logo"
@@ -86,17 +100,10 @@ function Spotlightify() {
           src={logo}
           alt="spotify logo"
         />
-        {commandTitles.length !== 0 && (
-          <div className="command-title-container">
-            <div
-              className={`command-title-container__title${
-                errorOccurred ? "--error" : ""
-              }`}
-            >
-              {commandTitles.join(" → ")}
-            </div>
-          </div>
-        )}
+        <CommandTitle
+          commandTitles={commandTitles}
+          errorOccurred={errorOccurred}
+        />
         <Prompt
           value={state.promptInput}
           onChange={onPromptChange}

@@ -46,6 +46,8 @@ export function GetVersion():Promise<string>;
 
 export function GetVolume():Promise<number>;
 
+export function HideWindow():Promise<void>;
+
 export function IsCurrentSongLiked():Promise<boolean>;
 
 export function IsShuffled():Promise<boolean>;
@@ -81,6 +83,8 @@ export function Seek(arg1:number):Promise<void>;
 export function SetActiveDevice(arg1:string):Promise<void>;
 
 export function SetAuthenticatedWithSpotify(arg1:boolean):Promise<void>;
+
+export function SetDisableHide(arg1:boolean):Promise<void>;
 
 export function SetVolume(arg1:number):Promise<void>;
 

@@ -1,5 +1,5 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import {
   ChangeRepeatState,
@@ -28,7 +28,7 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-off",
       action: async (actions) => {
-        Hide();
+        HideWindow();
         try {
           await ChangeRepeatState("off");
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
@@ -46,7 +46,7 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-context",
       action: async (actions) => {
-        Hide();
+        HideWindow();
         try {
           await ChangeRepeatState("context");
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
@@ -64,7 +64,7 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-track",
       action: async (actions) => {
-        Hide();
+        HideWindow();
         try {
           await ChangeRepeatState("track");
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
@@ -105,6 +105,7 @@ class RepeatCommand extends BaseCommand {
       description: "Change repeat state",
       icon: Icon.Repeat,
       id: this.id,
+      type: "command",
       action: async (actions) => {
         actions.batchActions([
           { type: "SET_PLACEHOLDER_TEXT", payload: "Filter repeat modes" },

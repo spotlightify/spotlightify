@@ -4,7 +4,7 @@ import "fmt"
 
 const (
 	Port         = ":9123"
-	ServerURL    = "http://localhost" + Port
+	ServerURL    = "http://127.0.0.1" + Port
 	SpotifyState = "spotlightify-state"
 )
 

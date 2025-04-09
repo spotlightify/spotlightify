@@ -6,7 +6,7 @@ import {
   PlayPlaylist,
   ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
 class PlaylistCommand extends BaseCommand {
@@ -20,6 +20,7 @@ class PlaylistCommand extends BaseCommand {
       description: "Play a playlist",
       icon: Icon.Playlist,
       id: this.id,
+      type: "command",
       action: (actions) => {
         actions.batchActions([
           { type: "SET_PLACEHOLDER_TEXT", payload: "Enter a playlist to play" },
@@ -71,7 +72,7 @@ class PlaylistCommand extends BaseCommand {
         icon: playlist.images[0].url ?? icons.Playlist,
         id: playlist.id,
         action: async (actions) => {
-          Hide();
+          HideWindow();
           actions.resetPrompt();
           try {
             await PlayPlaylist(playlist.uri);

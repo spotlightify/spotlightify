@@ -25,6 +25,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
       description: "View currently playing track",
       icon: Icon.Play,
       id: this.id,
+      type: "command",
       action: async (actions) => {
         actions.batchActions([
           {

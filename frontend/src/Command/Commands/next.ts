@@ -1,5 +1,5 @@
 import { Suggestion, SuggestionList } from "../../types/command";
-import { Hide } from "../../../wailsjs/runtime";
+import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { Next } from "../../../wailsjs/go/backend/Backend";
 import { HandleGenericError } from "./utils";
@@ -23,8 +23,9 @@ class NextCommand extends BaseCommand {
       description: "Play the next track",
       icon: Icon.Forward,
       id: this.id,
+      type: "action",
       action: async (actions) => {
-        Hide();
+        HideWindow();
         actions.resetPrompt();
         try {
           await Next();

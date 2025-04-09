@@ -14,6 +14,7 @@ class VersionCommand extends BaseCommand {
       description: "Show version information",
       icon: Icon.Info,
       id: this.id,
+      type: "command",
       action: (actions) => {
         actions.batchActions([
           { type: "SET_PLACEHOLDER_TEXT", payload: "Version information" },
