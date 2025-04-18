@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { CommandHistoryItem, SpotlightifyActions } from "../types/command";
+import { CommandStateItem, SpotlightifyActions } from "../types/command";
 import { CheckIfAuthenticatedWithSpotify } from "../../wailsjs/go/backend/Backend";
 import AuthenticateCommand from "../Command/Commands/authenticate/authenticate";
 
 interface props {
   actions: SpotlightifyActions;
-  commandHistory: CommandHistoryItem[];
+  commandHistory: CommandStateItem[];
 }
 
 function useCheckAuth({ actions, commandHistory }: props) {

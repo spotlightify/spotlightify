@@ -1,6 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
-import { Command, Suggestion, SuggestionList } from "../../types/command";
-// import {QueryClient} from "@tanstack/react-query";
+import {
+  Command,
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 
 abstract class BaseCommand implements Command {
   debounceMS: number;
@@ -30,11 +34,7 @@ abstract class BaseCommand implements Command {
     queryClient: QueryClient
   ): Promise<Suggestion>;
 
-  abstract getSuggestions(
-    input: string,
-    parameters: Record<string, string>,
-    queryClient: QueryClient
-  ): Promise<SuggestionList>;
+  abstract getSuggestions(params: SuggestionsParams): Promise<SuggestionList>;
 }
 
 export default BaseCommand;

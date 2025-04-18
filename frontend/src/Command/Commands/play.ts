@@ -1,5 +1,9 @@
 import BaseCommand from "./baseCommand";
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
 import {
   GetTracksByQuery,
@@ -10,6 +14,7 @@ import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
 import { CombinedArtistsString } from "./utils";
+import { CreateError } from "./error";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -34,10 +39,7 @@ class PlayCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions(
-    input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     if (input.length < 2) {
@@ -79,16 +81,15 @@ class PlayCommand extends BaseCommand {
           try {
             await PlayTrack(track.uri);
           } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play track",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
+            const error = CreateError("Play Error", [
+              {
+                title: "Error failed to play track",
+                description: String(e),
+                icon: Icon.Error,
+                id: "error",
+              },
+            ]);
+            actions.setActiveCommand(error);
             ShowWindow();
           }
           return Promise.resolve();

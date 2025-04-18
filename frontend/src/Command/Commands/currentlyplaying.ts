@@ -1,11 +1,14 @@
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { ClipboardSetText } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { GetCurrentlyPlayingTrack } from "../../../wailsjs/go/backend/Backend";
 import { CombinedArtistsString, HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { backend } from "../../../wailsjs/go/models";
-import { QueryClient } from "@tanstack/react-query";
 
 class CurrentlyPlayingCommand extends BaseCommand {
   constructor() {
@@ -40,11 +43,11 @@ class CurrentlyPlayingCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions(
-    input: string,
-    parameters: Record<string, string>,
-    queryClient: QueryClient
-  ): Promise<SuggestionList> {
+  async getSuggestions({
+    parameters,
+    queryClient,
+    state,
+  }: SuggestionsParams): Promise<SuggestionList> {
     let suggestions = [] as Suggestion[];
 
     let currentlyPlaying: backend.CurrentlyPlayingTrack;
@@ -97,7 +100,11 @@ class CurrentlyPlayingCommand extends BaseCommand {
           await ClipboardSetText(trackUrl);
           actions.setCurrentCommandParameters({ shared: "true" });
         } catch (e) {
-          HandleGenericError("Copy to clipboard", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Copy to clipboard",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
       },
     });

@@ -1,8 +1,9 @@
 import { spotify } from "../../../wailsjs/go/models";
 import SimpleArtist = spotify.SimpleArtist;
-import { SuggestionList } from "../../types/command";
+import { Command, SuggestionList } from "../../types/command";
 import Icon, { SVGIcon } from "../../types/icons";
 import { ShowWindow } from "../../../wailsjs/go/backend/Backend";
+import { CreateError } from "./error";
 
 // TODO: at some point, we should probably move this to the backend for efficiency
 export function CombinedArtistsString(artists: SimpleArtist[]): string {
@@ -18,21 +19,35 @@ export function CombinedArtistsString(artists: SimpleArtist[]): string {
   return `${allButLast} and ${last}`;
 }
 
-export function HandleGenericError(
-  opName: string,
-  error: unknown,
-  setSuggestions: (suggestions: SuggestionList) => void
-) {
-  setSuggestions({
-    items: [
-      {
-        title: `${opName} error`,
-        description: String(error),
-        icon: Icon.Error,
-        id: `${opName}-error`,
+export function HandleGenericError({
+  opName,
+  error,
+  setActiveCommand,
+}: {
+  opName: string;
+  error: unknown;
+  setActiveCommand: (command: Command) => void;
+}) {
+  const errorCommand = CreateError(`${opName} error`, [
+    {
+      title: `${opName} error`,
+      description: String(error),
+      icon: Icon.Error,
+      id: `${opName}-error`,
+    },
+    {
+      title: "Dismiss",
+      description: "Dismiss the error",
+      icon: Icon.BackNav,
+      id: `${opName}-dismiss`,
+      action: async (actions) => {
+        actions.resetPrompt();
+        return Promise.resolve();
       },
-    ],
-  });
+    },
+  ]);
+
+  setActiveCommand(errorCommand);
   ShowWindow();
 }
 
