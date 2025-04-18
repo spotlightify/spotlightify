@@ -1,9 +1,6 @@
 {
-  "dependencies": {
-    "@tanstack/react-query": "^5.51.23"
-  },
   "scripts": {
-    "dev": "npx cross-env SPOTLIGHTIFY_DEV=true OTHER_VAR=value wails dev"
+    "dev": "npx cross-env SPOTLIGHTIFY_DEV=true wails dev"
   },
   "devDependencies": {
     "cross-env": "^7.0.3"

@@ -6,7 +6,11 @@ import {
   HideWindow,
 } from "../../../../wailsjs/go/backend/Backend";
 import { BrowserOpenURL, Quit } from "../../../../wailsjs/runtime/runtime";
-import { Suggestion, SuggestionList } from "../../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../../types/command";
 import Icon from "../../../types/icons";
 import BaseCommand from "../baseCommand";
 import { HandleGenericError } from "../utils";
@@ -21,10 +25,7 @@ class AuthenticateCommand extends BaseCommand {
     this.firstTime = firstTime ?? false;
   }
 
-  async getSuggestions(
-    _input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
     const openInstructionsSuggestions: Suggestion = {
       title: "Open Instructions",
       description: "Open the instructions in a new browser window",
@@ -51,7 +52,6 @@ class AuthenticateCommand extends BaseCommand {
             type: "SET_PLACEHOLDER_TEXT",
             payload: "Enter Client ID",
           },
-          { type: "SET_PROMPT_INPUT", payload: !isClientIDSet ? "" : clientID },
           {
             type: "PUSH_COMMAND",
             payload: {
@@ -59,6 +59,7 @@ class AuthenticateCommand extends BaseCommand {
               options: { keepPromptOpen: true, lockCommandStack: true },
             },
           },
+          { type: "SET_PROMPT_INPUT", payload: !isClientIDSet ? "" : clientID },
         ]);
         return Promise.resolve();
       },
@@ -105,11 +106,11 @@ class AuthenticateCommand extends BaseCommand {
         try {
           await AuthenticateWithSpotify();
         } catch (e) {
-          HandleGenericError(
-            "spotify authentication",
-            e,
-            actions.setSuggestionList
-          );
+          HandleGenericError({
+            opName: "spotify authentication",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
           return;
         }
       },
@@ -135,7 +136,11 @@ class AuthenticateCommand extends BaseCommand {
           try {
             await Quit();
           } catch (e) {
-            HandleGenericError("Exit", e, actions.setSuggestionList);
+            HandleGenericError({
+              opName: "Exit",
+              error: e,
+              setActiveCommand: actions.setActiveCommand,
+            });
           }
           return Promise.resolve();
         },

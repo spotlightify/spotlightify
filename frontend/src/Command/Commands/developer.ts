@@ -1,7 +1,10 @@
 import BaseCommand from "./baseCommand";
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
-import { QueryClient } from "@tanstack/react-query";
 import { HandleGenericError } from "./utils";
 import { SetDisableHide } from "../../../wailsjs/go/backend/Backend";
 import { DeveloperOptions } from "../../context/SpotlightifyContext";
@@ -48,11 +51,9 @@ class DeveloperCommand extends BaseCommand {
     };
   }
 
-  getSuggestions(
-    _input: string,
-    _parameters: Record<string, string>,
-    _queryClient: QueryClient
-  ): Promise<SuggestionList> {
+  getSuggestions(params: SuggestionsParams): Promise<SuggestionList> {
+    let disableHide = params.state.developerOptions.disableHide;
+    let disableBlur = params.state.developerOptions.disableBlur;
     return Promise.resolve({
       items: [
         {
@@ -64,6 +65,7 @@ class DeveloperCommand extends BaseCommand {
           action: async (actions) => {
             try {
               disableHide = !disableHide;
+              console.log("disableHide", disableHide);
               SetDisableHide(disableHide);
 
               // Update the developer options in the application state
@@ -73,11 +75,11 @@ class DeveloperCommand extends BaseCommand {
               } as DeveloperOptions);
               actions.refreshSuggestions();
             } catch (e) {
-              HandleGenericError(
-                "Toggle Always Show",
-                e,
-                actions.setSuggestionList
-              );
+              HandleGenericError({
+                opName: "Toggle Always Show",
+                error: e,
+                setActiveCommand: actions.setActiveCommand,
+              });
             }
             return Promise.resolve();
           },
@@ -99,11 +101,11 @@ class DeveloperCommand extends BaseCommand {
               } as DeveloperOptions);
               actions.refreshSuggestions();
             } catch (e) {
-              HandleGenericError(
-                "Toggle Disable Blur Events",
-                e,
-                actions.setSuggestionList
-              );
+              HandleGenericError({
+                opName: "Toggle Disable Blur Events",
+                error: e,
+                setActiveCommand: actions.setActiveCommand,
+              });
             }
             return Promise.resolve();
           },

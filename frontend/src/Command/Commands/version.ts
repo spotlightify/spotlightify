@@ -1,5 +1,9 @@
 import BaseCommand from "./baseCommand";
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
 import { GetVersion } from "../../../wailsjs/go/backend/Backend";
 
@@ -26,11 +30,7 @@ class VersionCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions(
-    _input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
-    // You can add more version-related information here
+  async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
     const version = await GetVersion();
 
     const suggestions: Suggestion[] = [

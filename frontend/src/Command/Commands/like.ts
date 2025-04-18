@@ -1,4 +1,8 @@
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import {
@@ -19,10 +23,7 @@ class LikeCommand extends BaseCommand {
     super("like", "Like", "like", 0, "like", {});
   }
 
-  getSuggestions(
-    _input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }
 
@@ -61,7 +62,11 @@ class LikeCommand extends BaseCommand {
           queryClient.invalidateQueries({ queryKey: [isCurrentSongLikedKey] });
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError("Like Track", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Like Track",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
         return Promise.resolve();
       },

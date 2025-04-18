@@ -1,6 +1,7 @@
 import React from "react";
 import { useEffect, useRef } from "react";
-
+import { useSpotlightify } from "../../hooks/useSpotlightify";
+import { getActiveCommandItem } from "../../utils";
 interface Props {
   value: string;
   placeHolder: string;
@@ -9,13 +10,17 @@ interface Props {
 
 function Prompt({ value, onChange, placeHolder }: Props) {
   const ref = useRef<HTMLInputElement>(null);
+  const {
+    state: { commandStack },
+  } = useSpotlightify();
+  const activeCommand = getActiveCommandItem(commandStack);
 
   useEffect(() => {
     if (!ref.current) {
       return;
     }
     ref.current.addEventListener("blur", () => {
-      ref.current!.focus();
+      ref.current?.focus();
     });
   });
 
@@ -24,7 +29,7 @@ function Prompt({ value, onChange, placeHolder }: Props) {
       className="input-prompt"
       onChange={onChange}
       value={value}
-      placeholder={placeHolder}
+      placeholder={activeCommand ? placeHolder : "Spotlightify Search"}
       autoFocus
       ref={ref}
     />

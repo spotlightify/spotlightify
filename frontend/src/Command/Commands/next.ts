@@ -1,4 +1,8 @@
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { Next } from "../../../wailsjs/go/backend/Backend";
@@ -10,10 +14,7 @@ class NextCommand extends BaseCommand {
     super("next", "Next", "next", 0, "next", {});
   }
 
-  getSuggestions(
-    _input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }
 
@@ -30,7 +31,11 @@ class NextCommand extends BaseCommand {
         try {
           await Next();
         } catch (e) {
-          HandleGenericError("Next Track", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Next Track",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
         return Promise.resolve();
       },

@@ -1,37 +1,35 @@
 import React from "react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import logo from "./assets/svg/spotify-logo.svg";
 import Prompt from "./components/Prompt";
 import SuggestionsContainer from "./components/Suggestion/SuggestionsContainer";
 import CommandTitle from "./components/CommandTitle";
 import useAction from "./hooks/useAction";
 import useCommand from "./hooks/useCommand";
-import useSuggestion from "./hooks/useSuggestion";
 import useDebounce from "./hooks/useDebounce";
-import { WindowSetSize } from "../wailsjs/runtime/runtime";
 import { useSpotlightify } from "./hooks/useSpotlightify";
 import useAuthListeners from "./hooks/useAuthListeners";
 import useCheckAuth from "./hooks/useCheckAuth";
-import { HideWindow } from "../wailsjs/go/backend/Backend";
+import useHandlers from "./hooks/useHandlers";
+import { getActiveCommandItem } from "./utils/utils";
 
 function Spotlightify() {
   const { state, actions } = useSpotlightify();
-  const activeCommand = state.activeCommand?.command;
+  const activeCommand = getActiveCommandItem(state.commandStack)?.command;
 
   useAuthListeners({ actions });
-  useCheckAuth({ actions, commandHistory: state.commandHistory });
+  useCheckAuth({ actions, commandStack: state.commandStack });
 
-  const { commandSearch, commandTitles } = useCommand();
+  const suggestions = state.suggestions.items;
 
-  const { fetchSuggestions, suggestions, errorOccurred } = useSuggestion({
-    commandSearch,
-  });
   const { handleAction } = useAction();
 
   const debouncedQuery = useDebounce(
     state.promptInput.toLowerCase().trim(),
     activeCommand?.debounceMS ?? 0
   );
+  useCommand({ debouncedInput: debouncedQuery });
+  useHandlers();
 
   const onPromptChange = (event: { target: { value: string } }) => {
     const { value } = event.target;
@@ -48,40 +46,6 @@ function Spotlightify() {
     () => navigator.userAgent.includes("Windows NT 10"),
     []
   );
-
-  useEffect(() => {
-    const onBlur = () => {
-      // Check if blur events are disabled in developer options
-      if (state.developerOptions.disableBlur) {
-        console.log("Blur event ignored (disabled in developer options)");
-        return;
-      }
-
-      // Check command options
-      if (!state.activeCommand?.options?.keepPromptOpen) {
-        HideWindow();
-        actions.batchActions([
-          { type: "CLEAR_COMMANDS" },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-          { type: "SET_SUGGESTION_LIST", payload: { items: [] } },
-        ]);
-      }
-    };
-    window.addEventListener("blur", onBlur);
-    return () => window.removeEventListener("blur", onBlur);
-  }, [state.activeCommand, actions, state.developerOptions.disableBlur]);
-
-  useEffect(() => {
-    fetchSuggestions(debouncedQuery);
-  }, [fetchSuggestions, debouncedQuery, state.commandHistory]);
-
-  useEffect(() => {
-    const maxNumberOfSuggestions = 8;
-    WindowSetSize(
-      650,
-      65 + Math.min(maxNumberOfSuggestions, suggestions.length) * 58
-    );
-  }, [suggestions.length]);
 
   // Apply Windows 10 specific styles if needed
   const baseStyle = useMemo(() => {
@@ -100,10 +64,7 @@ function Spotlightify() {
           src={logo}
           alt="spotify logo"
         />
-        <CommandTitle
-          commandTitles={commandTitles}
-          errorOccurred={errorOccurred}
-        />
+        <CommandTitle />
         <Prompt
           value={state.promptInput}
           onChange={onPromptChange}

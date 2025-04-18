@@ -1,22 +1,24 @@
-// import {QueryClient} from "@tanstack/react-query";
-
 import { QueryClient } from "@tanstack/react-query";
-import { DeveloperOptions } from "../context/SpotlightifyContext";
+import type {
+  DeveloperOptions,
+  SpotlightifyState,
+} from "../context/SpotlightifyContext";
+
+export interface SuggestionsParams {
+  input: string;
+  parameters: Record<string, string>;
+  queryClient: QueryClient;
+  state: SpotlightifyState;
+}
 
 export interface Command {
   id: string;
   title: string;
   shorthandTitle: string;
   debounceMS: number;
-  parameters: Record<string, string>;
   keyword: string;
 
-  getSuggestions(
-    input: string,
-    parameters: Record<string, string>,
-    queryClient: QueryClient
-  ): Promise<SuggestionList>;
-
+  getSuggestions(params: SuggestionsParams): Promise<SuggestionList>;
   getPlaceholderSuggestion(queryClient: QueryClient): Promise<Suggestion>;
 
   onCancel?(): void;
@@ -44,23 +46,28 @@ export interface CommandOptions {
   parameters?: Record<string, string>;
   keepPromptOpen?: boolean;
   lockCommandStack?: boolean; // Prevents the command stack from being altered by interaction through the prompt
+  promptInput?: string;
 }
 
-export interface CommandHistoryItem {
+export interface PopCommandPayload {
+  restorePromptInput?: boolean; // Whether to restore the prompt input to the previous value from the previous command
+}
+
+export interface CommandStateItem {
   command: Command;
   options?: CommandOptions;
 }
 
 export type Action =
   | { type: "SET_PROMPT_INPUT"; payload: string }
-  | { type: "POP_COMMAND" }
+  | { type: "POP_COMMAND"; payload?: PopCommandPayload }
   | {
       type: "PUSH_COMMAND";
       payload: { command: Command; options?: CommandOptions };
     }
   | {
       type: "SET_ACTIVE_COMMAND";
-      payload: { command: Command; options?: CommandOptions } | null;
+      payload: { command: Command; options?: CommandOptions };
     }
   | { type: "CLEAR_COMMANDS" }
   | { type: "SET_SUGGESTION_LIST"; payload: SuggestionList }
@@ -73,9 +80,9 @@ export type Action =
 
 export interface SpotlightifyActions {
   setPromptInput: (input: string) => void;
-  popCommand: () => void;
+  popCommand: (payload?: PopCommandPayload) => void;
   pushCommand: (command: Command, options?: CommandOptions) => void;
-  setActiveCommand: (command: Command | null, options?: CommandOptions) => void;
+  setActiveCommand: (command: Command, options?: CommandOptions) => void;
   clearCommands: () => void;
   setSuggestionList: (suggestions: SuggestionList) => void;
   setCurrentCommandParameters: (params: Record<string, string>) => void;
