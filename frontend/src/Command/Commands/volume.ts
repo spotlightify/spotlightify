@@ -1,5 +1,9 @@
 import BaseCommand from "./baseCommand";
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { GetVolume, SetVolume } from "../../../wailsjs/go/backend/Backend";
@@ -41,11 +45,10 @@ class VolumeCommand extends BaseCommand {
     };
   }
 
-  getSuggestions(
-    input: string,
-    parameters: Record<string, string>,
-    queryClient: QueryClient
-  ): Promise<SuggestionList> {
+  async getSuggestions({
+    input,
+    queryClient,
+  }: SuggestionsParams): Promise<SuggestionList> {
     const volumeNumber = Number(input);
     if (volumeNumber < 0 || volumeNumber > 10 || isNaN(volumeNumber)) {
       return Promise.resolve({
@@ -73,7 +76,11 @@ class VolumeCommand extends BaseCommand {
             try {
               await SetVolume(volumeNumber);
             } catch (e) {
-              HandleGenericError("Set Volume", e, actions.setSuggestionList);
+              HandleGenericError({
+                opName: "Set Volume",
+                error: e,
+                setActiveCommand: actions.setActiveCommand,
+              });
             }
             queryClient.invalidateQueries({ queryKey: [VolumeQueryKey] });
             return Promise.resolve;

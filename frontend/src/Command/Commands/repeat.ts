@@ -1,4 +1,8 @@
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import {
@@ -16,11 +20,9 @@ class RepeatCommand extends BaseCommand {
     super("repeat", "Repeat", "repeat", 0, "repeat", {});
   }
 
-  getSuggestions(
-    input: string,
-    parameters: Record<string, string>,
-    queryClient: QueryClient
-  ): Promise<SuggestionList> {
+  async getSuggestions({
+    queryClient,
+  }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
     suggestions.push({
       title: "Off",
@@ -34,7 +36,11 @@ class RepeatCommand extends BaseCommand {
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError("Repeat Off", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Repeat Off",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
         return Promise.resolve();
       },
@@ -52,7 +58,11 @@ class RepeatCommand extends BaseCommand {
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError("Repeat Context", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Repeat Context",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
         return Promise.resolve();
       },
@@ -70,7 +80,11 @@ class RepeatCommand extends BaseCommand {
           queryClient.invalidateQueries({ queryKey: [repeatKey] });
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError("Repeat Track", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Repeat Track",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
         return Promise.resolve();
       },

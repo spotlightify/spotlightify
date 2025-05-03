@@ -1,5 +1,9 @@
 import BaseCommand from "./baseCommand";
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { Pause } from "../../../wailsjs/go/backend/Backend";
@@ -10,10 +14,7 @@ class PauseCommand extends BaseCommand {
     super("pause", "Pause", "pause", 0, "pause", {});
   }
 
-  getSuggestions(
-    _input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }
 
@@ -30,7 +31,11 @@ class PauseCommand extends BaseCommand {
         try {
           await Pause();
         } catch (e) {
-          HandleGenericError("Pause", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Pause",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
         return Promise.resolve();
       },

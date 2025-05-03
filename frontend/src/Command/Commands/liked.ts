@@ -1,4 +1,8 @@
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { PlayLiked } from "../../../wailsjs/go/backend/Backend";
@@ -10,10 +14,7 @@ class PlayLikedSongs extends BaseCommand {
     super("liked_songs", "Liked", "liked", 0, "liked songs", {});
   }
 
-  getSuggestions(
-    _input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }
 
@@ -30,7 +31,11 @@ class PlayLikedSongs extends BaseCommand {
         try {
           await PlayLiked();
         } catch (e) {
-          HandleGenericError("Liked", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Liked",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
         return Promise.resolve();
       },

@@ -2,12 +2,13 @@ import React from "react";
 import { createContext, useReducer, useMemo } from "react";
 import {
   Action,
-  CommandHistoryItem,
+  CommandStateItem,
   CommandOptions,
   SpotlightifyActions,
   SuggestionList,
+  PopCommandPayload,
 } from "../types/command";
-
+import { getActiveCommandItem } from "../utils";
 export interface DeveloperOptions {
   disableHide: boolean;
   disableBlur: boolean;
@@ -15,8 +16,7 @@ export interface DeveloperOptions {
 
 export interface SpotlightifyState {
   promptInput: string;
-  activeCommand: CommandHistoryItem | null;
-  commandHistory: CommandHistoryItem[];
+  commandStack: CommandStateItem[];
   suggestions: SuggestionList;
   errorOccurred: boolean;
   placeholderText: string;
@@ -31,65 +31,89 @@ function spotlightifyReducer(
     case "SET_PROMPT_INPUT":
       return { ...state, promptInput: action.payload };
     case "POP_COMMAND": {
-      const newCommandHistory = [...state.commandHistory];
+      const newCommandHistory = [...state.commandStack];
       // Call onCancel for side effects on the command that is being popped
       newCommandHistory.pop()?.command?.onCancel?.();
+      const oldPromptInput =
+        action.payload?.restorePromptInput === false
+          ? state.promptInput
+          : newCommandHistory.at(-1)?.options?.promptInput ?? "";
       return {
         ...state,
-        commandHistory: newCommandHistory,
-        activeCommand: newCommandHistory[newCommandHistory.length - 1] || null,
+        commandStack: newCommandHistory,
+        promptInput: oldPromptInput,
       };
     }
     case "PUSH_COMMAND": {
-      const pushedCommandHistory = [...state.commandHistory, action.payload];
+      const pushedCommandHistory = [
+        ...state.commandStack,
+        {
+          command: action.payload.command,
+          options: action.payload.options || {},
+        },
+      ];
+      if (pushedCommandHistory.length > 1) {
+        const lastCommand =
+          pushedCommandHistory[pushedCommandHistory.length - 2];
+        if (lastCommand && lastCommand.options) {
+          lastCommand.options.promptInput = state.promptInput;
+        }
+      }
       return {
         ...state,
-        commandHistory: pushedCommandHistory,
-        activeCommand: action.payload,
+        commandStack: pushedCommandHistory,
       };
     }
-    case "SET_ACTIVE_COMMAND":
-      state.commandHistory.forEach((c) => c.command.onCancel?.());
-      if (action.payload) {
-        return {
-          ...state,
-          commandHistory: [action.payload],
-          activeCommand: action.payload,
-        };
+    case "SET_ACTIVE_COMMAND": {
+      const pushedCommandHistory = [
+        ...state.commandStack,
+        {
+          command: action.payload.command,
+          options: action.payload.options || {},
+        },
+      ];
+      if (pushedCommandHistory.length > 1) {
+        const lastCommand =
+          pushedCommandHistory[pushedCommandHistory.length - 2];
+        if (lastCommand && lastCommand.options) {
+          lastCommand.options.promptInput = state.promptInput;
+        }
       }
-      return { ...state, commandHistory: [], activeCommand: null };
+      return {
+        ...state,
+        commandStack: pushedCommandHistory,
+      };
+    }
     case "CLEAR_COMMANDS":
-      state.commandHistory.forEach((c) => c.command.onCancel?.());
-      return { ...state, commandHistory: [], activeCommand: null };
+      state.commandStack.forEach((c) => c.command.onCancel?.());
+      return { ...state, commandStack: [] };
     case "SET_SUGGESTION_LIST":
       return { ...state, suggestions: action.payload };
     case "SET_PLACEHOLDER_TEXT":
       return { ...state, placeholderText: action.payload };
     case "RESET_PROMPT":
-      state.commandHistory.forEach((c) => c.command.onCancel?.());
+      state.commandStack.forEach((c) => c.command.onCancel?.());
       return {
         ...state,
         promptInput: "",
-        activeCommand: null,
-        commandHistory: [],
+        commandStack: [],
         placeholderText: "Spotlightify Search",
         suggestions: { items: [] },
       };
     case "SET_CURRENT_COMMAND_PARAMETERS": {
-      if (!state.activeCommand) {
+      const activeCommand = getActiveCommandItem(state.commandStack);
+      if (!activeCommand) {
         return state;
       }
       const newActiveCommandOptions = {
         parameters: action.payload,
-        ...state.activeCommand.options,
       } as CommandOptions;
+      const newCommandStack = [...state.commandStack];
+      newCommandStack[newCommandStack.length - 1].options =
+        newActiveCommandOptions;
       return {
         ...state,
-        suggestions: { items: [...state.suggestions.items] }, // force re-render
-        activeCommand: {
-          ...state.activeCommand,
-          options: { ...newActiveCommandOptions },
-        },
+        commandStack: newCommandStack,
       };
     }
     case "BATCH_ACTIONS":
@@ -97,7 +121,7 @@ function spotlightifyReducer(
     case "REFRESH_SUGGESTIONS": // spreading the commands into a new array to force re-render
       return {
         ...state,
-        commandHistory: [...state.commandHistory],
+        commandStack: [...state.commandStack],
       };
     case "SET_DEVELOPER_OPTIONS":
       return { ...state, developerOptions: action.payload };
@@ -118,8 +142,7 @@ export const SpotlightifyProvider = ({
 }) => {
   const [state, dispatch] = useReducer(spotlightifyReducer, {
     promptInput: "",
-    activeCommand: null,
-    commandHistory: [],
+    commandStack: [],
     suggestions: { items: [] },
     errorOccurred: false,
     placeholderText: "Spotlightify Search",
@@ -133,13 +156,20 @@ export const SpotlightifyProvider = ({
     () => ({
       setPromptInput: (input) =>
         dispatch({ type: "SET_PROMPT_INPUT", payload: input }),
-      popCommand: () => dispatch({ type: "POP_COMMAND" }),
+      popCommand: (payload?: PopCommandPayload) =>
+        dispatch({
+          type: "POP_COMMAND",
+          payload: payload ?? { restorePromptInput: true },
+        }),
       pushCommand: (command, options?) =>
-        dispatch({ type: "PUSH_COMMAND", payload: { command, options } }),
+        dispatch({
+          type: "PUSH_COMMAND",
+          payload: { command, options },
+        }),
       setActiveCommand: (command, options?) =>
         dispatch({
           type: "SET_ACTIVE_COMMAND",
-          payload: command ? { command, options } : null,
+          payload: { command, options },
         }),
       clearCommands: () => dispatch({ type: "CLEAR_COMMANDS" }),
       setSuggestionList: (suggestions) =>

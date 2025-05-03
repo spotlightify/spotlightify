@@ -1,4 +1,8 @@
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import {
@@ -35,11 +39,10 @@ class DeviceCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions(
-    input: string,
-    parameters: Record<string, string>,
-    queryClient: QueryClient
-  ): Promise<SuggestionList> {
+  async getSuggestions({
+    input,
+    queryClient,
+  }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     let devices: spotify.PlayerDevice[];
@@ -71,8 +74,9 @@ class DeviceCommand extends BaseCommand {
       icon: Icon.Refresh,
       id: "refresh-devices",
       action: async (actions) => {
-        queryClient.invalidateQueries({ queryKey: [GetDevicesKey] });
-        actions.refreshSuggestions();
+        queryClient.invalidateQueries({
+          queryKey: [GetDevicesKey, "suggestions"],
+        });
         return Promise.resolve();
       },
     });
@@ -102,7 +106,11 @@ class DeviceCommand extends BaseCommand {
             await SetActiveDevice(device.id);
             queryClient.invalidateQueries({ queryKey: [GetDevicesKey] });
           } catch (e) {
-            HandleGenericError("Pause", e, actions.setSuggestionList);
+            HandleGenericError({
+              opName: "Set Active Device",
+              error: e,
+              setActiveCommand: actions.setActiveCommand,
+            });
           }
           return Promise.resolve();
         },
