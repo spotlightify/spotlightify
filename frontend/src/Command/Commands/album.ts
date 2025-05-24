@@ -5,14 +5,12 @@ import {
   SuggestionsParams,
 } from "../../types/command";
 import Icon from "../../types/icons";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
+import { CombinedArtistsString, executePlaybackAction } from "./utils";
 import {
   GetAlbumsByQuery,
   PlayAlbum,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
 
 class AlbumCommand extends BaseCommand {
@@ -75,23 +73,12 @@ class AlbumCommand extends BaseCommand {
         icon: album.images[2].url ?? icons.Album,
         id: album.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayAlbum(album.uri);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play album",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => PlayAlbum(album.uri),
+            opName: "Play Album",
+            actions,
+            enableDeviceErrorRetry: true,
+          });
           return Promise.resolve();
         },
       });

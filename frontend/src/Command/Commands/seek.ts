@@ -7,7 +7,7 @@ import {
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { Seek } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { executePlaybackAction, HandleGenericError } from "./utils";
 
 const second = 1000;
 const minute = 60 * second;
@@ -111,17 +111,12 @@ class SeekCommand extends BaseCommand {
           icon: Icon.GoArrow,
           id: this.id,
           action: async (actions) => {
-            HideWindow();
-            actions.resetPrompt();
-            try {
-              Seek(timeMS);
-            } catch (e) {
-              HandleGenericError({
-                opName: "Seek",
-                error: e,
-                setActiveCommand: actions.setActiveCommand,
-              });
-            }
+            await executePlaybackAction({
+              playbackAction: () => Seek(timeMS),
+              opName: "Seek",
+              actions,
+              enableDeviceErrorRetry: true,
+            });
             return Promise.resolve();
           },
         },

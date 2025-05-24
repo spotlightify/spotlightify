@@ -8,11 +8,11 @@ import Icon from "../../types/icons";
 import {
   GetPlaylistsByQuery,
   PlayPlaylist,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
+import { executePlaybackAction } from "./utils";
+
 class PlaylistCommand extends BaseCommand {
   constructor() {
     super("playlist", "Playlist", "playlist", 400, "playlist", {});
@@ -73,23 +73,12 @@ class PlaylistCommand extends BaseCommand {
         icon: playlist.images[0].url ?? icons.Playlist,
         id: playlist.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayPlaylist(playlist.uri);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play playlist",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => PlayPlaylist(playlist.uri),
+            opName: "Play Playlist",
+            actions,
+            enableDeviceErrorRetry: true,
+          });
           return Promise.resolve();
         },
       });

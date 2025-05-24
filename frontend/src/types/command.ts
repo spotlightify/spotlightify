@@ -69,6 +69,10 @@ export type Action =
       type: "SET_ACTIVE_COMMAND";
       payload: { command: Command; options?: CommandOptions };
     }
+  | {
+      type: "REPLACE_ACTIVE_COMMAND";
+      payload: { command: Command; options?: CommandOptions };
+    }
   | { type: "CLEAR_COMMANDS" }
   | { type: "SET_SUGGESTION_LIST"; payload: SuggestionList }
   | { type: "SET_PLACEHOLDER_TEXT"; payload: string }
@@ -83,6 +87,7 @@ export interface SpotlightifyActions {
   popCommand: (payload?: PopCommandPayload) => void;
   pushCommand: (command: Command, options?: CommandOptions) => void;
   setActiveCommand: (command: Command, options?: CommandOptions) => void;
+  replaceActiveCommand: (command: Command, options?: CommandOptions) => void;
   clearCommands: () => void;
   setSuggestionList: (suggestions: SuggestionList) => void;
   setCurrentCommandParameters: (params: Record<string, string>) => void;

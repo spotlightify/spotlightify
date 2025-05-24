@@ -3,11 +3,10 @@ import {
   SuggestionList,
   SuggestionsParams,
 } from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { Next } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
+import { executePlaybackAction } from "./utils";
 
 class NextCommand extends BaseCommand {
   constructor() {
@@ -26,17 +25,12 @@ class NextCommand extends BaseCommand {
       id: this.id,
       type: "action",
       action: async (actions) => {
-        HideWindow();
-        actions.resetPrompt();
-        try {
-          await Next();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Next Track",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: () => Next(),
+          opName: "Next",
+          actions,
+          enableDeviceErrorRetry: false,
+        });
         return Promise.resolve();
       },
     };

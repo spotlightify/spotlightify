@@ -34,7 +34,7 @@ class ExitCommand extends BaseCommand {
           HandleGenericError({
             opName: "Exit",
             error: e,
-            setActiveCommand: actions.setActiveCommand,
+            actions: actions,
           });
         }
         return Promise.resolve();

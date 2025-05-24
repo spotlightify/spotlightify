@@ -103,7 +103,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
           HandleGenericError({
             opName: "Copy to clipboard",
             error: e,
-            setActiveCommand: actions.setActiveCommand,
+            actions: actions,
           });
         }
       },

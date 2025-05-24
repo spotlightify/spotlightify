@@ -63,9 +63,9 @@ class LikeCommand extends BaseCommand {
           actions.resetPrompt();
         } catch (e) {
           HandleGenericError({
-            opName: "Like Track",
+            opName: "Like",
             error: e,
-            setActiveCommand: actions.setActiveCommand,
+            actions: actions,
           });
         }
         return Promise.resolve();

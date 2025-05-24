@@ -8,13 +8,10 @@ import Icon from "../../types/icons";
 import {
   GetTracksByQuery,
   PlayTrack,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
-import { CreateError } from "./error";
+import { CombinedArtistsString, executePlaybackAction } from "./utils";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -76,22 +73,12 @@ class PlayCommand extends BaseCommand {
         icon: track.album.images[2].url ?? icons.Track,
         id: track.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayTrack(track.uri);
-          } catch (e) {
-            const error = CreateError("Play Error", [
-              {
-                title: "Error failed to play track",
-                description: String(e),
-                icon: Icon.Error,
-                id: "error",
-              },
-            ]);
-            actions.setActiveCommand(error);
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => PlayTrack(track.uri),
+            opName: "Play Track",
+            actions,
+            enableDeviceErrorRetry: true,
+          });
           return Promise.resolve();
         },
       });

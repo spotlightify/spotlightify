@@ -4,10 +4,9 @@ import {
   SuggestionList,
   SuggestionsParams,
 } from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { GetVolume, SetVolume } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { executePlaybackAction } from "./utils";
 import { QueryClient } from "@tanstack/react-query";
 
 const VolumeQueryKey = "volume";
@@ -71,19 +70,14 @@ class VolumeCommand extends BaseCommand {
           icon: Icon.Volume,
           id: this.id,
           action: async (actions) => {
-            HideWindow();
-            actions.resetPrompt();
-            try {
-              await SetVolume(volumeNumber);
-            } catch (e) {
-              HandleGenericError({
-                opName: "Set Volume",
-                error: e,
-                setActiveCommand: actions.setActiveCommand,
-              });
-            }
+            await executePlaybackAction({
+              playbackAction: () => SetVolume(volumeNumber),
+              opName: "Set Volume",
+              actions,
+              enableDeviceErrorRetry: false,
+            });
             queryClient.invalidateQueries({ queryKey: [VolumeQueryKey] });
-            return Promise.resolve;
+            return Promise.resolve();
           },
         },
       ],

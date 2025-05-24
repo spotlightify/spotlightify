@@ -9,29 +9,9 @@ import { HandleGenericError } from "./utils";
 import { SetDisableHide } from "../../../wailsjs/go/backend/Backend";
 import { DeveloperOptions } from "../../context/SpotlightifyContext";
 
-// Keep track of the disable hide state (when true, window always shows)
-let disableHide = false;
-// Keep track of the disable blur/unfocus state (when true, window won't respond to blur events)
-let disableBlur = false;
-
-// Define interface for backend methods that will be called
-interface BackendInterface {
-  SetDisableHide: (disable: boolean) => Promise<void>;
-}
-
 class DeveloperCommand extends BaseCommand {
   constructor() {
     super("dev", "Developer Options", "dev", 0, "dev", {});
-  }
-
-  // Method to get the current value of disableHide
-  getAlwaysShowValue(): boolean {
-    return disableHide;
-  }
-
-  // Method to get the current value of disableBlur
-  getDisableBlurValue(): boolean {
-    return disableBlur;
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -76,9 +56,9 @@ class DeveloperCommand extends BaseCommand {
               actions.refreshSuggestions();
             } catch (e) {
               HandleGenericError({
-                opName: "Toggle Always Show",
+                opName: "Debug logs",
                 error: e,
-                setActiveCommand: actions.setActiveCommand,
+                actions: actions,
               });
             }
             return Promise.resolve();
@@ -102,9 +82,9 @@ class DeveloperCommand extends BaseCommand {
               actions.refreshSuggestions();
             } catch (e) {
               HandleGenericError({
-                opName: "Toggle Disable Blur Events",
+                opName: "Config logs",
                 error: e,
-                setActiveCommand: actions.setActiveCommand,
+                actions: actions,
               });
             }
             return Promise.resolve();

@@ -8,12 +8,10 @@ import Icon from "../../types/icons";
 import {
   GetTracksByQuery,
   QueueTrack,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
+import { CombinedArtistsString, executePlaybackAction } from "./utils";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -75,23 +73,12 @@ class PlayCommand extends BaseCommand {
         icon: track.album.images[2].url ?? icons.Track,
         id: track.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await QueueTrack(track.id);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to queue track",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => QueueTrack(track.id),
+            opName: "Queue Track",
+            actions,
+            enableDeviceErrorRetry: false,
+          });
           return Promise.resolve();
         },
       });

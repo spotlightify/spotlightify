@@ -5,14 +5,13 @@ import {
   SuggestionsParams,
 } from "../../types/command";
 import Icon from "../../types/icons";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
-import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
 import {
   GetShowsByQuery,
   PlayPodcast,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
+import { executePlaybackAction } from "./utils";
+import icons from "../../types/icons";
+import { spotify } from "../../../wailsjs/go/models";
 
 class PodcastCommand extends BaseCommand {
   constructor() {
@@ -74,23 +73,12 @@ class PodcastCommand extends BaseCommand {
         icon: podcast.images[2].url ?? icons.Podcast,
         id: podcast.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayPodcast(podcast.uri);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play podcast",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => PlayPodcast(podcast.uri),
+            opName: "Play Podcast",
+            actions,
+            enableDeviceErrorRetry: true,
+          });
           return Promise.resolve();
         },
       });

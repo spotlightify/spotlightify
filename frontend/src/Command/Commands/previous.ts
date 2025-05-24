@@ -3,18 +3,17 @@ import {
   SuggestionList,
   SuggestionsParams,
 } from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { Previous } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
+import { executePlaybackAction } from "./utils";
 
 class PreviousCommand extends BaseCommand {
   constructor() {
     super("previous", "Previous", "previous", 0, "previous", {});
   }
 
-  async getSuggestions({}: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }
 
@@ -26,17 +25,12 @@ class PreviousCommand extends BaseCommand {
       id: this.id,
       type: "action",
       action: async (actions) => {
-        HideWindow();
-        actions.resetPrompt();
-        try {
-          await Previous();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Previous Track",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: () => Previous(),
+          opName: "Previous",
+          actions,
+          enableDeviceErrorRetry: false,
+        });
         return Promise.resolve();
       },
     };

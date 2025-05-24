@@ -11,8 +11,9 @@ import { spotify } from "../../../wailsjs/go/models";
 import {
   GetArtistsByQuery,
   PlayArtistsTopTracks,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
+import { HandleGenericError } from "./utils";
+import { executePlaybackAction } from "./utils";
 
 class ArtistCommand extends BaseCommand {
   constructor() {
@@ -74,23 +75,12 @@ class ArtistCommand extends BaseCommand {
         icon: artist.images[2].url ?? icons.Artist,
         id: artist.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayArtistsTopTracks(artist.id);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play artist",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => PlayArtistsTopTracks(artist.id),
+            opName: "Play Artist",
+            actions,
+            enableDeviceErrorRetry: true,
+          });
           return Promise.resolve();
         },
       });

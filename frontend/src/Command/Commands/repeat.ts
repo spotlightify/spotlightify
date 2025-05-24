@@ -9,7 +9,7 @@ import {
   ChangeRepeatState,
   GetRepeatState,
 } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import { executePlaybackAction, HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -30,18 +30,15 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-off",
       action: async (actions) => {
-        HideWindow();
-        try {
-          await ChangeRepeatState("off");
-          queryClient.invalidateQueries({ queryKey: [repeatKey] });
-          actions.resetPrompt();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Repeat Off",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: async () => {
+            await ChangeRepeatState("off");
+            queryClient.invalidateQueries({ queryKey: [repeatKey] });
+          },
+          opName: "Repeat Off",
+          actions,
+          enableDeviceErrorRetry: false,
+        });
         return Promise.resolve();
       },
     });
@@ -52,18 +49,16 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-context",
       action: async (actions) => {
-        HideWindow();
-        try {
-          await ChangeRepeatState("context");
-          queryClient.invalidateQueries({ queryKey: [repeatKey] });
-          actions.resetPrompt();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Repeat Context",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: async () => {
+            await ChangeRepeatState("context");
+            queryClient.invalidateQueries({ queryKey: [repeatKey] });
+          },
+          opName: "Repeat Context",
+          actions,
+          enableDeviceErrorRetry: false,
+        });
+
         return Promise.resolve();
       },
     });
@@ -83,7 +78,7 @@ class RepeatCommand extends BaseCommand {
           HandleGenericError({
             opName: "Repeat Track",
             error: e,
-            setActiveCommand: actions.setActiveCommand,
+            actions: actions,
           });
         }
         return Promise.resolve();

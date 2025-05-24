@@ -12,13 +12,21 @@ import {
 import { DeviceIconSelector, HandleGenericError } from "./utils";
 import BaseCommand from "./baseCommand";
 import { spotify } from "../../../wailsjs/go/models";
-import { QueryClient } from "@tanstack/react-query";
 
 const GetDevicesKey = "getDevices";
 
 class DeviceCommand extends BaseCommand {
-  constructor() {
+  private popCommandOnDeviceSelected: boolean;
+  private afterDeviceSelectedCallback: () => void;
+
+  constructor(
+    popCommandOnDeviceSelected?: boolean,
+    afterDeviceSelectedCallback?: () => void
+  ) {
     super("device", "Device", "device", 400, "device", {});
+    this.popCommandOnDeviceSelected = popCommandOnDeviceSelected ?? false;
+    this.afterDeviceSelectedCallback =
+      afterDeviceSelectedCallback ?? (() => {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -73,7 +81,7 @@ class DeviceCommand extends BaseCommand {
       description: "Refresh the list of devices",
       icon: Icon.Refresh,
       id: "refresh-devices",
-      action: async (actions) => {
+      action: async (_actions) => {
         queryClient.invalidateQueries({
           queryKey: [GetDevicesKey, "suggestions"],
         });
@@ -100,17 +108,25 @@ class DeviceCommand extends BaseCommand {
         icon: DeviceIconSelector(device.type),
         id: device.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
           try {
             await SetActiveDevice(device.id);
             queryClient.invalidateQueries({ queryKey: [GetDevicesKey] });
+            this.afterDeviceSelectedCallback();
           } catch (e) {
             HandleGenericError({
               opName: "Set Active Device",
               error: e,
-              setActiveCommand: actions.setActiveCommand,
+              actions: actions,
             });
+          }
+
+          if (this.popCommandOnDeviceSelected) {
+            actions.popCommand({
+              restorePromptInput: true,
+            });
+          } else {
+            HideWindow();
+            actions.resetPrompt();
           }
           return Promise.resolve();
         },
