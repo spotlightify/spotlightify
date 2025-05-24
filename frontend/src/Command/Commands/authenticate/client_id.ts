@@ -1,5 +1,9 @@
 import { AddClientID } from "../../../../wailsjs/go/backend/Backend";
-import { Suggestion, SuggestionList } from "../../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../../types/command";
 import Icon from "../../../types/icons";
 import BaseCommand from "../baseCommand";
 
@@ -8,10 +12,7 @@ class ClientIDCommand extends BaseCommand {
     super("client_id", "Client ID", "Client ID", 0, "authenticate", {});
   }
 
-  getSuggestions(
-    input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
     const addClientIDSuggestion: Suggestion = {
       title: "Add Client ID",
       description: `Client ID '${input}'`,

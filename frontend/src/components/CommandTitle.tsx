@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useSpotlightify } from "../hooks/useSpotlightify";
 
-interface CommandTitleProps {
-  commandTitles: string[];
-  errorOccurred: boolean;
-}
+function CommandTitle() {
+  const {
+    state: { commandStack: commandHistory },
+  } = useSpotlightify();
 
-function CommandTitle({ commandTitles, errorOccurred }: CommandTitleProps) {
+  const commandTitles = useMemo(() => {
+    return commandHistory.map((command) => command.command.title);
+  }, [commandHistory]);
+
   if (commandTitles.length === 0) {
     return null;
   }
@@ -13,11 +17,7 @@ function CommandTitle({ commandTitles, errorOccurred }: CommandTitleProps) {
   return (
     <div className="flex gap-1 h-full">
       <div
-        className={`text-sm rounded px-1 py-1 border-2 cursor-default ${
-          errorOccurred
-            ? "border-[#e62525] text-[#e62525]"
-            : "border-[#1db954] text-[#1db954]"
-        }`}
+        className={`text-sm rounded px-1 py-1 border-2 cursor-default ${"border-[#1db954] text-[#1db954]"}`}
       >
         {commandTitles.join(" → ")}
       </div>

@@ -1,5 +1,9 @@
 import BaseCommand from "./baseCommand";
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
 import {
   GetTracksByQuery,
@@ -34,10 +38,7 @@ class PlayCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions(
-    input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     if (input.length < 2) {

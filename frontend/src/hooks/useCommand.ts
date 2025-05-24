@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { CommandRegistry } from "../Command/registery";
-import { Command } from "../types/command";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSpotlightify } from "./useSpotlightify";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CommandRegistry } from "../Command/registery";
 import PlayCommand from "../Command/Commands/play";
 import PauseCommand from "../Command/Commands/pause";
 import Queue from "../Command/Commands/queue";
@@ -21,30 +21,24 @@ import RepeatCommand from "../Command/Commands/repeat";
 import ExitCommand from "../Command/Commands/exit";
 import ArtistCommand from "../Command/Commands/artist";
 import AuthenticateCommand from "../Command/Commands/authenticate/authenticate";
-import { WindowHide } from "../../wailsjs/runtime/runtime";
 import PlayLikedSongs from "../Command/Commands/liked";
 import VersionCommand from "../Command/Commands/version";
 import DeveloperCommand from "../Command/Commands/developer";
 import { isDevelopmentMode } from "../utils/devMode";
+import useSetWindowSize from "./useSetWindowSize";
+import { getActiveCommandItem } from "../utils";
 
-export interface CommandOptions {
-  parameters?: Record<string, string>;
-  keepPromptOpen?: boolean;
+interface UseCommandProps {
+  debouncedInput: string;
 }
 
-export interface CommandHistoryItem {
-  command: Command;
-  options?: CommandOptions;
-}
-
-function useCommand() {
+function useCommand({ debouncedInput }: UseCommandProps) {
   const { state, actions } = useSpotlightify();
-  const { commandHistory, activeCommand } = state;
+  const queryClient = useQueryClient();
   const commandRegistry = useMemo(() => new CommandRegistry(), []);
-  const activeCommandOptions = state.activeCommand?.options;
-  const [isDevMode, setIsDevMode] = useState(false);
+  const { setWindowSize } = useSetWindowSize();
+  const activeCommand = getActiveCommandItem(state.commandStack);
 
-  // Register all commands here
   useEffect(() => {
     const registerCommands = async () => {
       if (commandRegistry.getAllCommands().length === 0) {
@@ -79,7 +73,6 @@ function useCommand() {
 
         // Check for dev mode and register developer command if needed
         const devMode = await isDevelopmentMode();
-        setIsDevMode(devMode); // Still set state for other parts of the component that need it
 
         // Only register developer command in dev mode
         if (devMode) {
@@ -92,85 +85,6 @@ function useCommand() {
     registerCommands();
   }, [commandRegistry]);
 
-  useEffect(() => {
-    if (!activeCommand) {
-      actions.setPlaceholderText("Spotlightify Search");
-    }
-  }, [actions, activeCommand]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        if (!activeCommand) {
-          actions.batchActions([
-            { type: "CLEAR_COMMANDS" },
-            { type: "SET_PROMPT_INPUT", payload: "" },
-            { type: "SET_SUGGESTION_LIST", payload: { items: [] } },
-          ]);
-
-          // In development mode with DeveloperCommand, check alwaysShow setting
-          if (isDevMode) {
-            // Get the alwaysShow value from DeveloperCommand
-            const devCommand = commandRegistry
-              .getAllCommands()
-              .find((cmd) => cmd.id === "dev") as DeveloperCommand | undefined;
-
-            // Only hide if alwaysShow is false or devCommand is undefined
-            if (!devCommand || !devCommand.getAlwaysShowValue()) {
-              WindowHide();
-            }
-          } else {
-            // In non-dev mode, always hide
-            WindowHide();
-          }
-        }
-        if (!activeCommandOptions?.lockCommandStack) {
-          actions.popCommand();
-        }
-      }
-      if (event.key === "Backspace") {
-        if (
-          state.promptInput.length === 0 &&
-          activeCommand &&
-          !activeCommandOptions?.lockCommandStack
-        ) {
-          actions.popCommand();
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    // Remove the event listener on cleanup
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    actions,
-    activeCommand,
-    activeCommandOptions?.lockCommandStack,
-    state.promptInput.length,
-    isDevMode,
-    commandRegistry,
-  ]);
-
-  // For displaying on the prompt
-  const commandTitles = useMemo(() => {
-    const titles = commandHistory.reduce(
-      (arr: string[], item, currentIndex) => {
-        if (currentIndex === commandHistory.length - 1) {
-          return arr;
-        }
-        arr.push(item.command.shorthandTitle);
-        return arr;
-      },
-      []
-    );
-
-    if (activeCommand) {
-      titles.push(activeCommand?.command.title);
-    }
-    return titles;
-  }, [activeCommand, commandHistory]);
-
   const commandSearch = useCallback(
     (input: string) => {
       return commandRegistry.searchByKeyword(input);
@@ -178,10 +92,61 @@ function useCommand() {
     [commandRegistry]
   );
 
-  return {
-    commandSearch,
-    commandTitles,
+  // Refactored to return a proper SuggestionList and handle async properly
+  const getSuggestions = async () => {
+    console.log("getSuggestions");
+    const input = debouncedInput;
+    const parameters = activeCommand?.options?.parameters || {};
+
+    if (!activeCommand && !input) {
+      return { items: [] };
+    }
+
+    try {
+      if (!activeCommand) {
+        const foundCommands = commandSearch(input);
+        const suggestions = await Promise.all(
+          foundCommands.map((command) =>
+            command.getPlaceholderSuggestion(queryClient)
+          )
+        );
+        return { items: suggestions };
+      }
+
+      // Get suggestions from the active command
+      return (
+        (await activeCommand?.command.getSuggestions({
+          input,
+          parameters,
+          queryClient,
+          state,
+        })) || { items: [] }
+      );
+    } catch (error) {
+      console.error("Error getting suggestions:", error);
+      return { items: [] };
+    }
   };
+
+  const { data } = useQuery({
+    queryKey: [
+      "suggestions",
+      debouncedInput,
+      activeCommand?.command.id,
+      activeCommand?.options?.parameters,
+    ],
+    queryFn: () => getSuggestions(),
+  });
+
+  useEffect(() => {
+    if (data) {
+      actions.setSuggestionList({ items: data.items });
+      setWindowSize({
+        width: 650,
+        height: 65 + Math.min(8, data.items.length) * 58,
+      });
+    }
+  }, [data, actions]);
 }
 
 export default useCommand;

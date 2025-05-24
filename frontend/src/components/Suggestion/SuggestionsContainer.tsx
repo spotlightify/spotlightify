@@ -25,13 +25,26 @@ function SuggestionsContainer({
       endIndex: 0,
       focusedIndex: 0,
     });
+  const previousSuggestionIdsRef = useRef<string[]>([]);
 
   useEffect(() => {
-    setVisibleSuggestions({
-      startIndex: 0,
-      endIndex: Math.min(suggestions.length - 1, 7),
-      focusedIndex: 0,
-    });
+    const currentSuggestionIds = suggestions.map((s) => s.id);
+    const previousSuggestionIds = previousSuggestionIdsRef.current;
+
+    const idsChanged =
+      currentSuggestionIds.length !== previousSuggestionIds.length ||
+      currentSuggestionIds.some(
+        (id, index) => id !== previousSuggestionIds[index]
+      );
+
+    if (idsChanged) {
+      setVisibleSuggestions({
+        startIndex: 0,
+        endIndex: Math.min(suggestions.length - 1, 7),
+        focusedIndex: 0,
+      });
+      previousSuggestionIdsRef.current = currentSuggestionIds;
+    }
   }, [suggestions]);
 
   useEffect(() => {

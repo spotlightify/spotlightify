@@ -1,4 +1,8 @@
-import { Suggestion, SuggestionList } from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
 import { ChangeShuffle, IsShuffled } from "../../../wailsjs/go/backend/Backend";
@@ -13,10 +17,7 @@ class ShuffleCommand extends BaseCommand {
     super("shuffle", "Shuffle", "shuffle", 0, "shuffle", {});
   }
 
-  getSuggestions(
-    _input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
     return Promise.resolve({ items: [] });
   }
 
@@ -52,16 +53,20 @@ class ShuffleCommand extends BaseCommand {
           try {
             await ChangeShuffle(!isShuffled);
           } catch (e) {
-            HandleGenericError(
-              "Shuffle Playlist",
-              e,
-              actions.setSuggestionList
-            );
+            HandleGenericError({
+              opName: "Shuffle Playlist",
+              error: e,
+              setActiveCommand: actions.setActiveCommand,
+            });
           }
           actions.resetPrompt();
           queryClient.resetQueries({ queryKey: [shuffleKey] });
         } catch (e) {
-          HandleGenericError("Shuffle Playlist", e, actions.setSuggestionList);
+          HandleGenericError({
+            opName: "Shuffle Playlist",
+            error: e,
+            setActiveCommand: actions.setActiveCommand,
+          });
         }
         return Promise.resolve();
       },

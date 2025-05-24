@@ -1,5 +1,9 @@
 import { AddClientSecret } from "../../../../wailsjs/go/backend/Backend";
-import { Suggestion, SuggestionList } from "../../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../../types/command";
 import Icon from "../../../types/icons";
 import BaseCommand from "../baseCommand";
 
@@ -15,10 +19,7 @@ class ClientSecretCommand extends BaseCommand {
     );
   }
 
-  getSuggestions(
-    input: string,
-    _parameters: Record<string, string>
-  ): Promise<SuggestionList> {
+  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
     const addClientSecretSuggestion: Suggestion = {
       title: "Add Client Secret",
       description: `Client Secret '${input}'`,
