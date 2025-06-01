@@ -41,6 +41,8 @@ function spotlightifyReducer(
       return {
         ...state,
         commandStack: newCommandHistory,
+        placeholderText:
+          newCommandHistory.at(-1)?.options?.placeholderText ?? "",
         promptInput: oldPromptInput,
       };
     }
@@ -62,6 +64,7 @@ function spotlightifyReducer(
       return {
         ...state,
         promptInput: "",
+        placeholderText: action.payload.options?.placeholderText ?? "",
         commandStack: pushedCommandHistory,
       };
     }
@@ -83,6 +86,7 @@ function spotlightifyReducer(
       return {
         ...state,
         promptInput: "",
+        placeholderText: action.payload.options?.placeholderText ?? "",
         commandStack: pushedCommandHistory,
       };
     }
@@ -98,6 +102,7 @@ function spotlightifyReducer(
         return {
           ...state,
           promptInput: "",
+          placeholderText: action.payload.options?.placeholderText ?? "",
           commandStack: pushedCommandHistory,
         };
       } else {

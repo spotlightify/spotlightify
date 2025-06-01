@@ -47,6 +47,7 @@ export interface CommandOptions {
   keepPromptOpen?: boolean;
   lockCommandStack?: boolean; // Prevents the command stack from being altered by interaction through the prompt
   promptInput?: string;
+  placeholderText?: string;
 }
 
 export interface PopCommandPayload {

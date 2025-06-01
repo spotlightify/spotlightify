@@ -34,11 +34,9 @@ class VolumeCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: async (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "0 - 10" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "0 - 10",
+        });
         return Promise.resolve();
       },
     };

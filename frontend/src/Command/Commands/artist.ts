@@ -5,14 +5,12 @@ import {
   SuggestionsParams,
 } from "../../types/command";
 import Icon from "../../types/icons";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
 import {
   GetArtistsByQuery,
   PlayArtistsTopTracks,
 } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
 import { executePlaybackAction } from "./utils";
 
 class ArtistCommand extends BaseCommand {
@@ -28,11 +26,9 @@ class ArtistCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "Enter an artist to play" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Enter an artist to play",
+        });
         return Promise.resolve();
       },
     };

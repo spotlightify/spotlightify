@@ -22,10 +22,9 @@ class DeveloperCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: async (actions) => {
-        actions.batchActions([
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Developer Options",
+        });
         return Promise.resolve();
       },
     };

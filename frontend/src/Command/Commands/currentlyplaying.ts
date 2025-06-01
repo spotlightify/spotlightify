@@ -30,14 +30,9 @@ class CurrentlyPlayingCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: async (actions) => {
-        actions.batchActions([
-          {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Currently Playing track",
-          },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Currently Playing track",
+        });
         return Promise.resolve();
       },
     };
@@ -46,9 +41,8 @@ class CurrentlyPlayingCommand extends BaseCommand {
   async getSuggestions({
     parameters,
     queryClient,
-    state,
   }: SuggestionsParams): Promise<SuggestionList> {
-    let suggestions = [] as Suggestion[];
+    const suggestions = [] as Suggestion[];
 
     let currentlyPlaying: backend.CurrentlyPlayingTrack;
     try {
