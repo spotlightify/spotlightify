@@ -1,17 +1,10 @@
 import BaseCommand from "./baseCommand";
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import {
-  GetShowsByQuery,
-  PlayPodcast,
-} from "../../../wailsjs/go/backend/Backend";
-import { executePlaybackAction } from "./utils";
 import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
+import {GetShowsByQuery, PlayPodcast,} from "../../../wailsjs/go/backend/Backend";
+import {executePlaybackAction} from "./utils";
+import {spotify} from "../../../wailsjs/go/models";
 
 class PodcastCommand extends BaseCommand {
   constructor() {
@@ -34,11 +27,11 @@ class PodcastCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions({input}: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     if (input.length < 2) {
-      return Promise.resolve({ items: suggestions });
+      return Promise.resolve({items: suggestions});
     }
 
     let podcasts = [] as spotify.FullShow[];
@@ -51,7 +44,7 @@ class PodcastCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-podcasts-found-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     if (!podcasts || podcasts.length === 0) {
@@ -61,7 +54,7 @@ class PodcastCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-podcasts-found-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     podcasts.forEach((podcast) => {
@@ -75,14 +68,13 @@ class PodcastCommand extends BaseCommand {
             playbackAction: () => PlayPodcast(podcast.uri),
             opName: "Play Podcast",
             actions,
-            enableDeviceErrorRetry: true,
           });
           return Promise.resolve();
         },
       });
     });
 
-    return { items: suggestions };
+    return {items: suggestions};
   }
 }
 

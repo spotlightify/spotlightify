@@ -1,13 +1,9 @@
 import BaseCommand from "./baseCommand";
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { HandleGenericError } from "./utils";
-import { SetDisableHide } from "../../../wailsjs/go/backend/Backend";
-import { DeveloperOptions } from "../../context/SpotlightifyContext";
+import {HandleError} from "./utils";
+import {SetDisableHide} from "../../../wailsjs/go/backend/Backend";
+import {DeveloperOptions} from "../../context/SpotlightifyContext";
 
 class DeveloperCommand extends BaseCommand {
   constructor() {
@@ -54,7 +50,7 @@ class DeveloperCommand extends BaseCommand {
               } as DeveloperOptions);
               actions.refreshSuggestions();
             } catch (e) {
-              HandleGenericError({
+              HandleError({
                 opName: "Debug logs",
                 error: e,
                 actions: actions,
@@ -80,7 +76,7 @@ class DeveloperCommand extends BaseCommand {
               } as DeveloperOptions);
               actions.refreshSuggestions();
             } catch (e) {
-              HandleGenericError({
+              HandleError({
                 opName: "Config logs",
                 error: e,
                 actions: actions,

@@ -1,17 +1,9 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {ChangeRepeatState, GetRepeatState} from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
-import {
-  ChangeRepeatState,
-  GetRepeatState,
-} from "../../../wailsjs/go/backend/Backend";
-import { executePlaybackAction, HandleGenericError } from "./utils";
+import {executePlaybackAction} from "./utils";
 import BaseCommand from "./baseCommand";
-import { QueryClient } from "@tanstack/react-query";
+import {QueryClient} from "@tanstack/react-query";
 
 const repeatKey = "isShuffled";
 
@@ -21,8 +13,8 @@ class RepeatCommand extends BaseCommand {
   }
 
   async getSuggestions({
-    queryClient,
-  }: SuggestionsParams): Promise<SuggestionList> {
+                         queryClient,
+                       }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
     suggestions.push({
       title: "Off",
@@ -33,11 +25,10 @@ class RepeatCommand extends BaseCommand {
         await executePlaybackAction({
           playbackAction: async () => {
             await ChangeRepeatState("off");
-            queryClient.invalidateQueries({ queryKey: [repeatKey] });
+            await queryClient.invalidateQueries({queryKey: [repeatKey]});
           },
           opName: "Repeat Off",
           actions,
-          enableDeviceErrorRetry: false,
         });
         return Promise.resolve();
       },
@@ -52,11 +43,10 @@ class RepeatCommand extends BaseCommand {
         await executePlaybackAction({
           playbackAction: async () => {
             await ChangeRepeatState("context");
-            queryClient.invalidateQueries({ queryKey: [repeatKey] });
+            await queryClient.invalidateQueries({queryKey: [repeatKey]});
           },
           opName: "Repeat Context",
           actions,
-          enableDeviceErrorRetry: false,
         });
 
         return Promise.resolve();
@@ -69,23 +59,19 @@ class RepeatCommand extends BaseCommand {
       icon: Icon.Repeat,
       id: "repeat-track",
       action: async (actions) => {
-        HideWindow();
-        try {
-          await ChangeRepeatState("track");
-          queryClient.invalidateQueries({ queryKey: [repeatKey] });
-          actions.resetPrompt();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Repeat Track",
-            error: e,
-            actions: actions,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: async () => {
+            await ChangeRepeatState("track");
+            await queryClient.invalidateQueries({queryKey: [repeatKey]});
+          },
+          opName: "Repeat Track",
+          actions,
+        });
         return Promise.resolve();
-      },
+      }
     });
 
-    return Promise.resolve({ items: suggestions, type: "filter" });
+    return Promise.resolve({items: suggestions, type: "filter"});
   }
 
   async getPlaceholderSuggestion(

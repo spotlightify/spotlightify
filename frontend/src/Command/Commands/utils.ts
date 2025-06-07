@@ -1,11 +1,11 @@
 import { spotify } from "../../../wailsjs/go/models";
-import SimpleArtist = spotify.SimpleArtist;
 import { Command, SpotlightifyActions } from "../../types/command";
 import Icon, { SVGIcon } from "../../types/icons";
-import { ShowWindow, HideWindow } from "../../../wailsjs/go/backend/Backend";
+import { HideWindow, ShowWindow } from "../../../wailsjs/go/backend/Backend";
 import { CreateError } from "./error";
 import AuthenticateCommand from "./authenticate/authenticate";
 import DeviceCommand from "./device";
+import SimpleArtist = spotify.SimpleArtist;
 
 // TODO: at some point, we should probably move this to the backend for efficiency
 export function CombinedArtistsString(artists: SimpleArtist[]): string {
@@ -21,14 +21,72 @@ export function CombinedArtistsString(artists: SimpleArtist[]): string {
   return `${allButLast} and ${last}`;
 }
 
-export type SpecificError =
-  | "DEVICE_ERROR"
-  | "TOKEN_EXPIRED"
-  | "RESTRICTION_VIOLATED";
+export async function HandleError({
+  opName,
+  error,
+  actions,
+  callbackRetryAction,
+}: {
+  opName: string;
+  error: unknown;
+  actions: SpotlightifyActions;
+  callbackRetryAction?: () => Promise<void>;
+}) {
+  // Check for specific error patterns first
+  if (callbackRetryAction) {
+    const specificErrorCommand = HandleSpecificError(
+      opName,
+      error,
+      callbackRetryAction
+    );
+    if (specificErrorCommand) {
+      actions.pushCommand(specificErrorCommand);
+      await ShowWindow();
+      return;
+    }
+  }
+
+  // Fall back to generic error handling
+  const errorCommand = CreateError(`${opName} error`, [
+    {
+      title: `${opName} error`,
+      description: String(error),
+      icon: Icon.Error,
+      id: `${opName}-error`,
+    },
+    {
+      title: "Dismiss",
+      description: "Dismiss the error",
+      icon: Icon.BackNav,
+      id: `${opName}-dismiss`,
+      action: async (actions) => {
+        actions.resetPrompt();
+        return Promise.resolve();
+      },
+    },
+  ]);
+
+  actions.pushCommand(errorCommand);
+  await ShowWindow();
+}
+
+export function DeviceIconSelector(deviceType: string): SVGIcon {
+  switch (deviceType) {
+    case "Computer":
+      return Icon.Computer;
+    case "Smartphone":
+      return Icon.Smartphone;
+    case "Speaker":
+      return Icon.Speaker;
+    default:
+      return Icon.Device;
+  }
+}
 
 export function HandleSpecificError(
+  opName: string,
   error: unknown,
-  specificErrorCallback?: Partial<Record<SpecificError, () => Promise<void>>>
+  callbackRetryAction: () => Promise<void>
 ): Command | null {
   const errorMessage = String(error);
 
@@ -68,7 +126,19 @@ export function HandleSpecificError(
           id: "device",
           action: async (actions) => {
             actions.replaceActiveCommand(
-              new DeviceCommand(true, specificErrorCallback?.DEVICE_ERROR),
+              new DeviceCommand(async () => {
+                try {
+                  await callbackRetryAction();
+                  await HideWindow();
+                  actions.resetPrompt();
+                } catch (retryError) {
+                  await HandleError({
+                    opName,
+                    error: retryError,
+                    actions,
+                  });
+                }
+              }),
               {
                 keepPromptOpen: true,
               }
@@ -118,65 +188,6 @@ export function HandleSpecificError(
   }
 }
 
-export function HandleGenericError({
-  opName,
-  error,
-  actions,
-  specificErrorCallback,
-}: {
-  opName: string;
-  error: unknown;
-  actions: SpotlightifyActions;
-  specificErrorCallback?: Partial<Record<SpecificError, () => Promise<void>>>;
-}) {
-  // Check for specific error patterns first
-  const specificErrorCommand = HandleSpecificError(
-    error,
-    specificErrorCallback
-  );
-  if (specificErrorCommand) {
-    actions.pushCommand(specificErrorCommand);
-    ShowWindow();
-    return;
-  }
-
-  // Fall back to generic error handling
-  const errorCommand = CreateError(`${opName} error`, [
-    {
-      title: `${opName} error`,
-      description: String(error),
-      icon: Icon.Error,
-      id: `${opName}-error`,
-    },
-    {
-      title: "Dismiss",
-      description: "Dismiss the error",
-      icon: Icon.BackNav,
-      id: `${opName}-dismiss`,
-      action: async (actions) => {
-        actions.resetPrompt();
-        return Promise.resolve();
-      },
-    },
-  ]);
-
-  actions.pushCommand(errorCommand);
-  ShowWindow();
-}
-
-export function DeviceIconSelector(deviceType: string): SVGIcon {
-  switch (deviceType) {
-    case "Computer":
-      return Icon.Computer;
-    case "Smartphone":
-      return Icon.Smartphone;
-    case "Speaker":
-      return Icon.Speaker;
-    default:
-      return Icon.Device;
-  }
-}
-
 /**
  * Executes a playback action with standardized error handling and UI flow.
  * This utility function encapsulates the common pattern used across playback commands:
@@ -188,49 +199,28 @@ export function DeviceIconSelector(deviceType: string): SVGIcon {
  * @param playbackAction - The async function to execute (e.g., PlayTrack, QueueTrack, etc.)
  * @param opName - The operation name for error messages (e.g., "Play Track", "Queue Track")
  * @param actions - The SpotlightifyActions object for UI control
- * @param enableDeviceErrorRetry - Whether to enable automatic retry on device errors (default: false)
  */
 export async function executePlaybackAction({
   playbackAction,
   opName,
   actions,
-  enableDeviceErrorRetry = false,
 }: {
   playbackAction: () => Promise<void>;
   opName: string;
   actions: SpotlightifyActions;
-  enableDeviceErrorRetry?: boolean;
 }): Promise<void> {
-  HideWindow();
+  await HideWindow();
 
   try {
     await playbackAction();
     actions.resetPrompt();
   } catch (e) {
-    const errorHandlingConfig = {
+    await HandleError({
       opName,
       error: e,
       actions,
-      ...(enableDeviceErrorRetry && {
-        specificErrorCallback: {
-          DEVICE_ERROR: async () => {
-            try {
-              await playbackAction();
-              HideWindow();
-              actions.resetPrompt();
-            } catch (retryError) {
-              HandleGenericError({
-                opName,
-                error: retryError,
-                actions,
-              });
-            }
-          },
-        },
-      }),
-    };
-
-    HandleGenericError(errorHandlingConfig);
-    ShowWindow();
+      callbackRetryAction: playbackAction,
+    });
+    await ShowWindow();
   }
 }

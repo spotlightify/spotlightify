@@ -1,17 +1,10 @@
 import BaseCommand from "./baseCommand";
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import {
-  GetPlaylistsByQuery,
-  PlayPlaylist,
-} from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
-import { executePlaybackAction } from "./utils";
+import {GetPlaylistsByQuery, PlayPlaylist,} from "../../../wailsjs/go/backend/Backend";
+import {spotify} from "../../../wailsjs/go/models";
+import {executePlaybackAction} from "./utils";
 
 class PlaylistCommand extends BaseCommand {
   constructor() {
@@ -34,11 +27,11 @@ class PlaylistCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions({input}: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     if (input.length < 2) {
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     let playlists = [] as spotify.SimplePlaylist[];
@@ -51,7 +44,7 @@ class PlaylistCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-playlists-found-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     if (!playlists || playlists.length === 0) {
@@ -61,7 +54,7 @@ class PlaylistCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-playlists-found-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     playlists.forEach((playlist) => {
@@ -75,14 +68,13 @@ class PlaylistCommand extends BaseCommand {
             playbackAction: () => PlayPlaylist(playlist.uri),
             opName: "Play Playlist",
             actions,
-            enableDeviceErrorRetry: true,
           });
           return Promise.resolve();
         },
       });
     });
 
-    return { items: suggestions };
+    return {items: suggestions};
   }
 }
 

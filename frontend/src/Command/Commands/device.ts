@@ -1,32 +1,22 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {GetDevices, HideWindow, SetActiveDevice} from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
-import {
-  GetDevices,
-  SetActiveDevice,
-} from "../../../wailsjs/go/backend/Backend";
-import { DeviceIconSelector, HandleGenericError } from "./utils";
+import {DeviceIconSelector, HandleError} from "./utils";
 import BaseCommand from "./baseCommand";
-import { spotify } from "../../../wailsjs/go/models";
+import {spotify} from "../../../wailsjs/go/models";
 
 const GetDevicesKey = "getDevices";
 
 class DeviceCommand extends BaseCommand {
-  private popCommandOnDeviceSelected: boolean;
   private afterDeviceSelectedCallback: () => void;
 
   constructor(
-    popCommandOnDeviceSelected?: boolean,
     afterDeviceSelectedCallback?: () => void
   ) {
     super("device", "Device", "device", 400, "device", {});
-    this.popCommandOnDeviceSelected = popCommandOnDeviceSelected ?? false;
     this.afterDeviceSelectedCallback =
-      afterDeviceSelectedCallback ?? (() => {});
+      afterDeviceSelectedCallback ?? (() => {
+      });
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -46,9 +36,9 @@ class DeviceCommand extends BaseCommand {
   }
 
   async getSuggestions({
-    input,
-    queryClient,
-  }: SuggestionsParams): Promise<SuggestionList> {
+                         input,
+                         queryClient,
+                       }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     let devices: spotify.PlayerDevice[];
@@ -65,7 +55,7 @@ class DeviceCommand extends BaseCommand {
         icon: Icon.Error,
         id: "could-not-get-devices-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     if (input) {
@@ -80,7 +70,7 @@ class DeviceCommand extends BaseCommand {
       icon: Icon.Refresh,
       id: "refresh-devices",
       action: async (_actions) => {
-        queryClient.invalidateQueries({
+        await queryClient.invalidateQueries({
           queryKey: [GetDevicesKey, "suggestions"],
         });
         return Promise.resolve();
@@ -96,7 +86,7 @@ class DeviceCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-devices-found-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     devices.forEach((device) => {
@@ -108,30 +98,24 @@ class DeviceCommand extends BaseCommand {
         action: async (actions) => {
           try {
             await SetActiveDevice(device.id);
-            queryClient.invalidateQueries({ queryKey: [GetDevicesKey] });
+            await queryClient.invalidateQueries({queryKey: [GetDevicesKey]});
             this.afterDeviceSelectedCallback();
           } catch (e) {
-            HandleGenericError({
+            HandleError({
               opName: "Set Active Device",
               error: e,
               actions: actions,
             });
           }
 
-          if (this.popCommandOnDeviceSelected) {
-            actions.popCommand({
-              restorePromptInput: true,
-            });
-          } else {
-            HideWindow();
-            actions.resetPrompt();
-          }
+          await HideWindow();
+          actions.resetPrompt();
           return Promise.resolve();
         },
       });
     });
 
-    return { items: suggestions };
+    return {items: suggestions};
   }
 }
 

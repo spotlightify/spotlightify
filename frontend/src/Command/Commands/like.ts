@@ -1,17 +1,9 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {HideWindow, IsCurrentSongLiked, LikeCurrentSong} from "../../../wailsjs/go/backend/Backend";
 import Icon from "../../types/icons";
-import {
-  IsCurrentSongLiked,
-  LikeCurrentSong,
-} from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import {HandleError} from "./utils";
 import BaseCommand from "./baseCommand";
-import { QueryClient } from "@tanstack/react-query";
+import {QueryClient} from "@tanstack/react-query";
 
 const isCurrentSongLikedKey = "isCurrentSongLiked";
 
@@ -24,7 +16,7 @@ class LikeCommand extends BaseCommand {
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({ items: [] });
+    return Promise.resolve({items: []});
   }
 
   async getPlaceholderSuggestion(
@@ -59,10 +51,10 @@ class LikeCommand extends BaseCommand {
         actions.resetPrompt();
         try {
           await LikeCurrentSong(!isCurrentSongLiked);
-          queryClient.invalidateQueries({ queryKey: [isCurrentSongLikedKey] });
+          queryClient.invalidateQueries({queryKey: [isCurrentSongLikedKey]});
           actions.resetPrompt();
         } catch (e) {
-          HandleGenericError({
+          HandleError({
             opName: "Like",
             error: e,
             actions: actions,

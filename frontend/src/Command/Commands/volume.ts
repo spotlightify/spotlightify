@@ -1,13 +1,9 @@
 import BaseCommand from "./baseCommand";
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { GetVolume, SetVolume } from "../../../wailsjs/go/backend/Backend";
-import { executePlaybackAction } from "./utils";
-import { QueryClient } from "@tanstack/react-query";
+import {GetVolume, SetVolume} from "../../../wailsjs/go/backend/Backend";
+import {executePlaybackAction} from "./utils";
+import {QueryClient} from "@tanstack/react-query";
 
 const VolumeQueryKey = "volume";
 
@@ -43,9 +39,9 @@ class VolumeCommand extends BaseCommand {
   }
 
   async getSuggestions({
-    input,
-    queryClient,
-  }: SuggestionsParams): Promise<SuggestionList> {
+                         input,
+                         queryClient,
+                       }: SuggestionsParams): Promise<SuggestionList> {
     const volumeNumber = Number(input);
     if (volumeNumber < 0 || volumeNumber > 10 || isNaN(volumeNumber)) {
       return Promise.resolve({
@@ -72,9 +68,8 @@ class VolumeCommand extends BaseCommand {
               playbackAction: () => SetVolume(volumeNumber),
               opName: "Set Volume",
               actions,
-              enableDeviceErrorRetry: false,
             });
-            queryClient.invalidateQueries({ queryKey: [VolumeQueryKey] });
+            queryClient.invalidateQueries({queryKey: [VolumeQueryKey]});
             return Promise.resolve();
           },
         },

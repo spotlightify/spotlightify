@@ -1,12 +1,8 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { Previous } from "../../../wailsjs/go/backend/Backend";
+import {Previous} from "../../../wailsjs/go/backend/Backend";
 import BaseCommand from "./baseCommand";
-import { executePlaybackAction } from "./utils";
+import {executePlaybackAction} from "./utils";
 
 class PreviousCommand extends BaseCommand {
   constructor() {
@@ -14,7 +10,7 @@ class PreviousCommand extends BaseCommand {
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({ items: [] });
+    return Promise.resolve({items: []});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -29,7 +25,6 @@ class PreviousCommand extends BaseCommand {
           playbackAction: () => Previous(),
           opName: "Previous",
           actions,
-          enableDeviceErrorRetry: false,
         });
         return Promise.resolve();
       },

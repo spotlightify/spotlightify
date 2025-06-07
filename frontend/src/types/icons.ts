@@ -88,6 +88,6 @@ const Icon = {
   Track,
   VolumeLight,
   Volume,
-};
+} as const;
 
 export default Icon;

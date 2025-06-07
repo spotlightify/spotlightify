@@ -1,17 +1,10 @@
 import BaseCommand from "./baseCommand";
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import {
-  GetTracksByQuery,
-  QueueTrack,
-} from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString, executePlaybackAction } from "./utils";
+import {GetTracksByQuery, QueueTrack,} from "../../../wailsjs/go/backend/Backend";
+import {spotify} from "../../../wailsjs/go/models";
+import {CombinedArtistsString, executePlaybackAction} from "./utils";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -34,11 +27,11 @@ class PlayCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions({input}: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     if (input.length < 2) {
-      return Promise.resolve({ items: suggestions });
+      return Promise.resolve({items: suggestions});
     }
 
     let tracks = [] as spotify.SimpleTrack[];
@@ -51,7 +44,7 @@ class PlayCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-tracks-found-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     if (!tracks || tracks.length === 0) {
@@ -61,7 +54,7 @@ class PlayCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-tracks-found-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     tracks.forEach((track) => {
@@ -75,14 +68,13 @@ class PlayCommand extends BaseCommand {
             playbackAction: () => QueueTrack(track.id),
             opName: "Queue Track",
             actions,
-            enableDeviceErrorRetry: false,
           });
           return Promise.resolve();
         },
       });
     });
 
-    return { items: suggestions };
+    return {items: suggestions};
   }
 }
 

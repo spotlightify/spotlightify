@@ -1,14 +1,10 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { ClipboardSetText } from "../../../wailsjs/runtime";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {ClipboardSetText} from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
-import { GetCurrentlyPlayingTrack } from "../../../wailsjs/go/backend/Backend";
-import { CombinedArtistsString, HandleGenericError } from "./utils";
+import {GetCurrentlyPlayingTrack} from "../../../wailsjs/go/backend/Backend";
+import {CombinedArtistsString, HandleError} from "./utils";
 import BaseCommand from "./baseCommand";
-import { backend } from "../../../wailsjs/go/models";
+import {backend} from "../../../wailsjs/go/models";
 
 class CurrentlyPlayingCommand extends BaseCommand {
   constructor() {
@@ -39,9 +35,9 @@ class CurrentlyPlayingCommand extends BaseCommand {
   }
 
   async getSuggestions({
-    parameters,
-    queryClient,
-  }: SuggestionsParams): Promise<SuggestionList> {
+                         parameters,
+                         queryClient,
+                       }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     let currentlyPlaying: backend.CurrentlyPlayingTrack;
@@ -58,7 +54,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
         icon: Icon.Error,
         id: "could-not-get-currently-playing-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     if (!currentlyPlaying || !currentlyPlaying.item) {
@@ -68,7 +64,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-track-currently-playing-error",
       });
-      return { items: suggestions };
+      return {items: suggestions};
     }
 
     const track = currentlyPlaying.item;
@@ -92,9 +88,9 @@ class CurrentlyPlayingCommand extends BaseCommand {
             throw new Error("No Spotify URL available for this track");
           }
           await ClipboardSetText(trackUrl);
-          actions.setCurrentCommandParameters({ shared: "true" });
+          actions.setCurrentCommandParameters({shared: "true"});
         } catch (e) {
-          HandleGenericError({
+          HandleError({
             opName: "Copy to clipboard",
             error: e,
             actions: actions,
@@ -103,7 +99,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
       },
     });
 
-    return { items: suggestions };
+    return {items: suggestions};
   }
 }
 

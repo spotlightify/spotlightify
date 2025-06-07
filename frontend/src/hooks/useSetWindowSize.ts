@@ -1,14 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
-import { WindowSetSize } from "../../wailsjs/runtime/runtime";
+import {useMutation} from "@tanstack/react-query";
+import {WindowSetSize} from "../../wailsjs/runtime";
 
 function useSetWindowSize() {
-  const { mutate: setWindowSize } = useMutation({
-    mutationFn: (size: { width: number; height: number }) => {
-      return WindowSetSize(size.width, size.height);
+  const {mutate: setWindowSize} = useMutation({
+    mutationFn: async (size: { width: number; height: number }) => {
+      return await WindowSetSize(size.width, size.height);
     },
   });
 
-  return { setWindowSize };
+  return {setWindowSize};
 }
 
 export default useSetWindowSize;
