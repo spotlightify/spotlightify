@@ -1,10 +1,21 @@
 import BaseCommand from "./baseCommand";
-import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
 import icons from "../../types/icons";
-import {GetTracksByQuery, PlayTrack,} from "../../../wailsjs/go/backend/Backend";
-import {spotify} from "../../../wailsjs/go/models";
-import {CombinedArtistsString, executePlaybackAction} from "./utils";
+import {
+  GetTracksByQuery,
+  PlayTrack,
+} from "../../../wailsjs/go/backend/Backend";
+import { spotify } from "../../../wailsjs/go/models";
+import {
+  CombinedArtistsString,
+  executePlaybackAction,
+  getSafeImageUrl,
+} from "./utils";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -27,11 +38,11 @@ class PlayCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions({input}: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     if (input.length < 2) {
-      return Promise.resolve({items: suggestions});
+      return Promise.resolve({ items: suggestions });
     }
 
     let tracks = [] as spotify.SimpleTrack[];
@@ -44,7 +55,7 @@ class PlayCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-tracks-found-error",
       });
-      return {items: suggestions};
+      return { items: suggestions };
     }
 
     if (!tracks || tracks.length === 0) {
@@ -54,14 +65,14 @@ class PlayCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-tracks-found-error",
       });
-      return {items: suggestions};
+      return { items: suggestions };
     }
 
     tracks.forEach((track) => {
       suggestions.push({
         title: track.name,
         description: CombinedArtistsString(track.artists),
-        icon: track.album.images[2].url ?? icons.Track,
+        icon: getSafeImageUrl(track.album.images, 2, icons.Track),
         id: track.id,
         action: async (actions) => {
           await executePlaybackAction({
@@ -74,7 +85,7 @@ class PlayCommand extends BaseCommand {
       });
     });
 
-    return {items: suggestions};
+    return { items: suggestions };
   }
 }
 

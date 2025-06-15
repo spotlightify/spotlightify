@@ -1,10 +1,17 @@
 import BaseCommand from "./baseCommand";
-import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
 import icons from "../../types/icons";
-import {GetShowsByQuery, PlayPodcast,} from "../../../wailsjs/go/backend/Backend";
-import {executePlaybackAction} from "./utils";
-import {spotify} from "../../../wailsjs/go/models";
+import {
+  GetShowsByQuery,
+  PlayPodcast,
+} from "../../../wailsjs/go/backend/Backend";
+import { executePlaybackAction, getSafeImageUrl } from "./utils";
+import { spotify } from "../../../wailsjs/go/models";
 
 class PodcastCommand extends BaseCommand {
   constructor() {
@@ -27,11 +34,11 @@ class PodcastCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions({input}: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     if (input.length < 2) {
-      return Promise.resolve({items: suggestions});
+      return Promise.resolve({ items: suggestions });
     }
 
     let podcasts = [] as spotify.FullShow[];
@@ -44,7 +51,7 @@ class PodcastCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-podcasts-found-error",
       });
-      return {items: suggestions};
+      return { items: suggestions };
     }
 
     if (!podcasts || podcasts.length === 0) {
@@ -54,14 +61,14 @@ class PodcastCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-podcasts-found-error",
       });
-      return {items: suggestions};
+      return { items: suggestions };
     }
 
     podcasts.forEach((podcast) => {
       suggestions.push({
         title: podcast.name,
         description: podcast.publisher,
-        icon: podcast.images[2].url ?? icons.Podcast,
+        icon: getSafeImageUrl(podcast.images, 2, icons.Podcast),
         id: podcast.id,
         action: async (actions) => {
           await executePlaybackAction({
@@ -74,7 +81,7 @@ class PodcastCommand extends BaseCommand {
       });
     });
 
-    return {items: suggestions};
+    return { items: suggestions };
   }
 }
 

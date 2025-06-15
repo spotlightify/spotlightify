@@ -1,10 +1,17 @@
 import BaseCommand from "./baseCommand";
-import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
 import icons from "../../types/icons";
-import {GetPlaylistsByQuery, PlayPlaylist,} from "../../../wailsjs/go/backend/Backend";
-import {spotify} from "../../../wailsjs/go/models";
-import {executePlaybackAction} from "./utils";
+import {
+  GetPlaylistsByQuery,
+  PlayPlaylist,
+} from "../../../wailsjs/go/backend/Backend";
+import { spotify } from "../../../wailsjs/go/models";
+import { executePlaybackAction, getSafeImageUrl } from "./utils";
 
 class PlaylistCommand extends BaseCommand {
   constructor() {
@@ -27,11 +34,11 @@ class PlaylistCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions({input}: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
     if (input.length < 2) {
-      return {items: suggestions};
+      return { items: suggestions };
     }
 
     let playlists = [] as spotify.SimplePlaylist[];
@@ -44,7 +51,7 @@ class PlaylistCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-playlists-found-error",
       });
-      return {items: suggestions};
+      return { items: suggestions };
     }
 
     if (!playlists || playlists.length === 0) {
@@ -54,14 +61,14 @@ class PlaylistCommand extends BaseCommand {
         icon: Icon.Error,
         id: "no-playlists-found-error",
       });
-      return {items: suggestions};
+      return { items: suggestions };
     }
 
     playlists.forEach((playlist) => {
       suggestions.push({
         title: playlist.name,
         description: `By ${playlist.owner.display_name}`,
-        icon: playlist.images[0].url ?? icons.Playlist,
+        icon: getSafeImageUrl(playlist.images, 0, icons.Playlist),
         id: playlist.id,
         action: async (actions) => {
           await executePlaybackAction({
@@ -74,7 +81,7 @@ class PlaylistCommand extends BaseCommand {
       });
     });
 
-    return {items: suggestions};
+    return { items: suggestions };
   }
 }
 
