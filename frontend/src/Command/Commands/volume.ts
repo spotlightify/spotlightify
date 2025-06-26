@@ -1,14 +1,9 @@
 import BaseCommand from "./baseCommand";
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { GetVolume, SetVolume } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
-import { QueryClient } from "@tanstack/react-query";
+import {GetVolume, SetVolume} from "../../../wailsjs/go/backend/Backend";
+import {executePlaybackAction} from "./utils";
+import {QueryClient} from "@tanstack/react-query";
 
 const VolumeQueryKey = "volume";
 
@@ -35,20 +30,18 @@ class VolumeCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: async (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "0 - 10" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "0 - 10",
+        });
         return Promise.resolve();
       },
     };
   }
 
   async getSuggestions({
-    input,
-    queryClient,
-  }: SuggestionsParams): Promise<SuggestionList> {
+                         input,
+                         queryClient,
+                       }: SuggestionsParams): Promise<SuggestionList> {
     const volumeNumber = Number(input);
     if (volumeNumber < 0 || volumeNumber > 10 || isNaN(volumeNumber)) {
       return Promise.resolve({
@@ -71,19 +64,13 @@ class VolumeCommand extends BaseCommand {
           icon: Icon.Volume,
           id: this.id,
           action: async (actions) => {
-            HideWindow();
-            actions.resetPrompt();
-            try {
-              await SetVolume(volumeNumber);
-            } catch (e) {
-              HandleGenericError({
-                opName: "Set Volume",
-                error: e,
-                setActiveCommand: actions.setActiveCommand,
-              });
-            }
-            queryClient.invalidateQueries({ queryKey: [VolumeQueryKey] });
-            return Promise.resolve;
+            await executePlaybackAction({
+              playbackAction: () => SetVolume(volumeNumber),
+              opName: "Set Volume",
+              actions,
+            });
+            queryClient.invalidateQueries({queryKey: [VolumeQueryKey]});
+            return Promise.resolve();
           },
         },
       ],

@@ -6,7 +6,7 @@ import {
 import { ClipboardSetText } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { GetCurrentlyPlayingTrack } from "../../../wailsjs/go/backend/Backend";
-import { CombinedArtistsString, HandleGenericError } from "./utils";
+import { CombinedArtistsString, HandleError, getSafeImageUrl } from "./utils";
 import BaseCommand from "./baseCommand";
 import { backend } from "../../../wailsjs/go/models";
 
@@ -30,14 +30,9 @@ class CurrentlyPlayingCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: async (actions) => {
-        actions.batchActions([
-          {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Currently Playing track",
-          },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Currently Playing track",
+        });
         return Promise.resolve();
       },
     };
@@ -46,9 +41,8 @@ class CurrentlyPlayingCommand extends BaseCommand {
   async getSuggestions({
     parameters,
     queryClient,
-    state,
   }: SuggestionsParams): Promise<SuggestionList> {
-    let suggestions = [] as Suggestion[];
+    const suggestions = [] as Suggestion[];
 
     let currentlyPlaying: backend.CurrentlyPlayingTrack;
     try {
@@ -81,7 +75,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
     suggestions.push({
       title: track.name,
       description: CombinedArtistsString(track.artists),
-      icon: track.album.images[2].url ?? Icon.Track,
+      icon: getSafeImageUrl(track.album.images, 2, Icon.Track),
       id: track.id,
     });
 
@@ -100,10 +94,10 @@ class CurrentlyPlayingCommand extends BaseCommand {
           await ClipboardSetText(trackUrl);
           actions.setCurrentCommandParameters({ shared: "true" });
         } catch (e) {
-          HandleGenericError({
+          await HandleError({
             opName: "Copy to clipboard",
             error: e,
-            setActiveCommand: actions.setActiveCommand,
+            actions: actions,
           });
         }
       },

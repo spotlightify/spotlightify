@@ -1,13 +1,8 @@
 import BaseCommand from "./baseCommand";
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { Pause } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import {Pause} from "../../../wailsjs/go/backend/Backend";
+import {executePlaybackAction} from "./utils";
 
 class PauseCommand extends BaseCommand {
   constructor() {
@@ -15,7 +10,7 @@ class PauseCommand extends BaseCommand {
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({ items: [] });
+    return Promise.resolve({items: []});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -26,17 +21,11 @@ class PauseCommand extends BaseCommand {
       id: this.id,
       type: "action",
       action: async (actions) => {
-        HideWindow();
-        actions.resetPrompt();
-        try {
-          await Pause();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Pause",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: () => Pause(),
+          opName: "Pause",
+          actions,
+        });
         return Promise.resolve();
       },
     };

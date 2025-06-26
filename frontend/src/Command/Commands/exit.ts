@@ -1,13 +1,9 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { HandleGenericError } from "./utils";
+import {HandleError} from "./utils";
 import BaseCommand from "./baseCommand";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
-import { Quit } from "../../../wailsjs/runtime/runtime";
+import {HideWindow} from "../../../wailsjs/go/backend/Backend";
+import {Quit} from "../../../wailsjs/runtime/runtime";
 
 class ExitCommand extends BaseCommand {
   constructor() {
@@ -15,7 +11,7 @@ class ExitCommand extends BaseCommand {
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({ items: [] });
+    return Promise.resolve({items: []});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -31,10 +27,10 @@ class ExitCommand extends BaseCommand {
         try {
           await Quit();
         } catch (e) {
-          HandleGenericError({
+          HandleError({
             opName: "Exit",
             error: e,
-            setActiveCommand: actions.setActiveCommand,
+            actions: actions,
           });
         }
         return Promise.resolve();

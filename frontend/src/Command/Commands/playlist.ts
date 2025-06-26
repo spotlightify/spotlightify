@@ -5,14 +5,14 @@ import {
   SuggestionsParams,
 } from "../../types/command";
 import Icon from "../../types/icons";
+import icons from "../../types/icons";
 import {
   GetPlaylistsByQuery,
   PlayPlaylist,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
-import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
+import { executePlaybackAction, getSafeImageUrl } from "./utils";
+
 class PlaylistCommand extends BaseCommand {
   constructor() {
     super("playlist", "Playlist", "playlist", 400, "playlist", {});
@@ -26,11 +26,9 @@ class PlaylistCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "Enter a playlist to play" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Enter a playlist to play",
+        });
         return Promise.resolve();
       },
     };
@@ -70,26 +68,14 @@ class PlaylistCommand extends BaseCommand {
       suggestions.push({
         title: playlist.name,
         description: `By ${playlist.owner.display_name}`,
-        icon: playlist.images[0].url ?? icons.Playlist,
+        icon: getSafeImageUrl(playlist.images, 0, icons.Playlist),
         id: playlist.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayPlaylist(playlist.uri);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play playlist",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => PlayPlaylist(playlist.uri),
+            opName: "Play Playlist",
+            actions,
+          });
           return Promise.resolve();
         },
       });

@@ -1,14 +1,9 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { ChangeShuffle, IsShuffled } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import {ChangeShuffle, IsShuffled} from "../../../wailsjs/go/backend/Backend";
 import BaseCommand from "./baseCommand";
-import { QueryClient } from "@tanstack/react-query";
+import {QueryClient} from "@tanstack/react-query";
+import {executePlaybackAction} from "./utils";
 
 const shuffleKey = "isShuffled";
 
@@ -18,7 +13,7 @@ class ShuffleCommand extends BaseCommand {
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({ items: [] });
+    return Promise.resolve({items: []});
   }
 
   async getPlaceholderSuggestion(
@@ -31,7 +26,7 @@ class ShuffleCommand extends BaseCommand {
         queryKey: [shuffleKey],
         staleTime: 5000,
       });
-    } catch (e) {
+    } catch {
       return {
         title: "Shuffle",
         description: "Cannot shuffle when no device is active",
@@ -47,27 +42,14 @@ class ShuffleCommand extends BaseCommand {
       id: this.id,
       type: "action",
       action: async (actions) => {
-        HideWindow();
-        actions.resetPrompt();
-        try {
-          try {
+        await executePlaybackAction({
+          playbackAction: async () => {
             await ChangeShuffle(!isShuffled);
-          } catch (e) {
-            HandleGenericError({
-              opName: "Shuffle Playlist",
-              error: e,
-              setActiveCommand: actions.setActiveCommand,
-            });
-          }
-          actions.resetPrompt();
-          queryClient.resetQueries({ queryKey: [shuffleKey] });
-        } catch (e) {
-          HandleGenericError({
-            opName: "Shuffle Playlist",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+            queryClient.resetQueries({queryKey: [shuffleKey]});
+          },
+          opName: "Toggle Shuffle",
+          actions,
+        });
         return Promise.resolve();
       },
     };

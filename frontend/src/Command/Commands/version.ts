@@ -20,11 +20,9 @@ class VersionCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "Version information" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Version information",
+        });
         return Promise.resolve();
       },
     };

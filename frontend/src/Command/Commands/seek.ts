@@ -1,13 +1,8 @@
 import BaseCommand from "./baseCommand";
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { Seek } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import {Seek} from "../../../wailsjs/go/backend/Backend";
+import {executePlaybackAction} from "./utils";
 
 const second = 1000;
 const minute = 60 * second;
@@ -72,20 +67,15 @@ class SeekCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: async (actions) => {
-        actions.batchActions([
-          {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Enter a time stamp e.g. 50, 2:13, 1:10:00",
-          },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Enter a time stamp e.g. 50, 2:13, 1:10:00",
+        });
         return Promise.resolve();
       },
     };
   }
 
-  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions({input}: SuggestionsParams): Promise<SuggestionList> {
     const location = input.trim();
     let timeMS = 0;
     try {
@@ -111,17 +101,11 @@ class SeekCommand extends BaseCommand {
           icon: Icon.GoArrow,
           id: this.id,
           action: async (actions) => {
-            HideWindow();
-            actions.resetPrompt();
-            try {
-              Seek(timeMS);
-            } catch (e) {
-              HandleGenericError({
-                opName: "Seek",
-                error: e,
-                setActiveCommand: actions.setActiveCommand,
-              });
-            }
+            await executePlaybackAction({
+              playbackAction: () => Seek(timeMS),
+              opName: "Seek",
+              actions,
+            });
             return Promise.resolve();
           },
         },

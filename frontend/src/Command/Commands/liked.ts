@@ -1,13 +1,8 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { PlayLiked } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import {PlayLiked} from "../../../wailsjs/go/backend/Backend";
 import BaseCommand from "./baseCommand";
+import {executePlaybackAction} from "./utils";
 
 class PlayLikedSongs extends BaseCommand {
   constructor() {
@@ -15,7 +10,7 @@ class PlayLikedSongs extends BaseCommand {
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({ items: [] });
+    return Promise.resolve({items: []});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -26,17 +21,11 @@ class PlayLikedSongs extends BaseCommand {
       id: this.id,
       type: "action",
       action: async (actions) => {
-        HideWindow();
-        actions.resetPrompt();
-        try {
-          await PlayLiked();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Liked",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: () => PlayLiked(),
+          opName: "Play Liked",
+          actions,
+        });
         return Promise.resolve();
       },
     };

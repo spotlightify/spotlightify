@@ -5,14 +5,13 @@ import {
   SuggestionsParams,
 } from "../../types/command";
 import Icon from "../../types/icons";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
-import { spotify } from "../../../wailsjs/go/models";
 import {
   GetShowsByQuery,
   PlayPodcast,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
+import { executePlaybackAction, getSafeImageUrl } from "./utils";
+import { spotify } from "../../../wailsjs/go/models";
 
 class PodcastCommand extends BaseCommand {
   constructor() {
@@ -27,11 +26,9 @@ class PodcastCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "Enter a podcast to play" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Enter a podcast to play",
+        });
         return Promise.resolve();
       },
     };
@@ -71,26 +68,14 @@ class PodcastCommand extends BaseCommand {
       suggestions.push({
         title: podcast.name,
         description: podcast.publisher,
-        icon: podcast.images[2].url ?? icons.Podcast,
+        icon: getSafeImageUrl(podcast.images, 2, icons.Podcast),
         id: podcast.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayPodcast(podcast.uri);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play podcast",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => PlayPodcast(podcast.uri),
+            opName: "Play Podcast",
+            actions,
+          });
           return Promise.resolve();
         },
       });

@@ -1,13 +1,8 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { Next } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import {Next} from "../../../wailsjs/go/backend/Backend";
 import BaseCommand from "./baseCommand";
+import {executePlaybackAction} from "./utils";
 
 class NextCommand extends BaseCommand {
   constructor() {
@@ -15,7 +10,7 @@ class NextCommand extends BaseCommand {
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({ items: [] });
+    return Promise.resolve({items: []});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -26,17 +21,11 @@ class NextCommand extends BaseCommand {
       id: this.id,
       type: "action",
       action: async (actions) => {
-        HideWindow();
-        actions.resetPrompt();
-        try {
-          await Next();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Next Track",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: () => Next(),
+          opName: "Next",
+          actions,
+        });
         return Promise.resolve();
       },
     };

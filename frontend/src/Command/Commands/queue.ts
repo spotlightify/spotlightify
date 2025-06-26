@@ -5,15 +5,17 @@ import {
   SuggestionsParams,
 } from "../../types/command";
 import Icon from "../../types/icons";
+import icons from "../../types/icons";
 import {
   GetTracksByQuery,
   QueueTrack,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
-import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
+import {
+  CombinedArtistsString,
+  executePlaybackAction,
+  getSafeImageUrl,
+} from "./utils";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -28,11 +30,9 @@ class PlayCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "Enter a track to queue" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Enter a track to queue",
+        });
         return Promise.resolve();
       },
     };
@@ -72,26 +72,14 @@ class PlayCommand extends BaseCommand {
       suggestions.push({
         title: track.name,
         description: CombinedArtistsString(track.artists),
-        icon: track.album.images[2].url ?? icons.Track,
+        icon: getSafeImageUrl(track.album.images, 2, icons.Track),
         id: track.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await QueueTrack(track.id);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to queue track",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => QueueTrack(track.id),
+            opName: "Queue Track",
+            actions,
+          });
           return Promise.resolve();
         },
       });

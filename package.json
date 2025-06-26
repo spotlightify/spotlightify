@@ -3,6 +3,10 @@
     "dev": "npx cross-env SPOTLIGHTIFY_DEV=true wails dev"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "@eslint/js": "^9.28.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.28.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.33.1"
   }
 }

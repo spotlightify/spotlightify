@@ -5,14 +5,16 @@ import {
   SuggestionsParams,
 } from "../../types/command";
 import Icon from "../../types/icons";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
 import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
+import {
+  CombinedArtistsString,
+  executePlaybackAction,
+  getSafeImageUrl,
+} from "./utils";
 import {
   GetAlbumsByQuery,
   PlayAlbum,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
 
 class AlbumCommand extends BaseCommand {
@@ -28,11 +30,9 @@ class AlbumCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "Enter an album to play" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Enter an album to play",
+        });
         return Promise.resolve();
       },
     };
@@ -72,26 +72,14 @@ class AlbumCommand extends BaseCommand {
       suggestions.push({
         title: album.name,
         description: CombinedArtistsString(album.artists),
-        icon: album.images[2].url ?? icons.Album,
+        icon: getSafeImageUrl(album.images, 2, icons.Album),
         id: album.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayAlbum(album.uri);
-          } catch (e) {
-            actions.setSuggestionList({
-              items: [
-                {
-                  title: "Error failed to play album",
-                  description: String(e),
-                  icon: Icon.Error,
-                  id: "error",
-                },
-              ],
-            });
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: () => PlayAlbum(album.uri),
+            opName: "Play Album",
+            actions,
+          });
           return Promise.resolve();
         },
       });

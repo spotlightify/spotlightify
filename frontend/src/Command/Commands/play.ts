@@ -5,16 +5,17 @@ import {
   SuggestionsParams,
 } from "../../types/command";
 import Icon from "../../types/icons";
+import icons from "../../types/icons";
 import {
   GetTracksByQuery,
   PlayTrack,
-  ShowWindow,
 } from "../../../wailsjs/go/backend/Backend";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
-import icons from "../../types/icons";
 import { spotify } from "../../../wailsjs/go/models";
-import { CombinedArtistsString } from "./utils";
-import { CreateError } from "./error";
+import {
+  CombinedArtistsString,
+  executePlaybackAction,
+  getSafeImageUrl,
+} from "./utils";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -29,11 +30,9 @@ class PlayCommand extends BaseCommand {
       id: this.id,
       type: "command",
       action: (actions) => {
-        actions.batchActions([
-          { type: "SET_PLACEHOLDER_TEXT", payload: "Enter a track to play" },
-          { type: "SET_ACTIVE_COMMAND", payload: { command: this } },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.setActiveCommand(this, {
+          placeholderText: "Enter a track to play",
+        });
         return Promise.resolve();
       },
     };
@@ -73,25 +72,14 @@ class PlayCommand extends BaseCommand {
       suggestions.push({
         title: track.name,
         description: CombinedArtistsString(track.artists),
-        icon: track.album.images[2].url ?? icons.Track,
+        icon: getSafeImageUrl(track.album.images, 2, icons.Track),
         id: track.id,
         action: async (actions) => {
-          HideWindow();
-          actions.resetPrompt();
-          try {
-            await PlayTrack(track.uri);
-          } catch (e) {
-            const error = CreateError("Play Error", [
-              {
-                title: "Error failed to play track",
-                description: String(e),
-                icon: Icon.Error,
-                id: "error",
-              },
-            ]);
-            actions.setActiveCommand(error);
-            ShowWindow();
-          }
+          await executePlaybackAction({
+            playbackAction: async () => await PlayTrack(track.uri),
+            opName: "Play Track",
+            actions,
+          });
           return Promise.resolve();
         },
       });

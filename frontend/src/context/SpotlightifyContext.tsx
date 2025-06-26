@@ -41,6 +41,8 @@ function spotlightifyReducer(
       return {
         ...state,
         commandStack: newCommandHistory,
+        placeholderText:
+          newCommandHistory.at(-1)?.options?.placeholderText ?? "",
         promptInput: oldPromptInput,
       };
     }
@@ -61,6 +63,8 @@ function spotlightifyReducer(
       }
       return {
         ...state,
+        promptInput: "",
+        placeholderText: action.payload.options?.placeholderText ?? "",
         commandStack: pushedCommandHistory,
       };
     }
@@ -81,8 +85,38 @@ function spotlightifyReducer(
       }
       return {
         ...state,
+        promptInput: "",
+        placeholderText: action.payload.options?.placeholderText ?? "",
         commandStack: pushedCommandHistory,
       };
+    }
+    case "REPLACE_ACTIVE_COMMAND": {
+      if (state.commandStack.length === 0) {
+        // No active command, so push a new one (similar to PUSH_COMMAND logic)
+        const pushedCommandHistory = [
+          {
+            command: action.payload.command,
+            options: action.payload.options || {},
+          },
+        ];
+        return {
+          ...state,
+          promptInput: "",
+          placeholderText: action.payload.options?.placeholderText ?? "",
+          commandStack: pushedCommandHistory,
+        };
+      } else {
+        // Replace the active command (existing logic)
+        const newCommandStack = [...state.commandStack];
+        newCommandStack[newCommandStack.length - 1] = {
+          command: action.payload.command,
+          options: action.payload.options || {},
+        };
+        return {
+          ...state,
+          commandStack: newCommandStack,
+        };
+      }
     }
     case "CLEAR_COMMANDS":
       state.commandStack.forEach((c) => c.command.onCancel?.());
@@ -169,6 +203,11 @@ export const SpotlightifyProvider = ({
       setActiveCommand: (command, options?) =>
         dispatch({
           type: "SET_ACTIVE_COMMAND",
+          payload: { command, options },
+        }),
+      replaceActiveCommand: (command, options?) =>
+        dispatch({
+          type: "REPLACE_ACTIVE_COMMAND",
           payload: { command, options },
         }),
       clearCommands: () => dispatch({ type: "CLEAR_COMMANDS" }),

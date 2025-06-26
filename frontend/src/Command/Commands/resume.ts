@@ -1,13 +1,8 @@
-import {
-  Suggestion,
-  SuggestionList,
-  SuggestionsParams,
-} from "../../types/command";
-import { HideWindow } from "../../../wailsjs/go/backend/Backend";
+import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
 import Icon from "../../types/icons";
-import { Resume } from "../../../wailsjs/go/backend/Backend";
-import { HandleGenericError } from "./utils";
+import {Resume} from "../../../wailsjs/go/backend/Backend";
 import BaseCommand from "./baseCommand";
+import {executePlaybackAction} from "./utils";
 
 class ResumeCommand extends BaseCommand {
   constructor() {
@@ -15,7 +10,7 @@ class ResumeCommand extends BaseCommand {
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({ items: [] });
+    return Promise.resolve({items: []});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -26,17 +21,11 @@ class ResumeCommand extends BaseCommand {
       id: this.id,
       type: "action",
       action: async (actions) => {
-        HideWindow();
-        actions.resetPrompt();
-        try {
-          await Resume();
-        } catch (e) {
-          HandleGenericError({
-            opName: "Resume",
-            error: e,
-            setActiveCommand: actions.setActiveCommand,
-          });
-        }
+        await executePlaybackAction({
+          playbackAction: () => Resume(),
+          opName: "Resume",
+          actions,
+        });
         return Promise.resolve();
       },
     };
