@@ -7,7 +7,13 @@ function CommandTitle() {
   } = useSpotlightify();
 
   const commandTitles = useMemo(() => {
-    return commandHistory.map((command) => command.command.title);
+    return commandHistory.map((command, index) => {
+      // Use shorthandTitle for all commands except the last one (nth)
+      const isLastCommand = index === commandHistory.length - 1;
+      return isLastCommand
+        ? command.command.title
+        : command.command.shorthandTitle;
+    });
   }, [commandHistory]);
 
   if (commandTitles.length === 0) {
