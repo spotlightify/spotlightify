@@ -82,9 +82,9 @@ describe("SpotlightifyContext", () => {
 
         act(() => {
           result.current?.actions.setPromptInput("input1");
-          result.current?.actions.pushCommand(command1);
+          result.current?.actions.setActiveCommand(command1);
           result.current?.actions.setPromptInput("input2");
-          result.current?.actions.pushCommand(command2);
+          result.current?.actions.setActiveCommand(command2);
         });
 
         expect(result.current?.state.commandStack.length).toBe(2);
@@ -118,9 +118,9 @@ describe("SpotlightifyContext", () => {
         );
 
         act(() => {
-          result.current?.actions.pushCommand(command1);
+          result.current?.actions.setActiveCommand(command1);
           result.current?.actions.setPromptInput("current input");
-          result.current?.actions.pushCommand(command2);
+          result.current?.actions.setActiveCommand(command2);
         });
 
         // After pushing command2, promptInput is cleared to ''
@@ -167,10 +167,10 @@ describe("SpotlightifyContext", () => {
         );
 
         act(() => {
-          result.current?.actions.pushCommand(command1, {
+          result.current?.actions.setActiveCommand(command1, {
             placeholderText: "Placeholder 1",
           });
-          result.current?.actions.pushCommand(command2, {
+          result.current?.actions.setActiveCommand(command2, {
             placeholderText: "Placeholder 2",
           });
         });
@@ -183,7 +183,7 @@ describe("SpotlightifyContext", () => {
       });
     });
 
-    describe("PUSH_COMMAND", () => {
+    describe("SET_ACTIVE_COMMAND", () => {
       it("should add command to stack and clear prompt input", () => {
         const command = createMockCommand("cmd1");
 
@@ -199,7 +199,7 @@ describe("SpotlightifyContext", () => {
 
         act(() => {
           result.current?.actions.setPromptInput("test input");
-          result.current?.actions.pushCommand(command);
+          result.current?.actions.setActiveCommand(command);
         });
 
         expect(result.current?.state.commandStack.length).toBe(1);
@@ -223,9 +223,9 @@ describe("SpotlightifyContext", () => {
 
         act(() => {
           result.current?.actions.setPromptInput("input1");
-          result.current?.actions.pushCommand(command1);
+          result.current?.actions.setActiveCommand(command1);
           result.current?.actions.setPromptInput("input2");
-          result.current?.actions.pushCommand(command2);
+          result.current?.actions.setActiveCommand(command2);
         });
 
         // The reducer saves the current promptInput (input2) to the previous command's options
@@ -248,7 +248,7 @@ describe("SpotlightifyContext", () => {
         );
 
         act(() => {
-          result.current?.actions.pushCommand(command, {
+          result.current?.actions.setActiveCommand(command, {
             placeholderText: "Custom placeholder",
           });
         });
@@ -256,30 +256,6 @@ describe("SpotlightifyContext", () => {
         expect(result.current?.state.placeholderText).toBe(
           "Custom placeholder"
         );
-      });
-    });
-
-    describe("SET_ACTIVE_COMMAND", () => {
-      it("should behave like PUSH_COMMAND", () => {
-        const command = createMockCommand("cmd1");
-
-        const { result } = renderHook(
-          () => {
-            const context = React.useContext(SpotlightifyContext);
-            return context;
-          },
-          {
-            wrapper: SpotlightifyProvider,
-          }
-        );
-
-        act(() => {
-          result.current?.actions.setPromptInput("test input");
-          result.current?.actions.setActiveCommand(command);
-        });
-
-        expect(result.current?.state.commandStack.length).toBe(1);
-        expect(result.current?.state.promptInput).toBe("");
       });
     });
 
@@ -299,7 +275,7 @@ describe("SpotlightifyContext", () => {
         );
 
         act(() => {
-          result.current?.actions.pushCommand(command1);
+          result.current?.actions.setActiveCommand(command1);
           result.current?.actions.replaceActiveCommand(command2);
         });
 
@@ -351,8 +327,8 @@ describe("SpotlightifyContext", () => {
         );
 
         act(() => {
-          result.current?.actions.pushCommand(command1);
-          result.current?.actions.pushCommand(command2);
+          result.current?.actions.setActiveCommand(command1);
+          result.current?.actions.setActiveCommand(command2);
         });
 
         act(() => {
@@ -446,8 +422,8 @@ describe("SpotlightifyContext", () => {
 
         act(() => {
           result.current?.actions.setPromptInput("test input");
-          result.current?.actions.pushCommand(command1);
-          result.current?.actions.pushCommand(command2);
+          result.current?.actions.setActiveCommand(command1);
+          result.current?.actions.setActiveCommand(command2);
           result.current?.actions.setSuggestionList(suggestions);
           result.current?.actions.setPlaceholderText("Custom placeholder");
         });
@@ -482,7 +458,7 @@ describe("SpotlightifyContext", () => {
         );
 
         act(() => {
-          result.current?.actions.pushCommand(command);
+          result.current?.actions.setActiveCommand(command);
           result.current?.actions.setCurrentCommandParameters({
             param1: "value1",
             param2: "value2",
@@ -513,7 +489,7 @@ describe("SpotlightifyContext", () => {
         );
 
         act(() => {
-          result.current?.actions.pushCommand(command, {
+          result.current?.actions.setActiveCommand(command, {
             placeholderText: "Existing placeholder",
             keepPromptOpen: true,
           });
@@ -577,7 +553,7 @@ describe("SpotlightifyContext", () => {
           result.current?.actions.batchActions([
             { type: "SET_PROMPT_INPUT", payload: "test input" },
             {
-              type: "PUSH_COMMAND",
+              type: "SET_ACTIVE_COMMAND",
               payload: { command },
             },
             { type: "SET_SUGGESTION_LIST", payload: suggestions },
@@ -605,7 +581,7 @@ describe("SpotlightifyContext", () => {
         );
 
         act(() => {
-          result.current?.actions.pushCommand(command);
+          result.current?.actions.setActiveCommand(command);
         });
 
         const previousStack = result.current?.state.commandStack;
@@ -711,7 +687,7 @@ describe("SpotlightifyContext", () => {
 
       expect(result.current?.actions).toBeDefined();
       expect(typeof result.current?.actions.setPromptInput).toBe("function");
-      expect(typeof result.current?.actions.pushCommand).toBe("function");
+      expect(typeof result.current?.actions.setActiveCommand).toBe("function");
       expect(typeof result.current?.actions.popCommand).toBe("function");
       expect(typeof result.current?.actions.clearCommands).toBe("function");
       expect(typeof result.current?.actions.resetPrompt).toBe("function");
@@ -756,9 +732,9 @@ describe("SpotlightifyContext", () => {
 
       act(() => {
         result.current?.actions.setPromptInput("input1");
-        result.current?.actions.pushCommand(command1);
+        result.current?.actions.setActiveCommand(command1);
         result.current?.actions.setPromptInput("input2");
-        result.current?.actions.pushCommand(command2);
+        result.current?.actions.setActiveCommand(command2);
         result.current?.actions.setSuggestionList(suggestions);
         result.current?.actions.setPlaceholderText("Final placeholder");
       });

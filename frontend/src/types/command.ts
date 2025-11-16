@@ -63,10 +63,6 @@ export type Action =
   | { type: "SET_PROMPT_INPUT"; payload: string }
   | { type: "POP_COMMAND"; payload?: PopCommandPayload }
   | {
-      type: "PUSH_COMMAND";
-      payload: { command: Command; options?: CommandOptions };
-    }
-  | {
       type: "SET_ACTIVE_COMMAND";
       payload: { command: Command; options?: CommandOptions };
     }
@@ -86,7 +82,6 @@ export type Action =
 export interface SpotlightifyActions {
   setPromptInput: (input: string) => void;
   popCommand: (payload?: PopCommandPayload) => void;
-  pushCommand: (command: Command, options?: CommandOptions) => void;
   setActiveCommand: (command: Command, options?: CommandOptions) => void;
   replaceActiveCommand: (command: Command, options?: CommandOptions) => void;
   clearCommands: () => void;

@@ -43,7 +43,7 @@ function spotlightifyReducer(
         promptInput: oldPromptInput,
       };
     }
-    case "PUSH_COMMAND":
+    // SET_ACTIVE_COMMAND pushes a new command to the top of the commandStack
     case "SET_ACTIVE_COMMAND": {
       const pushedCommandHistory = [
         ...state.commandStack,
@@ -68,7 +68,7 @@ function spotlightifyReducer(
     }
     case "REPLACE_ACTIVE_COMMAND": {
       if (state.commandStack.length === 0) {
-        // No active command, so push a new one (similar to PUSH_COMMAND logic)
+        // No active command, so push a new one (similar to SET_ACTIVE_COMMAND logic)
         const pushedCommandHistory = [
           {
             command: action.payload.command,
@@ -171,11 +171,6 @@ export const SpotlightifyProvider = ({
         dispatch({
           type: "POP_COMMAND",
           payload: payload ?? { restorePromptInput: true },
-        }),
-      pushCommand: (command, options?) =>
-        dispatch({
-          type: "PUSH_COMMAND",
-          payload: { command, options },
         }),
       setActiveCommand: (command, options?) =>
         dispatch({
