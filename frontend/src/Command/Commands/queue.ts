@@ -19,7 +19,7 @@ import {
 
 class PlayCommand extends BaseCommand {
   constructor() {
-    super("queue", "Queue", "Q", 300, "queue", {});
+    super("queue", "Queue", "➕", 300, "queue", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

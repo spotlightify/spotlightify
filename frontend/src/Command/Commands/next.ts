@@ -6,7 +6,7 @@ import {executePlaybackAction} from "./utils";
 
 class NextCommand extends BaseCommand {
   constructor() {
-    super("next", "Next", "next", 0, "next", {});
+    super("next", "Next", "⏭️", 0, "next", {});
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {

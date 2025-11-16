@@ -12,7 +12,7 @@ class LikeCommand extends BaseCommand {
   private isFetchingDevices: boolean = false;
 
   constructor() {
-    super("like", "Like", "like", 0, "like", {});
+    super("like", "Like", "❤️", 0, "like", {});
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {

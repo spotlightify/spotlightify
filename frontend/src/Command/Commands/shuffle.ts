@@ -1,19 +1,23 @@
-import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
-import {ChangeShuffle, IsShuffled} from "../../../wailsjs/go/backend/Backend";
+import { ChangeShuffle, IsShuffled } from "../../../wailsjs/go/backend/Backend";
 import BaseCommand from "./baseCommand";
-import {QueryClient} from "@tanstack/react-query";
-import {executePlaybackAction} from "./utils";
+import { QueryClient } from "@tanstack/react-query";
+import { executePlaybackAction } from "./utils";
 
 const shuffleKey = "isShuffled";
 
 class ShuffleCommand extends BaseCommand {
   constructor() {
-    super("shuffle", "Shuffle", "shuffle", 0, "shuffle", {});
+    super("shuffle", "Shuffle", "🔀", 0, "shuffle", {});
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({items: []});
+    return Promise.resolve({ items: [] });
   }
 
   async getPlaceholderSuggestion(
@@ -45,7 +49,7 @@ class ShuffleCommand extends BaseCommand {
         await executePlaybackAction({
           playbackAction: async () => {
             await ChangeShuffle(!isShuffled);
-            queryClient.resetQueries({queryKey: [shuffleKey]});
+            queryClient.resetQueries({ queryKey: [shuffleKey] });
           },
           opName: "Toggle Shuffle",
           actions,

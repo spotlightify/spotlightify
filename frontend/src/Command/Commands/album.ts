@@ -19,7 +19,7 @@ import {
 
 class AlbumCommand extends BaseCommand {
   constructor() {
-    super("album", "Album", "album", 400, "album", {});
+    super("album", "Album", "💿", 400, "album", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

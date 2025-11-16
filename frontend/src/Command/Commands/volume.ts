@@ -9,7 +9,7 @@ const VolumeQueryKey = "volume";
 
 class VolumeCommand extends BaseCommand {
   constructor() {
-    super("volume", "Set Volume", "volume", 1, "volume <level>", {
+    super("volume", "Set Volume", "🔊", 1, "volume <level>", {
       level: "The volume level (0-100)",
     });
   }

@@ -9,7 +9,7 @@ import { GetVersion } from "../../../wailsjs/go/backend/Backend";
 
 class VersionCommand extends BaseCommand {
   constructor() {
-    super("version", "Version", "v", 500, "version", {});
+    super("version", "Version", "ℹ️", 500, "version", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

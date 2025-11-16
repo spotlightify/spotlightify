@@ -1,13 +1,17 @@
 import BaseCommand from "./baseCommand";
-import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
-import {HandleError} from "./utils";
-import {SetDisableHide} from "../../../wailsjs/go/backend/Backend";
-import {DeveloperOptions} from "../../context/SpotlightifyContext";
+import { HandleError } from "./utils";
+import { SetDisableHide } from "../../../wailsjs/go/backend/Backend";
+import { DeveloperOptions } from "../../context/SpotlightifyContext";
 
 class DeveloperCommand extends BaseCommand {
   constructor() {
-    super("dev", "Developer Options", "dev", 0, "dev", {});
+    super("dev", "Developer Options", "⚙️", 0, "dev", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -40,7 +44,6 @@ class DeveloperCommand extends BaseCommand {
           action: async (actions) => {
             try {
               disableHide = !disableHide;
-              console.log("disableHide", disableHide);
               SetDisableHide(disableHide);
 
               // Update the developer options in the application state

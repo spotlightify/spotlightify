@@ -21,7 +21,7 @@ class AuthenticateCommand extends BaseCommand {
   private firstTime: boolean = false;
 
   constructor(firstTime?: boolean) {
-    super("auth", "Authenticate", "Auth", 0, "authenticate", {});
+    super("auth", "Authenticate", "🔐", 0, "authenticate", {});
     this.firstTime = firstTime ?? false;
   }
 

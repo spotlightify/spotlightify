@@ -15,7 +15,7 @@ import { spotify } from "../../../wailsjs/go/models";
 
 class PodcastCommand extends BaseCommand {
   constructor() {
-    super("podcast", "Podcast", "podcast", 400, "podcast", {});
+    super("podcast", "Podcast", "🎙️", 400, "podcast", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

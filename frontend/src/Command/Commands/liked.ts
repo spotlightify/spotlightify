@@ -6,7 +6,7 @@ import {executePlaybackAction} from "./utils";
 
 class PlayLikedSongs extends BaseCommand {
   constructor() {
-    super("liked_songs", "Liked", "liked", 0, "liked songs", {});
+    super("liked_songs", "Liked", "💚", 0, "liked songs", {});
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {

@@ -1,8 +1,12 @@
 import BaseCommand from "./baseCommand";
-import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
-import {Seek} from "../../../wailsjs/go/backend/Backend";
-import {executePlaybackAction} from "./utils";
+import { Seek } from "../../../wailsjs/go/backend/Backend";
+import { executePlaybackAction } from "./utils";
 
 const second = 1000;
 const minute = 60 * second;
@@ -56,7 +60,7 @@ function processTime(time: string): number {
 
 class SeekCommand extends BaseCommand {
   constructor() {
-    super("seek", "Seek", "seek", 1, "seek", {});
+    super("seek", "Seek", "⏩", 1, "seek", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
@@ -75,7 +79,7 @@ class SeekCommand extends BaseCommand {
     };
   }
 
-  async getSuggestions({input}: SuggestionsParams): Promise<SuggestionList> {
+  async getSuggestions({ input }: SuggestionsParams): Promise<SuggestionList> {
     const location = input.trim();
     let timeMS = 0;
     try {

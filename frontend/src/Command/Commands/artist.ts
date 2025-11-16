@@ -15,7 +15,7 @@ import { executePlaybackAction, getSafeImageUrl } from "./utils";
 
 class ArtistCommand extends BaseCommand {
   constructor() {
-    super("artist", "Artist", "artist", 400, "artist", {});
+    super("artist", "Artist", "🎤", 400, "artist", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

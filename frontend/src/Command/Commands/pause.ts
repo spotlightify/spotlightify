@@ -1,16 +1,20 @@
 import BaseCommand from "./baseCommand";
-import {Suggestion, SuggestionList, SuggestionsParams,} from "../../types/command";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../types/command";
 import Icon from "../../types/icons";
-import {Pause} from "../../../wailsjs/go/backend/Backend";
-import {executePlaybackAction} from "./utils";
+import { Pause } from "../../../wailsjs/go/backend/Backend";
+import { executePlaybackAction } from "./utils";
 
 class PauseCommand extends BaseCommand {
   constructor() {
-    super("pause", "Pause", "pause", 0, "pause", {});
+    super("pause", "Pause", "⏸️", 0, "pause", {});
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {
-    return Promise.resolve({items: []});
+    return Promise.resolve({ items: [] });
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

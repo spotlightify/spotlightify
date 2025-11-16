@@ -7,7 +7,7 @@ import {Quit} from "../../../wailsjs/runtime/runtime";
 
 class ExitCommand extends BaseCommand {
   constructor() {
-    super("exit", "Exit", "exit", 0, "exit", {});
+    super("exit", "Exit", "🚪", 0, "exit", {});
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {

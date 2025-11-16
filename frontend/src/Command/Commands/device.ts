@@ -13,7 +13,7 @@ class DeviceCommand extends BaseCommand {
   constructor(
     afterDeviceSelectedCallback?: () => void
   ) {
-    super("device", "Device", "device", 400, "device", {});
+    super("device", "Device", "📱", 400, "device", {});
     this.afterDeviceSelectedCallback =
       afterDeviceSelectedCallback ?? (() => {
       });

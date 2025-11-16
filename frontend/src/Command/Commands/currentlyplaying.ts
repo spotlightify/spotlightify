@@ -15,7 +15,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
     super(
       "currentlyplaying",
       "Currently Playing",
-      "currentlyplaying",
+      "🎵",
       0,
       "currentlyplaying",
       {}
