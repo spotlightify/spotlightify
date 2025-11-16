@@ -121,7 +121,10 @@ function spotlightifyReducer(
         ...activeCommand,
         options: {
           ...activeCommand.options,
-          parameters: action.payload,
+          parameters: {
+            ...(activeCommand.options?.parameters ?? {}),
+            ...action.payload,
+          },
         },
       };
       return {
