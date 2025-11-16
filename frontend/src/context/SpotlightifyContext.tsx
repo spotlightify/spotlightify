@@ -91,6 +91,7 @@ function spotlightifyReducer(
         return {
           ...state,
           commandStack: newCommandStack,
+          placeholderText: action.payload.options?.placeholderText ?? "",
         };
       }
     }
