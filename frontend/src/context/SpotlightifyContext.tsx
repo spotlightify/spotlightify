@@ -1,9 +1,7 @@
-import React from "react";
-import { createContext, useReducer, useMemo } from "react";
+import React, { createContext, useReducer, useMemo } from "react";
 import {
   Action,
   CommandStateItem,
-  CommandOptions,
   SpotlightifyActions,
   SuggestionList,
   PopCommandPayload,
@@ -18,7 +16,6 @@ export interface SpotlightifyState {
   promptInput: string;
   commandStack: CommandStateItem[];
   suggestions: SuggestionList;
-  errorOccurred: boolean;
   placeholderText: string;
   developerOptions: DeveloperOptions;
 }
@@ -46,28 +43,7 @@ function spotlightifyReducer(
         promptInput: oldPromptInput,
       };
     }
-    case "PUSH_COMMAND": {
-      const pushedCommandHistory = [
-        ...state.commandStack,
-        {
-          command: action.payload.command,
-          options: action.payload.options || {},
-        },
-      ];
-      if (pushedCommandHistory.length > 1) {
-        const lastCommand =
-          pushedCommandHistory[pushedCommandHistory.length - 2];
-        if (lastCommand && lastCommand.options) {
-          lastCommand.options.promptInput = state.promptInput;
-        }
-      }
-      return {
-        ...state,
-        promptInput: "",
-        placeholderText: action.payload.options?.placeholderText ?? "",
-        commandStack: pushedCommandHistory,
-      };
-    }
+    case "PUSH_COMMAND":
     case "SET_ACTIVE_COMMAND": {
       const pushedCommandHistory = [
         ...state.commandStack,
@@ -139,12 +115,14 @@ function spotlightifyReducer(
       if (!activeCommand) {
         return state;
       }
-      const newActiveCommandOptions = {
-        parameters: action.payload,
-      } as CommandOptions;
       const newCommandStack = [...state.commandStack];
-      newCommandStack[newCommandStack.length - 1].options =
-        newActiveCommandOptions;
+      newCommandStack[newCommandStack.length - 1] = {
+        ...activeCommand,
+        options: {
+          ...activeCommand.options,
+          parameters: action.payload,
+        },
+      };
       return {
         ...state,
         commandStack: newCommandStack,
@@ -178,7 +156,6 @@ export const SpotlightifyProvider = ({
     promptInput: "",
     commandStack: [],
     suggestions: { items: [] },
-    errorOccurred: false,
     placeholderText: "Spotlightify Search",
     developerOptions: {
       disableHide: false,
