@@ -61,7 +61,7 @@ function spotlightifyReducer(
       }
       return {
         ...state,
-        promptInput: "",
+        promptInput: action.payload.options?.promptInput ?? "",
         placeholderText: action.payload.options?.placeholderText ?? "",
         commandStack: pushedCommandHistory,
       };
@@ -77,7 +77,7 @@ function spotlightifyReducer(
         ];
         return {
           ...state,
-          promptInput: "",
+          promptInput: action.payload.options?.promptInput ?? "",
           placeholderText: action.payload.options?.placeholderText ?? "",
           commandStack: pushedCommandHistory,
         };

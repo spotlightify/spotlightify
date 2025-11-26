@@ -49,17 +49,17 @@ class AuthenticateCommand extends BaseCommand {
       action: async (actions) => {
         actions.batchActions([
           {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Enter Client ID",
-          },
-          {
             type: "SET_ACTIVE_COMMAND",
             payload: {
               command: new ClientIDCommand(),
-              options: { keepPromptOpen: true, lockCommandStack: true },
+              options: {
+                keepPromptOpen: true,
+                lockCommandStack: true,
+                promptInput: !isClientIDSet ? "" : clientID,
+                placeholderText: "Enter Client ID",
+              },
             },
           },
-          { type: "SET_PROMPT_INPUT", payload: !isClientIDSet ? "" : clientID },
         ]);
         return Promise.resolve();
       },
@@ -78,18 +78,15 @@ class AuthenticateCommand extends BaseCommand {
       action: async (actions) => {
         actions.batchActions([
           {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Enter Client Secret",
-          },
-          {
-            type: "SET_PROMPT_INPUT",
-            payload: !isClientSecretSet ? "" : clientSecret,
-          },
-          {
             type: "SET_ACTIVE_COMMAND",
             payload: {
               command: new ClientSecretCommand(),
-              options: { keepPromptOpen: true, lockCommandStack: true },
+              options: {
+                keepPromptOpen: true,
+                lockCommandStack: true,
+                promptInput: !isClientSecretSet ? "" : clientSecret,
+                placeholderText: "Enter Client Secret",
+              },
             },
           },
         ]);
@@ -163,14 +160,16 @@ class AuthenticateCommand extends BaseCommand {
       action: async (actions) => {
         actions.batchActions([
           {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Authenticate with Spotify",
-          },
-          {
             type: "SET_ACTIVE_COMMAND",
-            payload: { command: this, options: { keepPromptOpen: true } },
+            payload: {
+              command: this,
+              options: {
+                keepPromptOpen: true,
+                promptInput: "",
+                placeholderText: "Authenticate with Spotify",
+              },
+            },
           },
-          { type: "SET_PROMPT_INPUT", payload: "" },
         ]);
         return Promise.resolve();
       },

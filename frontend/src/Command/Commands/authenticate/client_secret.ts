@@ -27,14 +27,7 @@ class ClientSecretCommand extends BaseCommand {
       id: "open-instructions",
       action: async (actions) => {
         AddClientSecret(input);
-        actions.batchActions([
-          {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Authenticate with Spotify",
-          },
-          { type: "POP_COMMAND" },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.batchActions([{ type: "POP_COMMAND" }]);
       },
     };
 
@@ -44,14 +37,7 @@ class ClientSecretCommand extends BaseCommand {
       icon: Icon.BackNav,
       id: "back-client-secret",
       action: async (actions) => {
-        actions.batchActions([
-          {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Authenticate with Spotify",
-          },
-          { type: "POP_COMMAND" },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
+        actions.batchActions([{ type: "POP_COMMAND" }]);
       },
     };
 
@@ -61,26 +47,13 @@ class ClientSecretCommand extends BaseCommand {
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {
-    return {
-      title: "Authenticate",
-      description: "Authenticate with Spotify",
-      icon: Icon.SpotifyLogo,
+    // This function is never called but required for interface implementation
+    return Promise.resolve({
+      title: "",
+      description: "",
+      icon: "",
       id: this.id,
-      action: async (actions) => {
-        actions.batchActions([
-          {
-            type: "SET_PLACEHOLDER_TEXT",
-            payload: "Authenticate with Spotify",
-          },
-          {
-            type: "SET_ACTIVE_COMMAND",
-            payload: { command: this, options: { keepPromptOpen: true } },
-          },
-          { type: "SET_PROMPT_INPUT", payload: "" },
-        ]);
-        return Promise.resolve();
-      },
-    };
+    });
   }
 }
 
