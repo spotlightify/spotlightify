@@ -99,7 +99,7 @@ export async function HandleError({
       icon: Icon.BackNav,
       id: `${opName}-dismiss`,
       action: async (actions) => {
-        actions.resetPrompt();
+        actions.popCommand({ restorePromptInput: true });
         return Promise.resolve();
       },
     },
