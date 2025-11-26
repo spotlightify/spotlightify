@@ -5,11 +5,15 @@ import {
   GetClientSecret,
   HideWindow,
 } from "../../../../wailsjs/go/backend/Backend";
-import {BrowserOpenURL, Quit} from "../../../../wailsjs/runtime/runtime";
-import {Suggestion, SuggestionList, SuggestionsParams,} from "../../../types/command";
+import { BrowserOpenURL, Quit } from "../../../../wailsjs/runtime/runtime";
+import {
+  Suggestion,
+  SuggestionList,
+  SuggestionsParams,
+} from "../../../types/command";
 import Icon from "../../../types/icons";
 import BaseCommand from "../baseCommand";
-import {HandleError} from "../utils";
+import { HandleError } from "../utils";
 import ClientIDCommand from "./client_id";
 import ClientSecretCommand from "./client_secret";
 
@@ -17,7 +21,7 @@ class AuthenticateCommand extends BaseCommand {
   private firstTime: boolean = false;
 
   constructor(firstTime?: boolean) {
-    super("auth", "Authenticate", "Auth", 0, "authenticate", {});
+    super("auth", "Authenticate", "🔐", 0, "authenticate", {});
     this.firstTime = firstTime ?? false;
   }
 
@@ -49,13 +53,13 @@ class AuthenticateCommand extends BaseCommand {
             payload: "Enter Client ID",
           },
           {
-            type: "PUSH_COMMAND",
+            type: "SET_ACTIVE_COMMAND",
             payload: {
               command: new ClientIDCommand(),
-              options: {keepPromptOpen: true, lockCommandStack: true},
+              options: { keepPromptOpen: true, lockCommandStack: true },
             },
           },
-          {type: "SET_PROMPT_INPUT", payload: !isClientIDSet ? "" : clientID},
+          { type: "SET_PROMPT_INPUT", payload: !isClientIDSet ? "" : clientID },
         ]);
         return Promise.resolve();
       },
@@ -82,10 +86,10 @@ class AuthenticateCommand extends BaseCommand {
             payload: !isClientSecretSet ? "" : clientSecret,
           },
           {
-            type: "PUSH_COMMAND",
+            type: "SET_ACTIVE_COMMAND",
             payload: {
               command: new ClientSecretCommand(),
-              options: {keepPromptOpen: true, lockCommandStack: true},
+              options: { keepPromptOpen: true, lockCommandStack: true },
             },
           },
         ]);
@@ -119,7 +123,6 @@ class AuthenticateCommand extends BaseCommand {
       authenticateSuggestion,
     ];
 
-    console.log("firstTime", this.firstTime);
     if (this.firstTime) {
       const exitSuggestion: Suggestion = {
         title: "Exit",
@@ -165,9 +168,9 @@ class AuthenticateCommand extends BaseCommand {
           },
           {
             type: "SET_ACTIVE_COMMAND",
-            payload: {command: this, options: {keepPromptOpen: true}},
+            payload: { command: this, options: { keepPromptOpen: true } },
           },
-          {type: "SET_PROMPT_INPUT", payload: ""},
+          { type: "SET_PROMPT_INPUT", payload: "" },
         ]);
         return Promise.resolve();
       },

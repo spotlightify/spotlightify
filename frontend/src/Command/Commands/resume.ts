@@ -6,7 +6,7 @@ import {executePlaybackAction} from "./utils";
 
 class ResumeCommand extends BaseCommand {
   constructor() {
-    super("resume", "Resume", "resume", 0, "resume", {});
+    super("resume", "Resume", "▶️", 0, "resume", {});
   }
 
   async getSuggestions(_params: SuggestionsParams): Promise<SuggestionList> {

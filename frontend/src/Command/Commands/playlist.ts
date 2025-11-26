@@ -15,7 +15,7 @@ import { executePlaybackAction, getSafeImageUrl } from "./utils";
 
 class PlaylistCommand extends BaseCommand {
   constructor() {
-    super("playlist", "Playlist", "playlist", 400, "playlist", {});
+    super("playlist", "Playlist", "📝", 400, "playlist", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

@@ -19,7 +19,7 @@ import {
 
 class PlayCommand extends BaseCommand {
   constructor() {
-    super("play", "Play", "play", 400, "play", {});
+    super("play", "Play", "🎵", 400, "play", {});
   }
 
   async getPlaceholderSuggestion(): Promise<Suggestion> {

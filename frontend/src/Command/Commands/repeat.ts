@@ -9,7 +9,7 @@ const repeatKey = "isShuffled";
 
 class RepeatCommand extends BaseCommand {
   constructor() {
-    super("repeat", "Repeat", "repeat", 0, "repeat", {});
+    super("repeat", "Repeat", "🔁", 0, "repeat", {});
   }
 
   async getSuggestions({

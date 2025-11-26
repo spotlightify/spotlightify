@@ -77,7 +77,7 @@ export async function HandleError({
     callbackRetryAction
   );
   if (specificErrorCommand) {
-    actions.pushCommand(
+    actions.setActiveCommand(
       specificErrorCommand.command,
       specificErrorCommand.options
     );
@@ -105,7 +105,7 @@ export async function HandleError({
     },
   ]);
 
-  actions.pushCommand(errorCommand);
+  actions.setActiveCommand(errorCommand);
   await ShowWindow();
 }
 
