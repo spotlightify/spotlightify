@@ -22,7 +22,7 @@ jobs:
             os: "ubuntu-latest"
           - name: "Spotlightify"
             platform: "windows/amd64"
-            os: "windows-latest"
+            os: "windows-2022" # use windows-2022 as it has NSIS package installed (creates Windows installer)
           - name: "Spotlightify"
             platform: "darwin/universal"
             os: "macos-latest"
