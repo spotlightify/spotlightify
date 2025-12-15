@@ -36,11 +36,16 @@ export interface Suggestion {
   id: string;
   action?: SuggestionAction;
   type?: "action" | "command";
+  options?: OptionsGenerator;
 }
 
 export type SuggestionAction = (
   actions: SpotlightifyActions
 ) => Promise<SuggestionAction | void>;
+
+export type OptionsGenerator = (
+  params: SuggestionsParams
+) => Promise<SuggestionList>;
 
 export interface CommandOptions {
   parameters?: Record<string, string>;
@@ -48,6 +53,7 @@ export interface CommandOptions {
   lockCommandStack?: boolean; // Prevents the command stack from being altered by interaction through the prompt
   promptInput?: string;
   placeholderText?: string;
+  data?: unknown;
 }
 
 export interface PopCommandPayload {

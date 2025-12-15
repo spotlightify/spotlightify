@@ -16,6 +16,7 @@ import {
   executePlaybackAction,
   getSafeImageUrl,
 } from "./utils";
+import { createTrackOptionsGenerator } from "./trackOptions";
 
 class PlayCommand extends BaseCommand {
   constructor() {
@@ -82,6 +83,7 @@ class PlayCommand extends BaseCommand {
           });
           return Promise.resolve();
         },
+        options: createTrackOptionsGenerator(track),
       });
     });
 

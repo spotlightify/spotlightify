@@ -1,23 +1,29 @@
 import React from "react";
 import { Suggestion } from "../../types/command";
 import CommandActionSymbol from "../CommandActionSymbol";
+import Icon from "../../types/icons";
 
 interface SuggestionProps {
   suggestion: Suggestion;
   isFocused: boolean;
-  handleAction: () => void;
+  isShiftHeld: boolean;
+  handleAction: (event?: React.MouseEvent) => void;
 }
 
 function SuggestionElement({
   suggestion,
   isFocused = false,
+  isShiftHeld = false,
   handleAction,
 }: SuggestionProps) {
+  const hasOptions = !!suggestion.options;
+  const showOptionsIcon = isShiftHeld && hasOptions;
+
   return (
     <button
       type="button"
       className={`suggestion-item ${isFocused ? "button--focus" : ""}`}
-      onClick={handleAction}
+      onClick={(e) => handleAction(e)}
     >
       <div className="flex justify-between w-full items-center">
         <div className="flex items-center gap-2 min-w-0 overflow-hidden flex-shrink">
@@ -39,7 +45,18 @@ function SuggestionElement({
             </div>
           </div>
         </div>
-        {suggestion.type && <CommandActionSymbol type={suggestion.type} />}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {showOptionsIcon && (
+            <div className="suggestion-item__icon-wrapper flex-shrink-0">
+              <img
+                className="suggestion-item__icon--svg"
+                src={Icon.Ellipsis}
+                alt="options"
+              />
+            </div>
+          )}
+          {suggestion.type && <CommandActionSymbol type={suggestion.type} />}
+        </div>
       </div>
     </button>
   );

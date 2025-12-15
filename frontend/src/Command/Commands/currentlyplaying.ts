@@ -3,12 +3,12 @@ import {
   SuggestionList,
   SuggestionsParams,
 } from "../../types/command";
-import { ClipboardSetText } from "../../../wailsjs/runtime";
 import Icon from "../../types/icons";
 import { GetCurrentlyPlayingTrack } from "../../../wailsjs/go/backend/Backend";
-import { CombinedArtistsString, HandleError, getSafeImageUrl } from "./utils";
+import { CombinedArtistsString, getSafeImageUrl } from "./utils";
 import BaseCommand from "./baseCommand";
 import { backend } from "../../../wailsjs/go/models";
+import { createTrackOptionsGenerator } from "./trackOptions";
 
 class CurrentlyPlayingCommand extends BaseCommand {
   constructor() {
@@ -41,6 +41,7 @@ class CurrentlyPlayingCommand extends BaseCommand {
   async getSuggestions({
     parameters,
     queryClient,
+    state,
   }: SuggestionsParams): Promise<SuggestionList> {
     const suggestions = [] as Suggestion[];
 
@@ -72,36 +73,14 @@ class CurrentlyPlayingCommand extends BaseCommand {
     }
 
     const track = currentlyPlaying.item;
-    suggestions.push({
-      title: track.name,
-      description: CombinedArtistsString(track.artists),
-      icon: getSafeImageUrl(track.album.images, 2, Icon.Track),
-      id: track.id,
-    });
+    const optionsGenerator = createTrackOptionsGenerator(currentlyPlaying.item);
+    const optionSuggestions = await optionsGenerator({
+      parameters,
+      queryClient,
+      state,
+    } as SuggestionsParams);
 
-    const isShared = parameters.shared === "true";
-    suggestions.push({
-      title: `Share ${isShared ? "- Copied to Clipboard!" : ""}`,
-      description: "Copy track URL to clipboard",
-      icon: Icon.Share,
-      id: "share",
-      action: async (actions) => {
-        try {
-          const trackUrl = track.external_urls.spotify;
-          if (!trackUrl) {
-            throw new Error("No Spotify URL available for this track");
-          }
-          await ClipboardSetText(trackUrl);
-          actions.setCurrentCommandParameters({ shared: "true" });
-        } catch (e) {
-          await HandleError({
-            opName: "Copy to clipboard",
-            error: e,
-            actions: actions,
-          });
-        }
-      },
-    });
+    suggestions.push(...optionSuggestions.items);
 
     return { items: suggestions };
   }

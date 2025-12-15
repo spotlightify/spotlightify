@@ -2,6 +2,8 @@ import React from "react";
 import { useEffect, useRef, useState } from "react";
 import SuggestionElement from "./SuggestionElement";
 import { Suggestion, SuggestionAction } from "../../types/command";
+import { useSpotlightify } from "../../hooks/useSpotlightify";
+import OptionsCommand from "../../Command/Commands/options";
 
 interface SuggestionContainerProps {
   suggestions: Suggestion[];
@@ -18,6 +20,7 @@ function SuggestionsContainer({
   suggestions,
   actionHandler,
 }: SuggestionContainerProps) {
+  const { actions } = useSpotlightify();
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const [visibleSuggestions, setVisibleSuggestions] =
     useState<VisibleSuggestions>({
@@ -26,6 +29,7 @@ function SuggestionsContainer({
       focusedIndex: 0,
     });
   const previousSuggestionIdsRef = useRef<string[]>([]);
+  const [isShiftHeld, setIsShiftHeld] = useState(false);
 
   useEffect(() => {
     const currentSuggestionIds = suggestions.map((s) => s.id);
@@ -52,6 +56,28 @@ function SuggestionsContainer({
       suggestionsRef.current.scrollTop = 58 * visibleSuggestions.startIndex;
     }
   }, [visibleSuggestions.focusedIndex]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        setIsShiftHeld(true);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        setIsShiftHeld(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
 
   useEffect(() => {
     const moveFocusedIndex = (direction: "up" | "down") => {
@@ -101,9 +127,18 @@ function SuggestionsContainer({
         moveFocusedIndex("up");
       }
       if (event.key === "Enter" && suggestions.length > 0) {
-        const action = suggestions[visibleSuggestions.focusedIndex].action;
-        if (action) {
-          actionHandler(action);
+        const focusedSuggestion = suggestions[visibleSuggestions.focusedIndex];
+        if (event.shiftKey && focusedSuggestion.options) {
+          // Push OptionsCommand with the suggestion's options
+          actions.setActiveCommand(new OptionsCommand(), {
+            data: focusedSuggestion.options,
+            placeholderText: `Options for ${focusedSuggestion.title}`,
+          });
+        } else {
+          const action = focusedSuggestion.action;
+          if (action) {
+            actionHandler(action);
+          }
         }
       }
     };
@@ -113,18 +148,32 @@ function SuggestionsContainer({
 
     // Remove the event listener on cleanup
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [actionHandler, visibleSuggestions.focusedIndex, suggestions]);
+  }, [actionHandler, visibleSuggestions.focusedIndex, suggestions, actions]);
+
+  const handleSuggestionClick = (
+    suggestion: Suggestion,
+    event?: React.MouseEvent
+  ) => {
+    if (event?.shiftKey && suggestion.options) {
+      // Push OptionsCommand with the suggestion's options
+      actions.setActiveCommand(new OptionsCommand(), {
+        data: suggestion.options,
+        placeholderText: `Options for ${suggestion.title}`,
+      });
+    } else {
+      if (suggestion.action) {
+        actionHandler(suggestion.action);
+      }
+    }
+  };
 
   const suggestionElements = suggestions.map((suggestion, index) => (
     <SuggestionElement
       key={suggestion.id}
       suggestion={suggestion}
       isFocused={index === visibleSuggestions.focusedIndex}
-      handleAction={() => {
-        if (suggestion.action) {
-          actionHandler(suggestion.action);
-        }
-      }}
+      isShiftHeld={isShiftHeld}
+      handleAction={(event) => handleSuggestionClick(suggestion, event)}
     />
   ));
 
