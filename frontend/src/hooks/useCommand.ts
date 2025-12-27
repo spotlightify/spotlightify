@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useSpotlightify } from "./useSpotlightify";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Suggestion } from "../types/command";
 import { CommandRegistry } from "../Command/registery";
 import PlayCommand from "../Command/Commands/play";
 import PauseCommand from "../Command/Commands/pause";
@@ -30,6 +31,52 @@ import { getActiveCommandItem } from "../utils";
 
 interface UseCommandProps {
   debouncedInput: string;
+}
+
+function useAsyncSuggestionLoader(suggestions: Suggestion[]) {
+  const { actions } = useSpotlightify();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const loadersToRun = suggestions.filter(
+      (s) => s.asyncLoader && s.isLoading !== false
+    );
+
+    loadersToRun.forEach((suggestion) => {
+      queryClient.fetchQuery({
+        queryKey: ["suggestion-async", suggestion.id],
+        queryFn: async ({ signal }) => {
+          try {
+            const updates = await suggestion.asyncLoader!({
+              queryClient,
+              signal,
+            });
+
+            actions.updateSuggestion(suggestion.id, {
+              ...updates,
+              isLoading: false,
+            });
+
+            return updates;
+          } catch (error) {
+            actions.updateSuggestion(suggestion.id, {
+              isLoading: false,
+            });
+            throw error;
+          }
+        },
+        staleTime: 30000,
+      });
+    });
+
+    return () => {
+      loadersToRun.forEach((suggestion) => {
+        queryClient.cancelQueries({
+          queryKey: ["suggestion-async", suggestion.id],
+        });
+      });
+    };
+  }, [suggestions, actions, queryClient]);
 }
 
 function useCommand({ debouncedInput }: UseCommandProps) {
@@ -137,6 +184,8 @@ function useCommand({ debouncedInput }: UseCommandProps) {
     ],
     queryFn: () => getSuggestions(),
   });
+
+  useAsyncSuggestionLoader(state.suggestions.items);
 
   useEffect(() => {
     if (data) {

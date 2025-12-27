@@ -37,6 +37,9 @@ export interface Suggestion {
   action?: SuggestionAction;
   type?: "action" | "command";
   options?: OptionsGenerator;
+  asyncLoader?: AsyncSuggestionLoader;
+  isLoading?: boolean;
+  loadingText?: string;
 }
 
 export type SuggestionAction = (
@@ -46,6 +49,11 @@ export type SuggestionAction = (
 export type OptionsGenerator = (
   params: SuggestionsParams
 ) => Promise<SuggestionList>;
+
+export type AsyncSuggestionLoader = (params: {
+  queryClient: QueryClient;
+  signal?: AbortSignal;
+}) => Promise<Partial<Suggestion>>;
 
 export interface CommandOptions {
   parameters?: Record<string, string>;
@@ -78,6 +86,7 @@ export type Action =
     }
   | { type: "CLEAR_COMMANDS" }
   | { type: "SET_SUGGESTION_LIST"; payload: SuggestionList }
+  | { type: "UPDATE_SUGGESTION"; payload: { id: string; updates: Partial<Suggestion> } }
   | { type: "SET_PLACEHOLDER_TEXT"; payload: string }
   | { type: "RESET_PROMPT" }
   | { type: "SET_CURRENT_COMMAND_PARAMETERS"; payload: Record<string, string> }
@@ -92,6 +101,7 @@ export interface SpotlightifyActions {
   replaceActiveCommand: (command: Command, options?: CommandOptions) => void;
   clearCommands: () => void;
   setSuggestionList: (suggestions: SuggestionList) => void;
+  updateSuggestion: (id: string, updates: Partial<Suggestion>) => void;
   setCurrentCommandParameters: (params: Record<string, string>) => void;
   setPlaceholderText: (text: string) => void;
   resetPrompt: () => void;

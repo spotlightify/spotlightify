@@ -19,10 +19,16 @@ function SuggestionElement({
   const hasOptions = !!suggestion.options;
   const showOptionsIcon = isShiftHeld && hasOptions;
 
+  const displayDescription = suggestion.isLoading
+    ? (suggestion.loadingText || suggestion.description)
+    : suggestion.description;
+
   return (
     <button
       type="button"
-      className={`suggestion-item ${isFocused ? "button--focus" : ""}`}
+      className={`suggestion-item ${isFocused ? "button--focus" : ""} ${
+        suggestion.isLoading ? "suggestion-item--loading" : ""
+      }`}
       onClick={(e) => handleAction(e)}
     >
       <div className="flex justify-between w-full items-center">
@@ -31,7 +37,7 @@ function SuggestionElement({
             <img
               className={`suggestion-item__icon${
                 suggestion.icon?.endsWith(".svg") ? "--svg" : ""
-              }`}
+              }${suggestion.isLoading ? " opacity-50" : ""}`}
               src={suggestion.icon}
               alt="icon"
             />
@@ -40,8 +46,10 @@ function SuggestionElement({
             <div className="suggestion-item__title truncate">
               {suggestion.title}
             </div>
-            <div className="suggestion-item__description break-words whitespace-normal text-xs leading-tight">
-              {suggestion.description}
+            <div className={`suggestion-item__description break-words whitespace-normal text-xs leading-tight${
+              suggestion.isLoading ? " text-gray-400 italic" : ""
+            }`}>
+              {displayDescription}
             </div>
           </div>
         </div>

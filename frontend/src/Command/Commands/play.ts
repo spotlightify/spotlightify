@@ -84,6 +84,29 @@ class PlayCommand extends BaseCommand {
           return Promise.resolve();
         },
         options: createTrackOptionsGenerator(track),
+
+        // Example: Progressive loading with asyncLoader
+        // Uncomment to enable async loading of higher quality album art:
+        isLoading: true,
+        loadingText: "Loading album art...",
+        asyncLoader: async ({ queryClient }) => {
+          // Fetch higher quality album art or additional track details
+          const highResIcon = getSafeImageUrl(
+            track.album.images,
+            0,
+            icons.Track
+          );
+
+          // Simulate async operation (in real use, this could fetch from API)
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          return {
+            icon: highResIcon,
+            description: `${CombinedArtistsString(track.artists)} • ${
+              track.album.name
+            }`,
+          };
+        },
       });
     });
 

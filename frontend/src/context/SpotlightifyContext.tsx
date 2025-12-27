@@ -100,6 +100,17 @@ function spotlightifyReducer(
       return { ...state, commandStack: [] };
     case "SET_SUGGESTION_LIST":
       return { ...state, suggestions: action.payload };
+    case "UPDATE_SUGGESTION": {
+      const updatedItems = state.suggestions.items.map((suggestion) =>
+        suggestion.id === action.payload.id
+          ? { ...suggestion, ...action.payload.updates }
+          : suggestion
+      );
+      return {
+        ...state,
+        suggestions: { ...state.suggestions, items: updatedItems },
+      };
+    }
     case "SET_PLACEHOLDER_TEXT":
       return { ...state, placeholderText: action.payload };
     case "RESET_PROMPT":
@@ -189,6 +200,8 @@ export const SpotlightifyProvider = ({
       clearCommands: () => dispatch({ type: "CLEAR_COMMANDS" }),
       setSuggestionList: (suggestions) =>
         dispatch({ type: "SET_SUGGESTION_LIST", payload: suggestions }),
+      updateSuggestion: (id, updates) =>
+        dispatch({ type: "UPDATE_SUGGESTION", payload: { id, updates } }),
       setCurrentCommandParameters: (params) =>
         dispatch({ type: "SET_CURRENT_COMMAND_PARAMETERS", payload: params }),
       setPlaceholderText: (text) =>
